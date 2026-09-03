@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مكتب الهلباوي للمحاماة</title>
+    <style>
+        :root {
+            --bg-dark: #0b0f19;
+            --card-bg: #131c2e;
+            --gold: #d4af37;
+            --gold-light: #f3e5ab;
+            --gold-dark: #aa8c2c;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #2563eb;
+            --danger: #ef4444;
+            --success: #22c55e;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        header.top-bar { background: linear-gradient(135deg, #131c2e, #0b0f19); border-bottom: 2px solid var(--gold); padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; z-index: 20; flex-shrink: 0; }
+        .logo-area { font-size: 1.1rem; font-weight: bold; color: var(--gold); display: flex; align-items: center; gap: 8px; }
+        .trial-badge { background: rgba(212, 175, 55, 0.15); color: var(--gold-light); border: 1px solid var(--gold); padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; }
+        nav.mobile-nav { background: #131c2e; border-top: 1px solid rgba(212,175,55,0.3); display: flex; overflow-x: auto; padding: 8px; gap: 6px; flex-shrink: 0; scrollbar-width: none; }
+        nav.mobile-nav::-webkit-scrollbar { display: none; }
+        .nav-btn { background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; white-space: nowrap; cursor: pointer; transition: 0.3s; }
+        .nav-btn.active, .nav-btn:hover { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #000; font-weight: bold; }
+        .nav-btn.backup-btn { background: rgba(34, 197, 94, 0.2); color: #4ade80; border-color: #22c55e; }
+        main { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .content-body { padding: 12px; overflow-y: auto; flex-grow: 1; }
+        .section-title { font-size: 1.05rem; margin-bottom: 12px; color: var(--gold); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(212,175,55,0.3); padding-bottom: 6px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+        .stat-card { background: var(--card-bg); padding: 10px; border-radius: 10px; border: 1px solid rgba(212,175,55,0.2); border-top: 3px solid var(--gold); text-align: center; }
+        .stat-card h4 { color: var(--text-muted); font-size: 0.7rem; margin-bottom: 4px; }
+        .stat-card .number { font-size: 1.1rem; font-weight: bold; color: var(--gold-light); }
+        .table-container { background: var(--card-bg); border-radius: 10px; overflow-x: auto; border: 1px solid rgba(212,175,55,0.2); }
+        table { width: 100%; border-collapse: collapse; text-align: right; white-space: nowrap; }
+        th, td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; }
+        th { background: #1a263d; color: var(--gold); font-weight: 600; }
+        .btn { padding: 5px 10px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.75rem; font-weight: bold; }
+        .btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #000; }
+        .btn-success { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #22c55e; }
+        .btn-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+        .btn-warning { background: rgba(217, 119, 6, 0.2); color: #fbbf24; border: 1px solid #d97706; }
+        .actions-cell { display: flex; gap: 4px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; margin-bottom: 4px; font-size: 0.8rem; font-weight: bold; color: var(--gold-light); }
+        .form-group input { width: 100%; padding: 8px; background: #0b0f19; border: 1px solid rgba(212,175,55,0.3); color: #fff; border-radius: 8px; font-size: 0.85rem; }
+        @media (min-width: 768px) {
+            body { flex-direction: row; }
+            nav.mobile-nav { display: none; }
+            aside.desktop-sidebar { width: 260px; background: #131c2e; border-left: 2px solid var(--gold); display: flex; flex-direction: column; flex-shrink: 0; height: 100vh; }
+            .sidebar-header { padding: 25px 20px; text-align: center; border-bottom: 1px solid rgba(212,175,55,0.2); }
+            .sidebar-menu { list-style: none; padding: 15px 0; overflow-y: auto; flex-grow: 1; }
+            .sidebar-menu li { padding: 14px 20px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 0.95rem; color: var(--text-muted); transition: 0.3s; }
+            .sidebar-menu li:hover, .sidebar-menu li.active { background: rgba(212,175,55,0.1); color: var(--gold-light); }
+            header.top-bar { display: none; }
+            .content-body { padding: 25px; }
+        }
+    </style>
+</head>
+<body>
+    <aside class="desktop-sidebar" style="display:none;">
+        <div class="sidebar-header">
+            <h1 style="color:var(--gold); font-size:1.3rem;">⚖️ مكتب الهلباوي</h1>
+            <div class="trial-badge" style="margin-top:8px; display:inline-block;">👑 النسخة الملكية</div>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="active" onclick="switchTab('cases', this)"><span>📁</span> القضايا</li>
+            <li onclick="switchTab('new-case', this)"><span>➕</span> إضافة قضية</li>
+            <li onclick="exportBackup()" style="color: #4ade80;"><span>💾</span> نسخة مرجان</li>
+        </ul>
+    </aside>
+    <main>
+        <header class="top-bar">
+            <div class="logo-area"><span>⚖️</span> الهلباوي الملكية</div>
+            <div class="trial-badge">👑 النسخة الذهبية</div>
+        </header>
+        <nav class="mobile-nav">
+            <button class="nav-btn active" onclick="switchTab('cases', this)">📁 القضايا</button>
+            <button class="nav-btn" onclick="switchTab('new-case', this)">➕ إضافة</button>
+            <button class="nav-btn backup-btn" onclick="exportBackup()">💾 مرجان</button>
+        </nav>
+        <div class="content-body">
+            <div id="cases" class="tab-content active">
+                <div class="section-title"><span>📁 القضايا النشطة</span></div>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>#</th><th>الموكل</th><th>القضية</th><th>المحكمة</th><th>الجلسة</th><th>إجراءات</th></tr></thead>
+                        <tbody id="casesTableBody">
+                            <tr><td>1</td><td>جمال</td><td>600/2025</td><td>شبرا</td><td>2026-08-31</td><td class="actions-cell"><button class="btn btn-warning" onclick="editCase(this)">تعديل</button><button class="btn btn-danger" onclick="deleteRow(this)">حذف</button></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="new-case" class="tab-content">
+                <div class="section-title">➕ تسجيل قضية جديدة</div>
+                <div style="background: var(--card-bg); padding: 15px; border-radius: 10px;">
+                    <form onsubmit="addNewCase(event)">
+                        <div class="form-group"><label>الموكل</label><input type="text" id="clientName" required></div>
+                        <div class="form-group"><label>رقم القضية</label><input type="text" id="caseNumber" required></div>
+                        <div class="form-group"><label>المحكمة</label><input type="text" id="courtName" required></div>
+                        <div class="form-group"><label>الجلسة</label><input type="date" id="sessionDate" required></div>
+                        <button type="submit" class="btn btn-primary" style="width:100%; padding:10px; margin-top:5px;">حفظ القضية</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script>
+        if (window.innerWidth >= 768) { document.querySelector('.desktop-sidebar').style.display = 'flex'; }
+        function switchTab(tabId, el) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-btn, .sidebar-menu li').forEach(l => l.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            if(el) el.classList.add('active');
+        }
+        function addNewCase(e) {
+            e.preventDefault();
+            const tbody = document.getElementById('casesTableBody');
+            const row = tbody.insertRow();
+            row.innerHTML = `<td>${tbody.rows.length + 1}</td><td>${document.getElementById('clientName').value}</td><td>${document.getElementById('caseNumber').value}</td><td>${document.getElementById('courtName').value}</td><td>${document.getElementById('sessionDate').value}</td><td class="actions-cell"><button class="btn btn-warning" onclick="editCase(this)">تعديل</button><button class="btn btn-danger" onclick="deleteRow(this)">حذف</button></td>`;
+            alert('تم الحفظ بنجاح');
+            switchTab('cases', document.querySelector('.nav-btn'));
+            e.target.reset();
+        }
+        function deleteRow(btn) { if(confirm('حذف القضية؟')) btn.closest('tr').remove(); }
+        function editCase(btn) {
+            const row = btn.closest('tr');
+            const client = prompt('تعديل اسم الموكل:', row.cells[1].innerText);
+            if(client) row.cells[1].innerText = client;
+        }
+        function exportBackup() {
+            const tbody = document.getElementById('casesTableBody');
+            let casesData = [];
+            for (let row of tbody.rows) {
+                casesData.push({ client: row.cells[1].innerText, caseNum: row.cells[2].innerText, court: row.cells[3].innerText, date: row.cells[4].innerText });
+            }
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ officeName: "مكتب الهلباوي", cases: casesData }, null, 2));
+            const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "مرجان.json");
+            document.body.appendChild(dl); dl.click(); dl.remove();
+            alert('تم حفظ (مرجان.json) في التنزيلات!');
+        }
+    </script>
+</body>
+</html>
