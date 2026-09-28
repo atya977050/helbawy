@@ -994,10 +994,47 @@ class DatabaseEngine:
 
         return "\n\n".join(statements) + "\n"
 
+
 class ProjectGenerator:
 
     def __init__(self, root):
         self.root = Path(root)
+
+    @staticmethod
+    def create_zip(project_path, output_dir=None):
+        import shutil
+        from pathlib import Path
+
+        project_path = Path(project_path).resolve()
+
+        if not project_path.exists() or not project_path.is_dir():
+            raise FileNotFoundError(
+                f"المشروع غير موجود: {project_path}"
+            )
+
+        output_dir = (
+            Path(output_dir).resolve()
+            if output_dir
+            else project_path.parent.resolve()
+        )
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        archive_base = output_dir / project_path.name
+
+        # حذف ZIP سابق لنفس المشروع حتى يكون التسليم الحالي واضحًا.
+        old_zip = archive_base.with_suffix(".zip")
+        if old_zip.exists():
+            old_zip.unlink()
+
+        archive = shutil.make_archive(
+            str(archive_base),
+            "zip",
+            root_dir=project_path.parent,
+            base_dir=project_path.name,
+        )
+
+        return str(Path(archive).resolve())
+
 
     @staticmethod
     def safe_name(text):

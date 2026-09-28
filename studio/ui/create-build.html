@@ -98,6 +98,9 @@ button{
     </div>
 
     <div class="actions" id="actions" style="display:none">
+      <button class="next" id="zipButton" type="button">
+        📦 تجهيز نسخة ZIP
+      </button>
       <button class="back" onclick="location.href='/create/plan'">
         ↩ مراجعة التخطيط
       </button>
@@ -174,10 +177,86 @@ createProject()
         <div class="label">مسار المشروع</div>
         <div class="value">${result.path||"غير متاح"}</div>
       </div>
+
+      <div class="box" style="grid-column:1/-1">
+        <div class="label">📞 التواصل بخصوص التسليم</div>
+        <div class="value">
+          01153747612<br>
+          01149002250
+        </div>
+      </div>
     </div>
   `;
 
   actions.style.display="flex";
+
+  const zipButton=document.getElementById("zipButton");
+
+  zipButton.textContent="🔐 دخول المالك وتجهيز ZIP";
+
+  zipButton.onclick=async()=>{
+    const password=prompt("أدخل كلمة سر المالك:");
+
+    if(password===null){
+      return;
+    }
+
+    if(!password){
+      alert("يجب إدخال كلمة سر المالك.");
+      return;
+    }
+
+    zipButton.disabled=true;
+    zipButton.textContent="🔐 جاري التحقق...";
+
+    try{
+      const loginResponse=await fetch("/api/owner/login",{
+        method:"POST",
+        credentials:"same-origin",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({password})
+      });
+
+      const loginData=await loginResponse.json();
+
+      if(!loginResponse.ok || !loginData.ok){
+        throw new Error(
+          loginData.error||"تعذر تسجيل دخول المالك."
+        );
+      }
+
+      zipButton.textContent="⏳ جاري تجهيز ZIP...";
+
+      const response=await fetch("/api/project/zip",{
+        method:"POST",
+        credentials:"same-origin",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          project_path:result.path
+        })
+      });
+
+      const data=await response.json();
+
+      if(!response.ok || !data.ok){
+        throw new Error(
+          data.error||"تعذر تجهيز نسخة ZIP."
+        );
+      }
+
+      zipButton.disabled=false;
+      zipButton.textContent="⬇️ تنزيل نسخة ZIP للمالك";
+
+      zipButton.onclick=()=>{
+        location.href=data.download;
+      };
+
+    }catch(error){
+      zipButton.disabled=false;
+      zipButton.textContent="🔐 إعادة محاولة دخول المالك";
+      alert(error.message);
+    }
+  };
 })
 .catch(error=>{
   title.textContent="تعذر إنشاء البرنامج";

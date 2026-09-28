@@ -1,3 +1,4 @@
+import urllib.parse
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
@@ -6,6 +7,9 @@ from pathlib import Path
 import json
 import sys
 import os
+import hmac
+import secrets
+import time
 
 ROOT = Path(__file__).resolve().parent.parent
 STUDIO = ROOT / "studio"
@@ -37,6 +41,10 @@ from studio.repair_api import (
 HOST = os.environ.get("HOST", "0.0.0.0")
 PORT = int(os.environ.get("PORT", "8787"))
 
+OWNER_SESSION_TTL = 3600
+OWNER_SESSIONS = {}
+ZIP_ARTIFACTS = {}
+
 
 class Handler(BaseHTTPRequestHandler):
 
@@ -66,6 +74,75 @@ class Handler(BaseHTTPRequestHandler):
 
         self.end_headers()
 
+        self.wfile.write(raw)
+
+
+    def _owner_session_token(self):
+        cookie = self.headers.get("Cookie", "")
+        for part in cookie.split(";"):
+            part = part.strip()
+            if part.startswith("abqaryno_owner_session="):
+                return part.split("=", 1)[1]
+        return None
+
+
+    def _owner_authenticated(self):
+        token = self._owner_session_token()
+        if not token:
+            return False
+
+        expires = OWNER_SESSIONS.get(token)
+        if not expires:
+            return False
+
+        if expires < time.time():
+            OWNER_SESSIONS.pop(token, None)
+            return False
+
+        OWNER_SESSIONS[token] = time.time() + OWNER_SESSION_TTL
+        return True
+
+
+    def _owner_required(self):
+        if self._owner_authenticated():
+            return True
+
+        self.send_json({
+            "ok": False,
+            "error": "يتطلب هذا الإجراء دخول المالك."
+        }, status=401)
+        return False
+
+
+    def _send_json_cookie(self, data, cookie, status=200):
+        raw = json.dumps(
+            data,
+            ensure_ascii=False
+        ).encode("utf-8")
+
+        self.send_response(status)
+
+        self.send_header(
+            "Content-Type",
+            "application/json; charset=utf-8"
+        )
+
+        self.send_header(
+            "Content-Length",
+            str(len(raw))
+        )
+
+        self.send_header(
+            "Access-Control-Allow-Origin",
+            "*"
+        )
+
+        self.send_header(
+            "Set-Cookie",
+            cookie
+        )
+
+        self.end_headers()
         self.wfile.write(raw)
 
 
@@ -260,6 +337,75 @@ class Handler(BaseHTTPRequestHandler):
 
             return
 
+        if self.path.startswith("/api/project/download"):
+            if not self._owner_required():
+                return
+
+            parsed = urllib.parse.urlparse(self.path)
+            query = urllib.parse.parse_qs(parsed.query)
+            artifact_id = query.get("id", [""])[0]
+
+            artifact = ZIP_ARTIFACTS.get(artifact_id)
+
+            if not artifact:
+                self.send_error(404, "ZIP artifact not found")
+                return
+
+            if artifact["expires_at"] < time.time():
+                ZIP_ARTIFACTS.pop(artifact_id, None)
+                self.send_error(410, "ZIP artifact expired")
+                return
+
+            project_zip = Path(artifact["path"]).resolve()
+
+            root = Path(ROOT).resolve()
+            artifact_root = (
+                root.parent / ".abqaryno_artifacts"
+            ).resolve()
+
+            try:
+                project_zip.relative_to(root)
+            except ValueError:
+                try:
+                    project_zip.relative_to(artifact_root)
+                except ValueError:
+                    self.send_error(403, "Forbidden")
+                    return
+
+            if project_zip.suffix.lower() != ".zip":
+                self.send_error(400, "ZIP required")
+                return
+
+            if not project_zip.exists() or not project_zip.is_file():
+                self.send_error(404, "ZIP not found")
+                return
+
+            data = project_zip.read_bytes()
+
+            self.send_response(200)
+            self.send_header(
+                "Content-Type",
+                "application/zip"
+            )
+            from urllib.parse import quote
+
+            download_name = project_zip.name
+            encoded_name = quote(download_name, safe="")
+
+            self.send_header(
+                "Content-Disposition",
+                'attachment; filename="abqaryno-project.zip"; '
+                "filename*=UTF-8''"
+                + encoded_name
+            )
+            self.send_header(
+                "Content-Length",
+                str(len(data))
+            )
+            self.end_headers()
+            self.wfile.write(data)
+            return
+
         self.send_json(
             {"ok":False,"error":"Not found"},
             404
@@ -436,6 +582,124 @@ class Handler(BaseHTTPRequestHandler):
                 })
 
                 return
+
+
+            if self.path == "/api/owner/status":
+                self.send_json({
+                    "ok": True,
+                    "authenticated": self._owner_authenticated()
+                })
+                return
+
+
+            if self.path == "/api/owner/login":
+                password = str(data.get("password", ""))
+
+                configured_password = os.environ.get(
+                    "ABQARYNO_OWNER_PASSWORD",
+                    ""
+                )
+
+                if not configured_password:
+                    self.send_json({
+                        "ok": False,
+                        "error": "كلمة سر المالك غير مهيأة على السيرفر."
+                    }, status=503)
+                    return
+
+                if not hmac.compare_digest(
+                    password,
+                    configured_password
+                ):
+                    self.send_json({
+                        "ok": False,
+                        "error": "كلمة سر المالك غير صحيحة."
+                    }, status=401)
+                    return
+
+                token = secrets.token_urlsafe(32)
+
+                OWNER_SESSIONS[token] = (
+                    time.time() + OWNER_SESSION_TTL
+                )
+
+                self._send_json_cookie(
+                    {
+                        "ok": True,
+                        "authenticated": True,
+                        "expires_in": OWNER_SESSION_TTL
+                    },
+                    "abqaryno_owner_session="
+                    + token
+                    + "; Path=/; HttpOnly; SameSite=Lax; Max-Age="
+                    + str(OWNER_SESSION_TTL)
+                )
+                return
+
+
+            if self.path == "/api/project/zip":
+
+                if not self._owner_required():
+                    return
+
+                project_path = str(
+                    Path(data.get("project_path", "")).expanduser().resolve()
+                )
+
+                root = Path(ROOT).resolve()
+                project = Path(project_path)
+
+                try:
+                    project.relative_to(root)
+                except ValueError:
+                    self.send_json({
+                        "ok": False,
+                        "error": "مسار المشروع غير مسموح."
+                    }, status=403)
+                    return
+
+                if not project.exists() or not project.is_dir():
+                    self.send_json({
+                        "ok": False,
+                        "error": "المشروع غير موجود."
+                    }, status=404)
+                    return
+
+                artifact_root = (
+                    Path(ROOT).resolve().parent
+                    / ".abqaryno_artifacts"
+                )
+                artifact_root.mkdir(
+                    parents=True,
+                    exist_ok=True
+                )
+
+                generator = ProjectGenerator(ROOT)
+                zip_path = generator.create_zip(
+                    project,
+                    output_dir=artifact_root
+                )
+
+                artifact_id = secrets.token_urlsafe(24)
+
+                ZIP_ARTIFACTS[artifact_id] = {
+                    "path": str(zip_path),
+                    "expires_at": time.time() + OWNER_SESSION_TTL
+                }
+
+                self.send_json({
+                    "ok": True,
+                    "project_path": str(project),
+                    "artifact_id": artifact_id,
+                    "download": "/api/project/download?id="
+                                + urllib.parse.quote(
+                                    artifact_id,
+                                    safe=""
+                                )
+                })
+
+                return
+
 
             if self.path == "/api/state":
 
