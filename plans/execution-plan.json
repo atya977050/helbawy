@@ -1,0 +1,466 @@
+{
+  "project": "/data/data/com.termux/files/home/عبقرينو",
+  "goal": "general_repair",
+  "status": "PLANNED",
+  "created_at": "2026-09-27T06:57:28.865520+00:00",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "issue": "No test files were classified by the scanner.",
+      "evidence": "/data/data/com.termux/files/home/عبقرينو/reports/scan-report.json"
+    },
+    {
+      "severity": "INFO",
+      "issue": "Media capture and remote-track handling are present, but this does not prove a complete WebRTC connection.",
+      "code": "WEBRTC_PARTIAL",
+      "evidence": "/data/data/com.termux/files/home/عبقرينو/reports/contracts-report.json",
+      "status": "EVIDENCED",
+      "details": {}
+    }
+  ],
+  "evidence": [
+    {
+      "source": "/data/data/com.termux/files/home/عبقرينو/reports/scan-report.json",
+      "finding": "Scanner identified 45 project files.",
+      "status": "EVIDENCED",
+      "file": null,
+      "line": null,
+      "details": {
+        "file_count": 45,
+        "directory_count": 12
+      }
+    },
+    {
+      "source": "/data/data/com.termux/files/home/عبقرينو/reports/scan-report.json",
+      "finding": "Client classification contains 2 file(s).",
+      "status": "EVIDENCED",
+      "file": "بلبل-الجديد/public/app.js",
+      "line": null,
+      "details": {
+        "files": [
+          "بلبل-الجديد/public/app.js",
+          "بلبل-الجديد/public/index.html"
+        ]
+      }
+    },
+    {
+      "source": "/data/data/com.termux/files/home/عبقرينو/reports/scan-report.json",
+      "finding": "Server classification contains 1 file(s).",
+      "status": "EVIDENCED",
+      "file": "بلبل-الجديد/server.js",
+      "line": null,
+      "details": {
+        "files": [
+          "بلبل-الجديد/server.js"
+        ]
+      }
+    },
+    {
+      "source": "/data/data/com.termux/files/home/عبقرينو/reports/scan-report.json",
+      "finding": "Configuration classification contains 1 file(s).",
+      "status": "EVIDENCED",
+      "file": "بلبل-الجديد/package.json",
+      "line": null,
+      "details": {
+        "files": [
+          "بلبل-الجديد/package.json"
+        ]
+      }
+    },
+    {
+      "source": "/data/data/com.termux/files/home/عبقرينو/reports/scan-report.json",
+      "finding": "No test files were classified.",
+      "status": "EVIDENCED",
+      "file": null,
+      "line": null,
+      "details": {
+        "classification": "tests",
+        "count": 0
+      }
+    },
+    {
+      "source": "/data/data/com.termux/files/home/عبقرينو/reports/contracts-report.json",
+      "finding": "Contract analyzer inspected 44 file(s).",
+      "status": "EVIDENCED",
+      "file": null,
+      "line": null,
+      "details": {
+        "emits": 5,
+        "handlers": 17,
+        "socketio_initialization": 10,
+        "webrtc_apis": 19,
+        "analyzer_findings": 1
+      }
+    },
+    {
+      "source": "/data/data/com.termux/files/home/عبقرينو/reports/contracts-report.json",
+      "finding": "Socket.IO initialization evidence was detected in 10 location(s).",
+      "status": "EVIDENCED",
+      "file": null,
+      "line": null,
+      "details": {
+        "initialization": [
+          {
+            "type": "server",
+            "file": "setup.py",
+            "evidence": "new Server(...)"
+          },
+          {
+            "type": "client",
+            "file": "setup.py",
+            "evidence": "io()"
+          },
+          {
+            "type": "client",
+            "file": "p45_phase5_persist.py",
+            "evidence": "io()"
+          },
+          {
+            "type": "server",
+            "file": "engine/socketio.py",
+            "evidence": "new Server(...)"
+          },
+          {
+            "type": "client",
+            "file": "engine/socketio.py",
+            "evidence": "io()"
+          },
+          {
+            "type": "client",
+            "file": "engine/root_cause.py",
+            "evidence": "io()"
+          },
+          {
+            "type": "server",
+            "file": "بلبل-الجديد/server.js",
+            "evidence": "new Server(...)"
+          },
+          {
+            "type": "client",
+            "file": "بلبل-الجديد/public/app.js",
+            "evidence": "io()"
+          },
+          {
+            "type": "server",
+            "file": "repair_creator_repo/engine/generator.py",
+            "evidence": "new Server(...)"
+          },
+          {
+            "type": "client",
+            "file": "repair_creator_repo/engine/generator.py",
+            "evidence": "io()"
+          }
+        ]
+      }
+    },
+    {
+      "source": "/data/data/com.termux/files/home/عبقرينو/reports/contracts-report.json",
+      "finding": "Direct Socket.IO contracts detected: 5 emit(s), 17 handler(s).",
+      "status": "EVIDENCED",
+      "file": null,
+      "line": null,
+      "details": {
+        "emits": [
+          {
+            "event": ",\n            ],\n        )\n\n        client_signaling = self._has_any(\n            client,\n            [\n                ",
+            "file": "engine/root_cause.py"
+          },
+          {
+            "event": ",\n                ",
+            "file": "engine/root_cause.py"
+          },
+          {
+            "event": "webrtc:offer",
+            "file": "بلبل-الجديد/public/app.js"
+          },
+          {
+            "event": "webrtc:answer",
+            "file": "بلبل-الجديد/public/app.js"
+          },
+          {
+            "event": "webrtc:ice-candidate",
+            "file": "بلبل-الجديد/public/app.js"
+          }
+        ],
+        "handlers": [
+          {
+            "event": ",\n            ",
+            "file": "v4_upgrade.py"
+          },
+          {
+            "event": ",\n                ",
+            "file": "v4_upgrade.py"
+          },
+          {
+            "event": ",\n                            ",
+            "file": "v4_upgrade.py"
+          },
+          {
+            "event": ",\n                ",
+            "file": "engine/root_cause.py"
+          },
+          {
+            "event": ",\n                ",
+            "file": "engine/root_cause.py"
+          },
+          {
+            "event": ",\n                ",
+            "file": "engine/root_cause.py"
+          },
+          {
+            "event": "connection",
+            "file": "بلبل-الجديد/server.js"
+          },
+          {
+            "event": "webrtc:offer",
+            "file": "بلبل-الجديد/server.js"
+          },
+          {
+            "event": "webrtc:answer",
+            "file": "بلبل-الجديد/server.js"
+          },
+          {
+            "event": "webrtc:ice-candidate",
+            "file": "بلبل-الجديد/server.js"
+          },
+          {
+            "event": "connection",
+            "file": "بلبل-الجديد/public/app.js"
+          },
+          {
+            "event": "webrtc:offer",
+            "file": "بلبل-الجديد/public/app.js"
+          },
+          {
+            "event": "webrtc:answer",
+            "file": "بلبل-الجديد/public/app.js"
+          },
+          {
+            "event": "webrtc:ice-candidate",
+            "file": "بلبل-الجديد/public/app.js"
+          },
+          {
+            "event": "webrtc:offer",
+            "file": "بلبل-الجديد/public/app.js"
+          },
+          {
+            "event": "webrtc:answer",
+            "file": "بلبل-الجديد/public/app.js"
+          },
+          {
+            "event": "webrtc:ice-candidate",
+            "file": "بلبل-الجديد/public/app.js"
+          }
+        ]
+      }
+    },
+    {
+      "source": "/data/data/com.termux/files/home/عبقرينو/reports/contracts-report.json",
+      "finding": "WebRTC API evidence detected across 19 API occurrence group(s).",
+      "status": "EVIDENCED",
+      "file": null,
+      "line": null,
+      "details": {
+        "webrtc": [
+          {
+            "api": "getUserMedia",
+            "file": "setup.py",
+            "count": 1
+          },
+          {
+            "api": "ontrack",
+            "file": "setup.py",
+            "count": 1
+          },
+          {
+            "api": "srcObject",
+            "file": "setup.py",
+            "count": 1
+          },
+          {
+            "api": "RTCPeerConnection",
+            "file": "p45_add_repair_generator.py",
+            "count": 1
+          },
+          {
+            "api": "getUserMedia",
+            "file": "p45_phase5_persist.py",
+            "count": 1
+          },
+          {
+            "api": "RTCPeerConnection",
+            "file": "engine/socketio.py",
+            "count": 1
+          },
+          {
+            "api": "RTCPeerConnection",
+            "file": "بلبل-الجديد/public/app.js",
+            "count": 1
+          },
+          {
+            "api": "getUserMedia",
+            "file": "بلبل-الجديد/public/app.js",
+            "count": 1
+          },
+          {
+            "api": "createOffer",
+            "file": "بلبل-الجديد/public/app.js",
+            "count": 1
+          },
+          {
+            "api": "createAnswer",
+            "file": "بلبل-الجديد/public/app.js",
+            "count": 1
+          },
+          {
+            "api": "setLocalDescription",
+            "file": "بلبل-الجديد/public/app.js",
+            "count": 2
+          },
+          {
+            "api": "setRemoteDescription",
+            "file": "بلبل-الجديد/public/app.js",
+            "count": 2
+          },
+          {
+            "api": "addIceCandidate",
+            "file": "بلبل-الجديد/public/app.js",
+            "count": 1
+          },
+          {
+            "api": "onicecandidate",
+            "file": "بلبل-الجديد/public/app.js",
+            "count": 1
+          },
+          {
+            "api": "ontrack",
+            "file": "بلبل-الجديد/public/app.js",
+            "count": 1
+          },
+          {
+            "api": "srcObject",
+            "file": "بلبل-الجديد/public/app.js",
+            "count": 1
+          },
+          {
+            "api": "ontrack",
+            "file": "repair_creator_repo/engine/repair.py",
+            "count": 1
+          },
+          {
+            "api": "srcObject",
+            "file": "repair_creator_repo/engine/repair.py",
+            "count": 1
+          },
+          {
+            "api": "getUserMedia",
+            "file": "repair_creator_repo/engine/generator.py",
+            "count": 1
+          }
+        ]
+      }
+    },
+    {
+      "source": "/data/data/com.termux/files/home/عبقرينو/reports/contracts-report.json",
+      "finding": "WEBRTC_PARTIAL: Media capture and remote-track handling are present, but this does not prove a complete WebRTC connection.",
+      "status": "EVIDENCED",
+      "file": null,
+      "line": null,
+      "details": {
+        "code": "WEBRTC_PARTIAL",
+        "severity": "INFO",
+        "status": "EVIDENCED",
+        "message": "Media capture and remote-track handling are present, but this does not prove a complete WebRTC connection."
+      }
+    },
+    {
+      "source": "/data/data/com.termux/files/home/عبقرينو/reports/root-cause-report.json",
+      "finding": "Root Cause Engine produced 0 traceable root cause(s).",
+      "status": "EVIDENCED",
+      "file": null,
+      "line": null,
+      "details": {
+        "summary": {
+          "total": 0,
+          "confirmed": 0,
+          "derived": 0,
+          "inferred": 0,
+          "evidence_limited": 0
+        }
+      }
+    }
+  ],
+  "actions": [
+    {
+      "action_id": "P45-PLAN-TEST-COVERAGE-001",
+      "target": "",
+      "reason": "Establish project verification coverage before claiming behavioral repair success.",
+      "status": "PLANNED",
+      "before_sha256": null,
+      "after_sha256": null,
+      "snapshot": null,
+      "verification": [
+        "Add or identify executable project tests.",
+        "Run tests after any repair."
+      ],
+      "evidence": [
+        {
+          "source": "/data/data/com.termux/files/home/عبقرينو/reports/scan-report.json",
+          "finding": "No test files were classified.",
+          "status": "EVIDENCED",
+          "file": null,
+          "line": null,
+          "details": {
+            "classification": "tests",
+            "count": 0
+          }
+        }
+      ]
+    }
+  ],
+  "repair_candidates": [],
+  "diagnosis_findings": [
+    {
+      "severity": "WARNING",
+      "issue": "No test files were classified by the scanner.",
+      "evidence": "/data/data/com.termux/files/home/عبقرينو/reports/scan-report.json"
+    },
+    {
+      "severity": "INFO",
+      "issue": "Media capture and remote-track handling are present, but this does not prove a complete WebRTC connection.",
+      "code": "WEBRTC_PARTIAL",
+      "evidence": "/data/data/com.termux/files/home/عبقرينو/reports/contracts-report.json",
+      "status": "EVIDENCED",
+      "details": {}
+    }
+  ],
+  "execution_steps": [
+    {
+      "step": 1,
+      "action": "Verify environmental prerequisites and dependencies.",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "action": "Address evidence-backed diagnostic findings for goal: general_repair",
+      "status": "pending",
+      "findings_count": 2
+    },
+    {
+      "step": 3,
+      "action": "Execute only approved repair actions after snapshot creation.",
+      "status": "pending"
+    },
+    {
+      "step": 4,
+      "action": "Run verification and re-analyze the project.",
+      "status": "pending"
+    }
+  ],
+  "sources": {
+    "scan_report": "/data/data/com.termux/files/home/عبقرينو/reports/scan-report.json",
+    "contracts_report": "/data/data/com.termux/files/home/عبقرينو/reports/contracts-report.json",
+    "contract_graph": "/data/data/com.termux/files/home/عبقرينو/reports/contract-graph.json",
+    "root_cause_report": "/data/data/com.termux/files/home/عبقرينو/reports/root-cause-report.json"
+  }
+}

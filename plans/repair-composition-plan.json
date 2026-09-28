@@ -1,0 +1,108 @@
+{
+  "schema": "P45-RepairCompositionPlan-v1",
+  "phase": 6,
+  "created_at": "2026-09-26T20:21:37.292050+00:00",
+  "status": "COMPOSITION_READY_NO_EXECUTION",
+  "execution_allowed": false,
+  "target_modification": "NONE",
+  "rule": "Composition is performed only in memory. Original target files remain untouched. Composed actions require later snapshot, approval binding, exact verification, and execution gates.",
+  "targets": [
+    {
+      "target": "public/app.js",
+      "original_sha256": "3458a244e2ecd913a1f504ae95e71cf44b542337ff908fdf603c9ef429fa1906",
+      "action_count": 4,
+      "actions": [
+        {
+          "action_id": "P45-REPAIR-CANDIDATE-RC-WEBRTC-001:ACTION-01",
+          "step": 1,
+          "before_sha256": "3458a244e2ecd913a1f504ae95e71cf44b542337ff908fdf603c9ef429fa1906",
+          "old_text": "const servers = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };",
+          "new_text": "const servers = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };\npeerConnection = new RTCPeerConnection(servers);",
+          "match_count": 1,
+          "after_sha256": "994327b81af47decd99f33968f7205a6ffd80384c757c3fa9f66aa62146251f6",
+          "status": "COMPOSED"
+        },
+        {
+          "action_id": "P45-REPAIR-CANDIDATE-RC-SIGNALING-001:ACTION-02",
+          "step": 2,
+          "before_sha256": "994327b81af47decd99f33968f7205a6ffd80384c757c3fa9f66aa62146251f6",
+          "old_text": "const socket = io();",
+          "new_text": "const socket = io();\nio.on(\"connection\", (socket) => {\n    socket.on(\"webrtc:offer\", (offer) => {\n        socket.broadcast.emit(\"webrtc:offer\", offer);\n    });\n\n    socket.on(\"webrtc:answer\", (answer) => {\n        socket.broadcast.emit(\"webrtc:answer\", answer);\n    });\n\n    socket.on(\"webrtc:ice-candidate\", (candidate) => {\n        socket.broadcast.emit(\"webrtc:ice-candidate\", candidate);\n    });\n});",
+          "match_count": 1,
+          "after_sha256": "1878a51382b8a52fd795116c5aa1b0b21758f34966c4e7bae37c89413229622d",
+          "status": "COMPOSED"
+        },
+        {
+          "action_id": "P45-REPAIR-CANDIDATE-RC-MEDIA-LIFECYCLE-001:ACTION-01",
+          "step": 3,
+          "before_sha256": "1878a51382b8a52fd795116c5aa1b0b21758f34966c4e7bae37c89413229622d",
+          "old_text": "localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });",
+          "new_text": "localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });\nlocalStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));",
+          "match_count": 1,
+          "after_sha256": "ade2fd5bb7b5c0024aef7c2ae19aa7b29e6a50b4545fb1f75536d56b24920101",
+          "status": "COMPOSED"
+        },
+        {
+          "action_id": "P45-REPAIR-CANDIDATE-RC-WEBRTC-002:ACTION-01",
+          "step": 4,
+          "before_sha256": "ade2fd5bb7b5c0024aef7c2ae19aa7b29e6a50b4545fb1f75536d56b24920101",
+          "old_text": "init();",
+          "new_text": "init();\nasync function createOffer() {\n    if (!peerConnection) {\n        throw new Error(\"PeerConnection is not initialized.\");\n    }\n\n    const offer = await peerConnection.createOffer();\n    await peerConnection.setLocalDescription(offer);\n    socket.emit(\"webrtc:offer\", offer);\n}\n\nasync function handleOffer(offer) {\n    if (!peerConnection) {\n        throw new Error(\"PeerConnection is not initialized.\");\n    }\n\n    await peerConnection.setRemoteDescription(\n        new RTCSessionDescription(offer)\n    );\n\n    const answer = await peerConnection.createAnswer();\n    await peerConnection.setLocalDescription(answer);\n    socket.emit(\"webrtc:answer\", answer);\n}\n\nasync function handleAnswer(answer) {\n    if (!peerConnection) {\n        throw new Error(\"PeerConnection is not initialized.\");\n    }\n\n    await peerConnection.setRemoteDescription(\n        new RTCSessionDescription(answer)\n    );\n}\n\npeerConnection.onicecandidate = (event) => {\n    if (event.candidate) {\n        socket.emit(\"webrtc:ice-candidate\", event.candidate);\n    }\n};\n\nsocket.on(\"webrtc:offer\", handleOffer);\nsocket.on(\"webrtc:answer\", handleAnswer);\n\nsocket.on(\"webrtc:ice-candidate\", async (candidate) => {\n    if (!peerConnection || !candidate) {\n        return;\n    }\n\n    await peerConnection.addIceCandidate(\n        new RTCIceCandidate(candidate)\n    );\n});",
+          "match_count": 1,
+          "after_sha256": "29033dfabdb9a959602b5b5862269ffe6aa687e77809215579a41a7ef6a59aa5",
+          "status": "COMPOSED"
+        }
+      ],
+      "status": "READY",
+      "execution_allowed": false,
+      "composed_sha256": "29033dfabdb9a959602b5b5862269ffe6aa687e77809215579a41a7ef6a59aa5"
+    },
+    {
+      "target": "server.js",
+      "original_sha256": "d6cf739b7c5cd910100e020cdab8e073c957c3fc29f89f36773f0bdb06656298",
+      "action_count": 1,
+      "actions": [
+        {
+          "action_id": "P45-REPAIR-CANDIDATE-RC-SIGNALING-001:ACTION-01",
+          "step": 1,
+          "before_sha256": "d6cf739b7c5cd910100e020cdab8e073c957c3fc29f89f36773f0bdb06656298",
+          "old_text": "server.listen(3000, () => console.log('Server running on port 3000'));",
+          "new_text": "server.listen(3000, () => console.log('Server running on port 3000'));\nio.on(\"connection\", (socket) => {\n    socket.on(\"webrtc:offer\", (offer) => {\n        socket.broadcast.emit(\"webrtc:offer\", offer);\n    });\n\n    socket.on(\"webrtc:answer\", (answer) => {\n        socket.broadcast.emit(\"webrtc:answer\", answer);\n    });\n\n    socket.on(\"webrtc:ice-candidate\", (candidate) => {\n        socket.broadcast.emit(\"webrtc:ice-candidate\", candidate);\n    });\n});",
+          "match_count": 1,
+          "after_sha256": "c3f11439fc989ac13a2b8c74e06124aa6988ef685841e59b7d8e3d1b691b4ca8",
+          "status": "COMPOSED"
+        }
+      ],
+      "status": "READY",
+      "execution_allowed": false,
+      "composed_sha256": "c3f11439fc989ac13a2b8c74e06124aa6988ef685841e59b7d8e3d1b691b4ca8"
+    },
+    {
+      "target": "public/index.html",
+      "original_sha256": "0888dd1fee251dc4d97e5deb39b79b9fb82eb942b08b1002650de3563d722f04",
+      "action_count": 1,
+      "actions": [
+        {
+          "action_id": "P45-REPAIR-CANDIDATE-RC-MEDIA-UI-001:ACTION-01",
+          "step": 1,
+          "before_sha256": "0888dd1fee251dc4d97e5deb39b79b9fb82eb942b08b1002650de3563d722f04",
+          "old_text": "</body>",
+          "new_text": "<video id=\"remoteVideo\" autoplay playsinline></video>\n</body>",
+          "match_count": 1,
+          "after_sha256": "58495000759b67175cc0347680c49bbf7672a3fd3f0039b8cfa9f1aba6619f3e",
+          "status": "COMPOSED"
+        }
+      ],
+      "status": "READY",
+      "execution_allowed": false,
+      "composed_sha256": "58495000759b67175cc0347680c49bbf7672a3fd3f0039b8cfa9f1aba6619f3e"
+    }
+  ],
+  "conflicts": [
+    {
+      "target": "public/app.js",
+      "action_count": 4,
+      "status": "RESOLVED_IN_MEMORY"
+    }
+  ]
+}

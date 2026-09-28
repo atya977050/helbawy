@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>الهلباوى للبرمجيات</title>
+<style>
+:root{
+ --bg:#07111f;
+ --bg2:#0b192b;
+ --panel:rgba(15,29,48,.92);
+ --panel2:#13243a;
+ --line:#29405d;
+ --gold:#d8b15b;
+ --gold2:#f0d38a;
+ --text:#f5f7fb;
+ --muted:#9dafc5;
+ --blue:#72c9ff;
+ --green:#68d7a0;
+}
+*{box-sizing:border-box}
+body{
+ margin:0;
+ color:var(--text);
+ font-family:Tahoma,Arial,sans-serif;
+ background:
+   radial-gradient(circle at 85% 0%,#1c395d 0,transparent 30%),
+   radial-gradient(circle at 10% 45%,#112b45 0,transparent 28%),
+   linear-gradient(135deg,var(--bg),var(--bg2));
+ min-height:100vh;
+}
+a{text-decoration:none;color:inherit}
+.site{width:min(1440px,100%);margin:auto;padding:18px}
+.nav{
+ display:flex;align-items:center;justify-content:space-between;
+ gap:18px;padding:15px 18px;border:1px solid var(--line);
+ border-radius:20px;background:rgba(8,20,35,.88);
+ backdrop-filter:blur(12px);position:sticky;top:10px;z-index:5;
+}
+.brand{display:flex;align-items:center;gap:12px}
+.mark{
+ width:48px;height:48px;border-radius:15px;display:grid;place-items:center;
+ background:linear-gradient(145deg,var(--gold2),#a47627);
+ color:#111;font-size:25px;font-weight:bold;
+}
+.brand h1{margin:0;font-size:20px}
+.brand small{color:var(--muted)}
+.navlinks{display:flex;gap:8px;flex-wrap:wrap}
+.navlinks a{
+ padding:9px 12px;border-radius:10px;color:#cbd7e6;font-size:13px;
+}
+.navlinks a:hover{background:#162a43;color:white}
+.hero{
+ margin-top:18px;min-height:420px;padding:48px 38px;
+ border:1px solid var(--line);border-radius:28px;
+ display:grid;grid-template-columns:1.35fr .65fr;gap:28px;align-items:center;
+ background:linear-gradient(135deg,rgba(18,38,62,.96),rgba(8,20,34,.94));
+}
+.eyebrow{color:var(--gold2);font-size:13px;font-weight:bold}
+.hero h2{font-size:clamp(32px,5vw,58px);margin:12px 0;line-height:1.15}
+.hero p{color:var(--muted);font-size:16px;line-height:2;max-width:700px}
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:25px}
+.btn{
+ display:inline-flex;align-items:center;justify-content:center;
+ padding:13px 19px;border-radius:12px;border:1px solid var(--line);
+ background:#13263e;color:white;font-weight:bold;
+}
+.btn.primary{background:linear-gradient(135deg,#e6c36d,#a4772b);color:#101010;border:0}
+.visual{
+ border:1px solid var(--line);border-radius:24px;padding:18px;
+ background:#0b1727;
+}
+.visual-top{display:flex;gap:6px;margin-bottom:18px}
+.dot{width:8px;height:8px;border-radius:50%;background:#46617e}
+.visual-main{display:grid;grid-template-columns:80px 1fr;gap:12px}
+.side{border:1px solid var(--line);border-radius:12px;padding:12px}
+.side div,.line{height:8px;border-radius:8px;background:#213750;margin-bottom:10px}
+.side .short,.line.short{width:65%}
+.content{border:1px solid var(--line);border-radius:12px;padding:16px}
+.big{height:54px;border-radius:12px;background:linear-gradient(90deg,#1b334e,#142940);margin-bottom:15px}
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.tile{height:76px;border:1px solid var(--line);border-radius:12px;background:#112239}
+.section{margin-top:24px}
+.section-head{display:flex;align-items:end;justify-content:space-between;margin-bottom:13px}
+.section-head h2{margin:0;font-size:22px}
+.section-head span{font-size:12px;color:var(--muted)}
+.products{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
+.product{
+ padding:20px;border:1px solid var(--line);border-radius:18px;
+ background:var(--panel);min-height:190px;
+ transition:.18s;
+}
+.product:hover{transform:translateY(-3px);border-color:#557392}
+.icon{font-size:30px}
+.product h3{margin:12px 0 7px}
+.product p{margin:0;color:var(--muted);line-height:1.7;font-size:13px}
+.tag{
+ display:inline-block;margin-top:16px;padding:5px 9px;border-radius:8px;
+ font-size:11px;background:#1a2d45;color:#bcd0e5;
+}
+.create{
+ margin-top:24px;padding:25px;border:1px solid var(--line);
+ border-radius:22px;background:var(--panel);
+}
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-top:15px}
+.step{
+ padding:15px;border:1px solid var(--line);border-radius:14px;
+ background:#0d1c2e;text-align:center;
+}
+.step b{display:block;color:var(--gold2);font-size:12px;margin-bottom:7px}
+.step span{font-size:13px}
+.footer{padding:35px 0 15px;text-align:center;color:#70839a;font-size:12px}
+@media(max-width:950px){
+ .hero{grid-template-columns:1fr}
+ .products{grid-template-columns:repeat(2,1fr)}
+ .steps{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:560px){
+ .site{padding:10px}
+ .nav{align-items:flex-start;flex-direction:column}
+ .hero{padding:28px 20px}
+ .products{grid-template-columns:1fr}
+ .steps{grid-template-columns:1fr}
+}
+
+/* ===== ALHELAWBY ROYAL GOLD IDENTITY ===== */
+:root{
+  --royal-gold:#d4af37;
+  --royal-gold-light:#f6df8b;
+  --royal-black:#080808;
+  --royal-panel:rgba(22,18,8,.78);
+}
+
+body{
+  background:
+    radial-gradient(circle at 15% 10%, rgba(212,175,55,.16), transparent 28%),
+    radial-gradient(circle at 85% 20%, rgba(246,223,139,.10), transparent 25%),
+    linear-gradient(135deg,#050505,#12100a 52%,#050505);
+}
+
+.alhelawy-gold-marquee{
+  width:100%;
+  overflow:hidden;
+  border-top:1px solid rgba(212,175,55,.28);
+  border-bottom:1px solid rgba(212,175,55,.28);
+  background:linear-gradient(90deg,rgba(212,175,55,.08),rgba(0,0,0,.45),rgba(212,175,55,.08));
+  box-shadow:0 0 28px rgba(212,175,55,.10);
+  margin:18px 0 28px;
+}
+
+.alhelawy-gold-marquee-track{
+  display:flex;
+  width:max-content;
+  animation:alhelawyRoyalMove 28s linear infinite;
+  white-space:nowrap;
+}
+
+.alhelawy-gold-marquee span{
+  display:inline-block;
+  padding:13px 28px;
+  color:var(--royal-gold-light);
+  font-weight:700;
+  letter-spacing:.5px;
+  text-shadow:0 0 12px rgba(212,175,55,.35);
+}
+
+.alhelawy-gold-marquee b{
+  color:var(--royal-gold);
+  margin:0 10px;
+}
+
+@keyframes alhelawyRoyalMove{
+  from{transform:translateX(0)}
+  to{transform:translateX(-50%)}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .alhelawy-gold-marquee-track{animation:none}
+}
+
+@media (max-width:600px){
+  .alhelawy-gold-marquee span{
+    padding:11px 18px;
+    font-size:13px;
+  }
+}
+
+</style>
+</head>
+<body>
+
+<div class="alhelawy-gold-marquee" aria-label="الهلباوى للبرمجيات">
+  <div class="alhelawy-gold-marquee-track">
+    <div>
+      <span>👑 الهلباوى للبرمجيات</span><b>◆</b>
+      <span>🧠 عبقرينو</span><b>◆</b>
+      <span>⚖️ المحامي أون لاين</span><b>◆</b>
+      <span>👨‍⚖️ المستشار مالك</span><b>◆</b>
+      <span>👩‍⚖️ المستشارة ميرفت الهلباوي</span><b>◆</b>
+      <span>⚡ الهلباوي إكسبريدج</span><b>◆</b>
+      <span>🤖 برامج ذكية متطورة</span><b>◆</b>
+    </div>
+    <div aria-hidden="true">
+      <span>👑 الهلباوى للبرمجيات</span><b>◆</b>
+      <span>🧠 عبقرينو</span><b>◆</b>
+      <span>⚖️ المحامي أون لاين</span><b>◆</b>
+      <span>👨‍⚖️ المستشار مالك</span><b>◆</b>
+      <span>👩‍⚖️ المستشارة ميرفت الهلباوي</span><b>◆</b>
+      <span>⚡ الهلباوي إكسبريدج</span><b>◆</b>
+      <span>🤖 برامج ذكية متطورة</span><b>◆</b>
+    </div>
+  </div>
+</div>
+
+<main class="site">
+
+<header class="nav">
+ <a class="brand" href="/">
+  <div class="mark">ه</div>
+  <div>
+   <h1>الهلباوى للبرمجيات</h1>
+   <small>حلول برمجية وذكاء اصطناعي</small>
+  </div>
+ </a>
+
+ <nav class="navlinks">
+  <a href="#products">المنتجات</a>
+  <a href="#abqaryno">عبقرينو</a>
+  <a href="#services">الخدمات</a>
+  <a href="#account">حسابي</a>
+ </nav>
+</header>
+
+<section class="hero">
+ <div>
+  <div class="eyebrow">منصة الهلباوى للبرمجيات</div>
+  <h2>نبني البرامج.<br>نطوّرها. ونصلحها.</h2>
+  <p>
+   بوابة واحدة لمنتجات الهلباوى للبرمجيات، تبدأ من إنشاء البرامج بالذكاء الاصطناعي
+   وتمتد إلى إصلاح البرامج الموجودة، والحلول القانونية والبرامج المتخصصة.
+  </p>
+
+  <div class="hero-actions">
+   <a class="btn primary" href="/create">🏗️ ابدأ إنشاء برنامج</a>
+   <a class="btn" href="/repair">🔧 إصلاح برنامج موجود</a>
+  </div>
+ </div>
+
+ <div class="visual" aria-label="معاينة واجهة المنصة">
+  <div class="visual-top">
+   <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+  </div>
+  <div class="visual-main">
+   <div class="side">
+    <div></div><div class="short"></div><div></div><div class="short"></div>
+   </div>
+   <div class="content">
+    <div class="big"></div>
+    <div class="line"></div>
+    <div class="line short"></div>
+    <div class="tiles">
+     <div class="tile"></div><div class="tile"></div>
+    </div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<section class="section" id="products">
+ <div class="section-head">
+  <h2>منتجات الهلباوى للبرمجيات</h2>
+  <span>بوابة المنتجات والخدمات</span>
+ </div>
+
+ <div class="products">
+
+  <a class="product" href="#abqaryno">
+   <div class="icon">🧠</div>
+   <h3>عبقرينو</h3>
+   <p>استوديو إنشاء وإصلاح البرامج بالذكاء الاصطناعي.</p>
+   <span class="tag">إنشاء + إصلاح</span>
+  </a>
+
+  <a class="product" href="#law">
+   <div class="icon">⚖️</div>
+   <h3>منظومة المحامي أون لاين</h3>
+   <p>حلول رقمية لإدارة أعمال مكتب المحاماة وخدماته.</p>
+   <span class="tag">قيد التطوير</span>
+  </a>
+
+  <a class="product" href="#consultant">
+   <div class="icon">👨‍⚖️</div>
+   <h3>المستشار أون لاين</h3>
+   <p>منظومة رقمية للاستشارات والخدمات القانونية.</p>
+   <span class="tag">قيد التطوير</span>
+  </a>
+
+  <a class="product" href="#custom">
+   <div class="icon">💻</div>
+   <h3>البرامج المخصصة</h3>
+   <p>إنشاء حلول وبرامج مخصصة حسب احتياجات المشروع.</p>
+   <span class="tag">قيد التطوير</span>
+  </a>
+
+ </div>
+</section>
+
+<section class="section" id="abqaryno">
+ <div class="section-head">
+  <h2>🧠 عبقرينو — استوديو إنشاء البرامج</h2>
+  <span>رحلة مستقلة لكل مرحلة</span>
+ </div>
+
+ <div class="create">
+
+  <a class="btn primary" href="/create">دخول استوديو إنشاء البرامج</a>
+
+  <div class="steps">
+
+   <a class="step" href="/create">
+    <b>01</b><span>💡 الفكرة</span>
+   </a>
+
+   <a class="step" href="/create/understanding">
+    <b>02</b><span>🧠 الفهم</span>
+   </a>
+
+   <a class="step" href="/create/requirements">
+    <b>03</b><span>📋 المتطلبات</span>
+   </a>
+
+   <a class="step" href="/create/plan">
+    <b>04</b><span>🎨 التخطيط والخيارات</span>
+   </a>
+
+   <a class="step" href="/create/build">
+    <b>05</b><span>🚀 الإنشاء</span>
+   </a>
+
+  </div>
+
+ </div>
+</section>
+
+<section class="section" id="services">
+ <div class="section-head">
+  <h2>🧩 خدمات المنصة</h2>
+  <span>أماكن الخدمات التي سنوصلها تدريجيًا</span>
+ </div>
+
+ <div class="products">
+
+  <div class="product">
+   <div class="icon">🧩</div>
+   <h3>Options والإضافات</h3>
+   <p>OCR، الترجمة، الصوت، التقارير، البحث والإضافات المستقبلية.</p>
+   <span class="tag">داخل عبقرينو</span>
+  </div>
+
+  <div class="product">
+   <div class="icon">🤖</div>
+   <h3>الذكاء الاصطناعي</h3>
+   <p>المساعد الذكي وسياق المشروع وإجراءات التأكيد.</p>
+   <span class="tag">موجود جزئيًا</span>
+  </div>
+
+  <div class="product">
+   <div class="icon">🧪</div>
+   <h3>الاختبار والتحقق</h3>
+   <p>اختبارات المشاريع والخدمات والتحقق من النتائج.</p>
+   <span class="tag">قيد التوسعة</span>
+  </div>
+
+  <div class="product">
+   <div class="icon">📁</div>
+   <h3>مشاريعي</h3>
+   <p>مكان مركزي للمشاريع المنشأة والمشاريع التي تحتاج إصلاحًا.</p>
+   <span class="tag">قيد التوصيل</span>
+  </div>
+
+ </div>
+</section>
+
+<section class="section" id="law">
+ <div class="create">
+  <div class="icon">⚖️</div>
+  <h3>منظومة المحامي أون لاين</h3>
+  <p style="color:var(--muted);line-height:1.8">
+   مساحة مستقلة ستضم برامج إدارة مكتب المحاماة، القضايا، الموكلين،
+   المستندات، الاستشارات والخدمات القانونية.
+  </p>
+  <span class="tag">قيد التطوير</span>
+ </div>
+</section>
+
+<section class="section" id="consultant">
+ <div class="create">
+  <div class="icon">👨‍⚖️</div>
+  <h3>المستشار أون لاين</h3>
+  <p style="color:var(--muted);line-height:1.8">
+   منتج مستقل داخل بوابة الهلباوى للبرمجيات.
+  </p>
+  <span class="tag">قيد التطوير</span>
+ </div>
+</section>
+
+<section class="section" id="account">
+ <div class="create">
+  <div class="icon">👤</div>
+  <h3>حسابي</h3>
+  <p style="color:var(--muted);line-height:1.8">
+   الحساب، المشاريع، إعدادات المستخدم والصلاحيات.
+  </p>
+  <span class="tag">قيد التوصيل</span>
+ </div>
+</section>
+
+<footer class="footer">
+ الهلباوى للبرمجيات — منصة واحدة لمنتجات البرمجيات والذكاء الاصطناعي
+</footer>
+
+
+<section class="future-programs" id="programs">
+  <div class="section-head">
+    <span class="eyebrow">منظومة الهلباوي</span>
+    <h2>برامجنا الحالية والمستقبلية</h2>
+    <p>
+      منصة واحدة تجمع برامج الهلباوي الحالية والقادمة،
+      مع إمكانية إضافة برامج جديدة في أي وقت.
+    </p>
+  </div>
+
+  <div class="program-grid">
+
+    <a class="program-card" href="/lawyer-online">
+      <span class="program-icon">⚖️</span>
+      <strong>المحامي أون لاين</strong>
+      <small>منظومة المحامي والخدمات القانونية أون لاين</small>
+    </a>
+
+    <a class="program-card" href="/consultant-malik">
+      <span class="program-icon">👨‍⚖️</span>
+      <strong>المستشار مالك</strong>
+      <small>منظومة المستشار الذكي والخدمات الاستشارية</small>
+    </a>
+
+    <a class="program-card" href="/mervet-helbawy">
+      <span class="program-icon">👩‍⚖️</span>
+      <strong>المستشارة ميرفت الهلباوي</strong>
+      <small>منظومة المستشارة والخدمات القانونية الذكية</small>
+    </a>
+
+    <a class="program-card" href="/law-office">
+      <span class="program-icon">🏢</span>
+      <strong>الهلباوي لإدارة مكتب المحاماة</strong>
+      <small>إدارة المكتب والقضايا والموكلين والمستندات</small>
+    </a>
+
+    <a class="program-card" href="/lexbridge">
+      <span class="program-icon">⚡</span>
+      <strong>الهلباوي إكسبريدج</strong>
+      <small>منظومة التواصل والغرف والخدمات المباشرة</small>
+    </a>
+
+    <a class="program-card" href="/abqaryno/repair">
+      <span class="program-icon">🔧</span>
+      <strong>عبقرينو لإصلاح البرامج</strong>
+      <small>فحص البرامج وتحليلها وإصلاح المشكلات</small>
+    </a>
+
+    <a class="program-card" href="/smart-marketing">
+      <span class="program-icon">📣</span>
+      <strong>برنامج التسويق الذكي</strong>
+      <small>أدوات التسويق وإدارة الحملات والمحتوى</small>
+    </a>
+
+    <a class="program-card" href="/professional-investigator">
+      <span class="program-icon">🕵️</span>
+      <strong>المحقق المحترف</strong>
+      <small>منظومة البحث والتحليل والتحقيق</small>
+    </a>
+
+    <a class="program-card" href="/alfaqih">
+      <span class="program-icon">📚</span>
+      <strong>الفقيه</strong>
+      <small>منظومة المعرفة والبحث والاستشارات الفقهية</small>
+    </a>
+
+    <div class="program-card program-coming">
+      <span class="program-icon">➕</span>
+      <strong>برامج أخرى قادمة</strong>
+      <small>أسماء جديدة يجري إعدادها وتسميتها</small>
+      <span class="status">قيد التسمية والتطوير</span>
+    </div>
+
+  </div>
+</section>
+
+<style>
+.future-programs {
+  margin: 70px auto;
+  max-width: 1180px;
+  padding: 0 22px;
+}
+
+.future-programs .section-head {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.future-programs .eyebrow {
+  display: inline-block;
+  margin-bottom: 10px;
+  font-weight: 800;
+  color: #b88a2a;
+}
+
+.future-programs h2 {
+  margin: 0 0 12px;
+  font-size: clamp(28px, 5vw, 44px);
+}
+
+.future-programs p {
+  margin: 0 auto;
+  max-width: 720px;
+  opacity: .75;
+  line-height: 1.9;
+}
+
+.program-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+}
+
+.program-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 185px;
+  padding: 24px;
+  border-radius: 22px;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid rgba(184,138,42,.22);
+  background: rgba(255,255,255,.045);
+  transition: transform .2s ease, border-color .2s ease;
+}
+
+.program-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(184,138,42,.65);
+}
+
+.program-icon {
+  font-size: 34px;
+}
+
+.program-card strong {
+  font-size: 20px;
+}
+
+.program-card small {
+  line-height: 1.8;
+  opacity: .72;
+}
+
+.program-coming {
+  cursor: default;
+  border-style: dashed;
+}
+
+.program-coming:hover {
+  transform: none;
+}
+
+.program-coming .status {
+  margin-top: auto;
+  display: inline-flex;
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(184,138,42,.12);
+  color: #b88a2a;
+}
+</style>
+
+</main>
+</body>
+</html>

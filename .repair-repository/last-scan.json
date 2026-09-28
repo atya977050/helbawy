@@ -1,0 +1,29 @@
+{
+  "application": "🛠️ مستودع الإصلاح",
+  "version": "V1.0",
+  "project": "/data/data/com.termux/files/home/مستودع الإصلاح",
+  "scan_time": "2026-09-25T05:00:33",
+  "mode": "scan",
+  "summary": {
+    "files_checked": 1,
+    "errors": 0,
+    "warnings": 0,
+    "ok": 1
+  },
+  "languages": {
+    "Python": 1
+  },
+  "results": [
+    {
+      "file": "/data/data/com.termux/files/home/مستودع الإصلاح/repair-repository.py",
+      "language": "Python",
+      "status": "OK",
+      "errors": [],
+      "warnings": [],
+      "checks": [
+        "python -m py_compile"
+      ],
+      "fixes_available": []
+    }
+  ]
+}

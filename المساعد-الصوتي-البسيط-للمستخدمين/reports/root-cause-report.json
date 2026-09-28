@@ -1,0 +1,57 @@
+{
+  "project": "/data/data/com.termux/files/home/عبقرينو/المساعد-الصوتي-البسيط-للمستخدمين",
+  "status": "EVIDENCED",
+  "root_causes": [
+    {
+      "id": "RC-SIGNALING-001",
+      "title": "Socket.IO signaling contract is absent",
+      "classification": "CONFIRMED",
+      "severity": "HIGH",
+      "evidence": [
+        {
+          "file": "server.js",
+          "finding": "Socket.IO server is initialized, but no connection, handler, or emit contract exists."
+        },
+        {
+          "file": "public/app.js",
+          "finding": "Socket.IO client is initialized with io(), but no signaling event contract exists."
+        },
+        {
+          "source": "contract-graph.json",
+          "finding": "socketio:signaling => MISSING"
+        }
+      ],
+      "effect": "There is no implemented application-level signaling path for WebRTC offer, answer, or ICE exchange."
+    },
+    {
+      "id": "RC-WEBRTC-002",
+      "title": "WebRTC negotiation and ICE lifecycle is absent",
+      "classification": "CONFIRMED",
+      "severity": "HIGH",
+      "evidence": [
+        {
+          "file": "public/app.js",
+          "finding": "The following WebRTC APIs are absent: createOffer, createAnswer, setLocalDescription, setRemoteDescription, addIceCandidate, onicecandidate"
+        },
+        {
+          "source": "contract-graph.json",
+          "finding": "peer-connection node is MISSING with the same API set unresolved."
+        }
+      ],
+      "effect": "The source contains no implemented offer/answer negotiation or ICE candidate lifecycle."
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "confirmed": 2,
+    "derived": 0,
+    "inferred": 0,
+    "evidence_limited": 0
+  },
+  "sources": {
+    "contract_graph": "/data/data/com.termux/files/home/عبقرينو/المساعد-الصوتي-البسيط-للمستخدمين/reports/contract-graph.json",
+    "server": "/data/data/com.termux/files/home/عبقرينو/المساعد-الصوتي-البسيط-للمستخدمين/server.js",
+    "client": "/data/data/com.termux/files/home/عبقرينو/المساعد-الصوتي-البسيط-للمستخدمين/public/app.js",
+    "html": "/data/data/com.termux/files/home/عبقرينو/المساعد-الصوتي-البسيط-للمستخدمين/public/index.html"
+  }
+}

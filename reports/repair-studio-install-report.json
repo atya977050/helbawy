@@ -1,0 +1,7 @@
+{
+  "name": "عبقرينو — Repair Studio",
+  "status": "installed",
+  "ui": "studio/repair.html",
+  "api": "studio/repair_api.py",
+  "next": "connect_real_p45_engines"
+}

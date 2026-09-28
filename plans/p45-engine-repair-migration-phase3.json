@@ -1,0 +1,27 @@
+{
+  "migration": "P45-ENGINE-REPAIR-003",
+  "phase": 3,
+  "timestamp": "2026-09-26T19:37:56.678308+00:00",
+  "status": "STRUCTURED_NOT_EXECUTABLE",
+  "implemented": [
+    "read approved candidates from بلبل execution plan",
+    "candidate to RepairAction expansion",
+    "multi-file candidate expansion",
+    "candidate-bound action identity",
+    "approval metadata preservation",
+    "evidence preservation",
+    "verification requirements preservation",
+    "execution safety gate remains false"
+  ],
+  "explicitly_not_implemented": [
+    "inventing old_text",
+    "inventing new_text",
+    "automatic code generation",
+    "execution against بلبل",
+    "snapshot creation",
+    "behavioral verification",
+    "re-analysis",
+    "final report"
+  ],
+  "safety_rule": "Approved candidates are structured into RepairActions, but remain non-executable until each action has an evidence-backed exact old_text/new_text pair."
+}

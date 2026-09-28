@@ -1,0 +1,157 @@
+{
+  "project": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/evidence_based_repair",
+  "goal": "general_repair",
+  "status": "PLANNED",
+  "created_at": "2026-09-25T20:50:00.203122+00:00",
+  "evidence": [
+    {
+      "source": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/evidence_based_repair/reports/scan-report.json",
+      "finding": "Scan report has no project root.",
+      "status": "EVIDENCE_INCOMPLETE",
+      "file": null,
+      "line": null,
+      "details": {
+        "limitation": "Project identity could not be independently confirmed."
+      }
+    },
+    {
+      "source": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/evidence_based_repair/reports/scan-report.json",
+      "finding": "Scanner identified 0 project files.",
+      "status": "EVIDENCED",
+      "file": null,
+      "line": null,
+      "details": {
+        "file_count": 0,
+        "directory_count": 0
+      }
+    },
+    {
+      "source": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/evidence_based_repair/reports/scan-report.json",
+      "finding": "No test files were classified.",
+      "status": "EVIDENCED",
+      "file": null,
+      "line": null,
+      "details": {
+        "classification": "tests",
+        "count": 0
+      }
+    },
+    {
+      "source": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/evidence_based_repair/reports/contracts-report.json",
+      "finding": "Contract analyzer detected 0 emits and 0 handlers; this is evidence of no matches by the current analyzer, not proof that the project has no communication contracts.",
+      "status": "EVIDENCE_LIMITED",
+      "file": null,
+      "line": null,
+      "details": {
+        "emits": 0,
+        "handlers": 0,
+        "analyzer_limit": "Current SocketIOAnalyzer uses static regex detection."
+      }
+    }
+  ],
+  "actions": [
+    {
+      "action_id": "P45-PLAN-TEST-COVERAGE-001",
+      "target": "",
+      "reason": "Establish project verification coverage before claiming behavioral repair success.",
+      "status": "PLANNED",
+      "before_sha256": null,
+      "after_sha256": null,
+      "snapshot": null,
+      "verification": [
+        "Add or identify executable project tests.",
+        "Run tests after any repair."
+      ],
+      "evidence": [
+        {
+          "source": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/evidence_based_repair/reports/scan-report.json",
+          "finding": "No test files were classified.",
+          "status": "EVIDENCED",
+          "file": null,
+          "line": null,
+          "details": {
+            "classification": "tests",
+            "count": 0
+          }
+        }
+      ]
+    },
+    {
+      "action_id": "P45-PLAN-SOCKETIO-ANALYZER-001",
+      "target": "engine/socketio.py",
+      "reason": "Upgrade contract analysis so zero regex matches cannot be mistaken for absence of communication contracts.",
+      "status": "PLANNED",
+      "before_sha256": null,
+      "after_sha256": null,
+      "snapshot": null,
+      "verification": [
+        "Run analyzer against the actual project.",
+        "Compare detected events with source evidence."
+      ],
+      "evidence": [
+        {
+          "source": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/evidence_based_repair/reports/contracts-report.json",
+          "finding": "Contract analyzer detected 0 emits and 0 handlers; this is evidence of no matches by the current analyzer, not proof that the project has no communication contracts.",
+          "status": "EVIDENCE_LIMITED",
+          "file": null,
+          "line": null,
+          "details": {
+            "emits": 0,
+            "handlers": 0,
+            "analyzer_limit": "Current SocketIOAnalyzer uses static regex detection."
+          }
+        }
+      ]
+    }
+  ],
+  "diagnosis_findings": [
+    {
+      "severity": "WARNING",
+      "issue": "No client files were classified by the scanner.",
+      "evidence": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/evidence_based_repair/reports/scan-report.json"
+    },
+    {
+      "severity": "WARNING",
+      "issue": "No server files were classified by the scanner.",
+      "evidence": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/evidence_based_repair/reports/scan-report.json"
+    },
+    {
+      "severity": "WARNING",
+      "issue": "No test files were classified by the scanner.",
+      "evidence": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/evidence_based_repair/reports/scan-report.json"
+    },
+    {
+      "severity": "INFO",
+      "issue": "No Socket.IO contracts were detected by the current analyzer.",
+      "evidence": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/evidence_based_repair/reports/contracts-report.json",
+      "limitation": "This does not prove that no contracts exist."
+    }
+  ],
+  "execution_steps": [
+    {
+      "step": 1,
+      "action": "Verify environmental prerequisites and dependencies.",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "action": "Address evidence-backed diagnostic findings for goal: general_repair",
+      "status": "pending",
+      "findings_count": 4
+    },
+    {
+      "step": 3,
+      "action": "Execute only approved repair actions after snapshot creation.",
+      "status": "pending"
+    },
+    {
+      "step": 4,
+      "action": "Run verification and re-analyze the project.",
+      "status": "pending"
+    }
+  ],
+  "sources": {
+    "scan_report": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/evidence_based_repair/reports/scan-report.json",
+    "contracts_report": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/evidence_based_repair/reports/contracts-report.json"
+  }
+}

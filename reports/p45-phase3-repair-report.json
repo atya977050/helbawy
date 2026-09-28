@@ -1,0 +1,99 @@
+{
+  "report": "P45-PHASE3-REPAIR-ACTIONS-001",
+  "timestamp": "2026-09-26T19:37:56.678179+00:00",
+  "status": "STRUCTURED_NOT_EXECUTABLE",
+  "source_plan": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/plans/execution-plan.json",
+  "approved_candidates": 6,
+  "repair_actions": 7,
+  "execution_allowed": false,
+  "actions": [
+    {
+      "action_id": "P45-REPAIR-CANDIDATE-RC-WEBRTC-001:ACTION-01",
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-WEBRTC-001",
+      "target": "public/app.js",
+      "status": "PLANNED",
+      "execution_allowed": false,
+      "missing": [
+        "old_text",
+        "new_text"
+      ]
+    },
+    {
+      "action_id": "P45-REPAIR-CANDIDATE-RC-SIGNALING-001:ACTION-01",
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-SIGNALING-001",
+      "target": "server.js",
+      "status": "PLANNED",
+      "execution_allowed": false,
+      "missing": [
+        "old_text",
+        "new_text"
+      ]
+    },
+    {
+      "action_id": "P45-REPAIR-CANDIDATE-RC-SIGNALING-001:ACTION-02",
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-SIGNALING-001",
+      "target": "public/app.js",
+      "status": "PLANNED",
+      "execution_allowed": false,
+      "missing": [
+        "old_text",
+        "new_text"
+      ]
+    },
+    {
+      "action_id": "P45-REPAIR-CANDIDATE-RC-MEDIA-UI-001:ACTION-01",
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-MEDIA-UI-001",
+      "target": "public/index.html",
+      "status": "PLANNED",
+      "execution_allowed": false,
+      "missing": [
+        "old_text",
+        "new_text"
+      ]
+    },
+    {
+      "action_id": "P45-REPAIR-CANDIDATE-RC-MEDIA-LIFECYCLE-001:ACTION-01",
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-MEDIA-LIFECYCLE-001",
+      "target": "public/app.js",
+      "status": "PLANNED",
+      "execution_allowed": false,
+      "missing": [
+        "old_text",
+        "new_text"
+      ]
+    },
+    {
+      "action_id": "P45-REPAIR-CANDIDATE-RC-WEBRTC-002:ACTION-01",
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-WEBRTC-002",
+      "target": "public/app.js",
+      "status": "PLANNED",
+      "execution_allowed": false,
+      "missing": [
+        "old_text",
+        "new_text"
+      ]
+    },
+    {
+      "action_id": "P45-REPAIR-CANDIDATE-RC-RUNTIME-001:ACTION-01",
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-RUNTIME-001",
+      "target": "public/app.js",
+      "status": "PLANNED",
+      "execution_allowed": false,
+      "missing": [
+        "old_text",
+        "new_text"
+      ]
+    }
+  ],
+  "next_phase": [
+    "evidence-backed exact repair design",
+    "old_text/new_text binding",
+    "multi-file action validation",
+    "snapshot binding",
+    "execution test harness",
+    "exact verification",
+    "behavioral verification",
+    "re-analysis",
+    "final report"
+  ]
+}

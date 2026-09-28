@@ -1,0 +1,22 @@
+{
+  "migration": "P45-ENGINE-REPAIR-005",
+  "phase": 5,
+  "status": "GENERATION_ONLY",
+  "implemented": [
+    "source target resolution",
+    "RepairAction generation attempt",
+    "old_text capture from real target",
+    "new_text generation",
+    "generation report"
+  ],
+  "not_implemented": [
+    "snapshot",
+    "approval mutation",
+    "target modification",
+    "repair application",
+    "behavioral verification",
+    "re-analysis",
+    "final report"
+  ],
+  "safety_rule": "Generated RepairActions remain non-executable. No target file was modified."
+}

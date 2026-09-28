@@ -1,0 +1,12 @@
+{
+  "schema": "P45-Phase5-GenerationReport-v1",
+  "generated_at": "2026-09-26T20:17:06.726111+00:00",
+  "status": "BLOCKED_CONFLICT_PENDING",
+  "generated": 6,
+  "verification_only": 1,
+  "failures": 0,
+  "conflicts": 1,
+  "target_modification": "NONE",
+  "execution_allowed": false,
+  "output": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/plans/repair-actions-generated.json"
+}

@@ -1,0 +1,117 @@
+{
+  "schema": "P45-RepairActionsGenerated-v1",
+  "generated_at": "2026-09-26T20:17:06.724530+00:00",
+  "source_manifest": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/plans/repair-design-manifest.json",
+  "target_project": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد",
+  "status": "BLOCKED_CONFLICT_PENDING",
+  "execution_allowed": false,
+  "generated_count": 6,
+  "verification_only_count": 1,
+  "failure_count": 0,
+  "conflict_count": 1,
+  "rule": "Generated actions are never executable automatically. All actions must remain bound to approved candidates and exact source SHA. Multiple actions targeting one file require composition or regeneration before application.",
+  "actions": [
+    {
+      "action_id": "P45-REPAIR-CANDIDATE-RC-WEBRTC-001:ACTION-01",
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-WEBRTC-001",
+      "target": "public/app.js",
+      "old_text": "const servers = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };",
+      "new_text": "const servers = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };\npeerConnection = new RTCPeerConnection(servers);",
+      "before_sha256": "3458a244e2ecd913a1f504ae95e71cf44b542337ff908fdf603c9ef429fa1906",
+      "generator": "RepairGenerator:exact_code_insertion",
+      "status": "GENERATED",
+      "execution_allowed": false,
+      "anchor_verified": true,
+      "generated_at": "2026-09-26T20:17:06.715504+00:00"
+    },
+    {
+      "action_id": "P45-REPAIR-CANDIDATE-RC-SIGNALING-001:ACTION-01",
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-SIGNALING-001",
+      "target": "server.js",
+      "old_text": "server.listen(3000, () => console.log('Server running on port 3000'));",
+      "new_text": "server.listen(3000, () => console.log('Server running on port 3000'));\nio.on(\"connection\", (socket) => {\n    socket.on(\"webrtc:offer\", (offer) => {\n        socket.broadcast.emit(\"webrtc:offer\", offer);\n    });\n\n    socket.on(\"webrtc:answer\", (answer) => {\n        socket.broadcast.emit(\"webrtc:answer\", answer);\n    });\n\n    socket.on(\"webrtc:ice-candidate\", (candidate) => {\n        socket.broadcast.emit(\"webrtc:ice-candidate\", candidate);\n    });\n});",
+      "before_sha256": "d6cf739b7c5cd910100e020cdab8e073c957c3fc29f89f36773f0bdb06656298",
+      "generator": "RepairGenerator:multi_file_signaling_contract",
+      "status": "GENERATED",
+      "execution_allowed": false,
+      "anchor_verified": true,
+      "generated_at": "2026-09-26T20:17:06.717224+00:00"
+    },
+    {
+      "action_id": "P45-REPAIR-CANDIDATE-RC-SIGNALING-001:ACTION-02",
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-SIGNALING-001",
+      "target": "public/app.js",
+      "old_text": "const socket = io();",
+      "new_text": "const socket = io();\nio.on(\"connection\", (socket) => {\n    socket.on(\"webrtc:offer\", (offer) => {\n        socket.broadcast.emit(\"webrtc:offer\", offer);\n    });\n\n    socket.on(\"webrtc:answer\", (answer) => {\n        socket.broadcast.emit(\"webrtc:answer\", answer);\n    });\n\n    socket.on(\"webrtc:ice-candidate\", (candidate) => {\n        socket.broadcast.emit(\"webrtc:ice-candidate\", candidate);\n    });\n});",
+      "before_sha256": "3458a244e2ecd913a1f504ae95e71cf44b542337ff908fdf603c9ef429fa1906",
+      "generator": "RepairGenerator:multi_file_signaling_contract",
+      "status": "GENERATED",
+      "execution_allowed": false,
+      "anchor_verified": true,
+      "generated_at": "2026-09-26T20:17:06.718901+00:00"
+    },
+    {
+      "action_id": "P45-REPAIR-CANDIDATE-RC-MEDIA-UI-001:ACTION-01",
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-MEDIA-UI-001",
+      "target": "public/index.html",
+      "old_text": "</body>",
+      "new_text": "<video id=\"remoteVideo\" autoplay playsinline></video>\n</body>",
+      "before_sha256": "0888dd1fee251dc4d97e5deb39b79b9fb82eb942b08b1002650de3563d722f04",
+      "generator": "RepairGenerator:dom_target_insertion",
+      "status": "GENERATED",
+      "execution_allowed": false,
+      "anchor_verified": true,
+      "generated_at": "2026-09-26T20:17:06.721067+00:00"
+    },
+    {
+      "action_id": "P45-REPAIR-CANDIDATE-RC-MEDIA-LIFECYCLE-001:ACTION-01",
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-MEDIA-LIFECYCLE-001",
+      "target": "public/app.js",
+      "old_text": "localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });",
+      "new_text": "localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });\nlocalStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));",
+      "before_sha256": "3458a244e2ecd913a1f504ae95e71cf44b542337ff908fdf603c9ef429fa1906",
+      "generator": "RepairGenerator:media_track_binding",
+      "status": "GENERATED",
+      "execution_allowed": false,
+      "anchor_verified": true,
+      "generated_at": "2026-09-26T20:17:06.722765+00:00"
+    },
+    {
+      "action_id": "P45-REPAIR-CANDIDATE-RC-WEBRTC-002:ACTION-01",
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-WEBRTC-002",
+      "target": "public/app.js",
+      "old_text": "init();",
+      "new_text": "init();\nasync function createOffer() {\n    if (!peerConnection) {\n        throw new Error(\"PeerConnection is not initialized.\");\n    }\n\n    const offer = await peerConnection.createOffer();\n    await peerConnection.setLocalDescription(offer);\n    socket.emit(\"webrtc:offer\", offer);\n}\n\nasync function handleOffer(offer) {\n    if (!peerConnection) {\n        throw new Error(\"PeerConnection is not initialized.\");\n    }\n\n    await peerConnection.setRemoteDescription(\n        new RTCSessionDescription(offer)\n    );\n\n    const answer = await peerConnection.createAnswer();\n    await peerConnection.setLocalDescription(answer);\n    socket.emit(\"webrtc:answer\", answer);\n}\n\nasync function handleAnswer(answer) {\n    if (!peerConnection) {\n        throw new Error(\"PeerConnection is not initialized.\");\n    }\n\n    await peerConnection.setRemoteDescription(\n        new RTCSessionDescription(answer)\n    );\n}\n\npeerConnection.onicecandidate = (event) => {\n    if (event.candidate) {\n        socket.emit(\"webrtc:ice-candidate\", event.candidate);\n    }\n};\n\nsocket.on(\"webrtc:offer\", handleOffer);\nsocket.on(\"webrtc:answer\", handleAnswer);\n\nsocket.on(\"webrtc:ice-candidate\", async (candidate) => {\n    if (!peerConnection || !candidate) {\n        return;\n    }\n\n    await peerConnection.addIceCandidate(\n        new RTCIceCandidate(candidate)\n    );\n});",
+      "before_sha256": "3458a244e2ecd913a1f504ae95e71cf44b542337ff908fdf603c9ef429fa1906",
+      "generator": "RepairGenerator:webrtc_negotiation_lifecycle",
+      "status": "GENERATED",
+      "execution_allowed": false,
+      "anchor_verified": true,
+      "generated_at": "2026-09-26T20:17:06.724420+00:00"
+    }
+  ],
+  "verification_only": [
+    {
+      "action_id": "P45-REPAIR-CANDIDATE-RC-RUNTIME-001:ACTION-01",
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-RUNTIME-001",
+      "target": "public/app.js",
+      "type": "runtime_consistency_verification",
+      "status": "VERIFICATION_ONLY",
+      "execution_allowed": false
+    }
+  ],
+  "conflicts": [
+    {
+      "target": "public/app.js",
+      "action_ids": [
+        "P45-REPAIR-CANDIDATE-RC-WEBRTC-001:ACTION-01",
+        "P45-REPAIR-CANDIDATE-RC-SIGNALING-001:ACTION-02",
+        "P45-REPAIR-CANDIDATE-RC-MEDIA-LIFECYCLE-001:ACTION-01",
+        "P45-REPAIR-CANDIDATE-RC-WEBRTC-002:ACTION-01"
+      ],
+      "reason": "Multiple generated actions depend on the same pre-repair file state. Sequential application is unsafe without regeneration/composition against the updated source.",
+      "status": "CONFLICT_PENDING"
+    }
+  ],
+  "failures": []
+}

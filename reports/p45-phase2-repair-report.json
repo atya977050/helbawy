@@ -1,0 +1,66 @@
+{
+  "report": "P45-PHASE2-REPAIR-001",
+  "timestamp": "2026-09-26T19:30:19.442640+00:00",
+  "status": "APPLIED_AND_COMPILED",
+  "patches": [
+    {
+      "label": "repair_action_candidate_binding_fields",
+      "status": "APPLIED",
+      "file": "engine/contracts.py"
+    },
+    {
+      "label": "repair_action_execution_validator",
+      "status": "APPLIED",
+      "file": "engine/contracts.py"
+    },
+    {
+      "label": "missing_candidate_exit_code",
+      "status": "APPLIED",
+      "file": "repair-repository.py"
+    },
+    {
+      "label": "approval_gate_failure_exit_code",
+      "status": "APPLIED",
+      "file": "repair-repository.py"
+    },
+    {
+      "label": "approval_rejection_exit_code",
+      "status": "APPLIED",
+      "file": "repair-repository.py"
+    },
+    {
+      "label": "target_mismatch_exit_code",
+      "status": "APPLIED",
+      "file": "repair-repository.py"
+    },
+    {
+      "label": "reason_mismatch_exit_code",
+      "status": "APPLIED",
+      "file": "repair-repository.py"
+    },
+    {
+      "label": "user_rejection_exit_code",
+      "status": "APPLIED",
+      "file": "repair-repository.py"
+    },
+    {
+      "label": "missing_repair_arguments_exit_code",
+      "status": "APPLIED",
+      "file": "repair-repository.py"
+    }
+  ],
+  "compile": {
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "next_phase": [
+    "candidate_to_repair_action_compiler",
+    "multi_file_candidate_expansion",
+    "execution_test_harness",
+    "exact_verification",
+    "behavioral_verification",
+    "re_analysis",
+    "final_report"
+  ]
+}

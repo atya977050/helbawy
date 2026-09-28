@@ -1,0 +1,169 @@
+{
+  "project": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد",
+  "status": "EVIDENCED",
+  "nodes": [
+    {
+      "id": "server:socketio",
+      "kind": "socketio-server",
+      "status": "EXISTS",
+      "evidence": [
+        "server.js"
+      ],
+      "details": {
+        "initialization": [
+          {
+            "type": "server",
+            "file": "server.js",
+            "evidence": "new Server(...)"
+          },
+          {
+            "type": "client",
+            "file": "public/app.js",
+            "evidence": "io()"
+          }
+        ]
+      }
+    },
+    {
+      "id": "client:socketio",
+      "kind": "socketio-client",
+      "status": "EXISTS",
+      "evidence": [
+        "public/app.js"
+      ],
+      "details": {}
+    },
+    {
+      "id": "socketio:signaling",
+      "kind": "signaling-contract",
+      "status": "MISSING",
+      "evidence": [
+        "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contracts-report.json"
+      ],
+      "details": {
+        "limitation": "No direct Socket.IO emit/on contracts were detected."
+      }
+    },
+    {
+      "id": "webrtc:media-capture",
+      "kind": "media-capture",
+      "status": "EXISTS",
+      "evidence": [
+        "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contracts-report.json"
+      ],
+      "details": {
+        "apis": [
+          "getUserMedia",
+          "ontrack",
+          "srcObject"
+        ]
+      }
+    },
+    {
+      "id": "webrtc:peer-connection",
+      "kind": "peer-connection",
+      "status": "MISSING",
+      "evidence": [
+        "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contracts-report.json"
+      ],
+      "details": {
+        "detected_apis": [],
+        "missing_apis": [
+          "RTCPeerConnection",
+          "addIceCandidate",
+          "createAnswer",
+          "createOffer",
+          "onicecandidate",
+          "setLocalDescription",
+          "setRemoteDescription"
+        ]
+      }
+    },
+    {
+      "id": "webrtc:remote-track",
+      "kind": "remote-track",
+      "status": "EXISTS",
+      "evidence": [
+        "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contracts-report.json"
+      ],
+      "details": {}
+    },
+    {
+      "id": "dom:remote-video",
+      "kind": "dom-target",
+      "status": "EVIDENCE_LIMITED",
+      "evidence": [
+        "public/index.html"
+      ],
+      "details": {
+        "reason": "Static graph requires source inspection to resolve the remoteVideo DOM target."
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "client:socketio",
+      "target": "server:socketio",
+      "relation": "socketio-transport",
+      "status": "EXISTS",
+      "evidence": [
+        "public/app.js",
+        "server.js"
+      ],
+      "details": {}
+    },
+    {
+      "source": "client:socketio",
+      "target": "socketio:signaling",
+      "relation": "signaling-contract",
+      "status": "BROKEN",
+      "evidence": [
+        "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contracts-report.json"
+      ],
+      "details": {}
+    },
+    {
+      "source": "webrtc:media-capture",
+      "target": "webrtc:peer-connection",
+      "relation": "media-to-peer",
+      "status": "BROKEN",
+      "evidence": [
+        "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contracts-report.json"
+      ],
+      "details": {}
+    },
+    {
+      "source": "webrtc:peer-connection",
+      "target": "webrtc:remote-track",
+      "relation": "peer-to-remote-track",
+      "status": "BROKEN",
+      "evidence": [
+        "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contracts-report.json"
+      ],
+      "details": {}
+    },
+    {
+      "source": "webrtc:remote-track",
+      "target": "dom:remote-video",
+      "relation": "remote-track-to-dom",
+      "status": "EVIDENCE_LIMITED",
+      "evidence": [
+        "public/app.js",
+        "public/index.html"
+      ],
+      "details": {}
+    }
+  ],
+  "summary": {
+    "nodes": 7,
+    "edges": 5,
+    "exists": 4,
+    "missing": 2,
+    "broken": 3,
+    "evidence_limited": 2
+  },
+  "sources": {
+    "scan_report": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/scan-report.json",
+    "contracts_report": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contracts-report.json"
+  }
+}

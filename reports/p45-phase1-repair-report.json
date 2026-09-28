@@ -1,0 +1,39 @@
+{
+  "report": "P45-PHASE1-REPAIR-001",
+  "timestamp": "2026-09-26T19:05:19.529153+00:00",
+  "status": "APPLIED_AND_COMPILED",
+  "patches": [
+    {
+      "label": "add RepairCLIError",
+      "status": "APPLIED",
+      "file": "repair-repository.py"
+    },
+    {
+      "label": "candidate_target_auto_resolution",
+      "status": "APPLIED",
+      "file": "repair-repository.py"
+    },
+    {
+      "label": "candidate_reason_auto_resolution",
+      "status": "APPLIED",
+      "file": "repair-repository.py"
+    },
+    {
+      "label": "candidate_action_binding",
+      "status": "APPLIED",
+      "file": "repair-repository.py"
+    }
+  ],
+  "compile": {
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "next_phase": [
+    "multi_file_candidate_actions",
+    "failure_exit_codes",
+    "test_layer",
+    "verification",
+    "re_analysis"
+  ]
+}

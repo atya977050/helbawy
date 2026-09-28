@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>عبقرينو — إنشاء البرنامج</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+  background:linear-gradient(145deg,#08111f,#101b31 55%,#18233d);
+  color:#eef4ff;
+}
+.wrap{width:min(980px,94%);margin:auto;padding:28px 0 50px}
+.brand{font-size:14px;font-weight:800;color:#8fb7ff;margin-bottom:18px}
+h1{margin:8px 0;font-size:clamp(27px,5vw,42px)}
+.sub{color:#aebbd0;line-height:1.8}
+.steps{display:flex;gap:8px;overflow:auto;margin:26px 0}
+.step{white-space:nowrap;padding:9px 14px;border-radius:999px;background:#162238;color:#8998b1}
+.step.done{color:#b9d2ff;background:#19345b}
+.step.active{color:white;background:#315f9f}
+.card{
+  background:rgba(18,30,51,.9);
+  border:1px solid #263956;
+  border-radius:22px;
+  padding:26px;
+  box-shadow:0 20px 60px #0005;
+}
+.badge{
+  display:inline-block;
+  padding:7px 12px;
+  border-radius:999px;
+  background:#1d3558;
+  color:#a9caff;
+  font-size:13px;
+  font-weight:800
+}
+.status{
+  margin-top:24px;
+  padding:22px;
+  border-radius:17px;
+  background:#111e33;
+  border:1px solid #2b405f;
+}
+.spinner{
+  width:38px;height:38px;border-radius:50%;
+  border:4px solid #29415f;
+  border-top-color:#75aaf5;
+  animation:spin 1s linear infinite;
+  margin-bottom:16px
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.success{border-color:#315d4d}
+.error{border-color:#693f4a}
+.info{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+.box{
+  padding:15px;border-radius:13px;background:#182840;
+  border:1px solid #2a405d
+}
+.label{font-size:12px;color:#8fa4c1}
+.value{margin-top:5px;font-weight:800;word-break:break-word}
+.actions{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}
+button{
+  border:0;border-radius:13px;padding:13px 18px;
+  font:inherit;font-weight:800;cursor:pointer
+}
+.back{background:#202e43;color:#d8e4f5}
+.next{background:#3974c8;color:white}
+@media(max-width:700px){.info{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="brand">🧠 عبقرينو Studio</div>
+  <h1>إنشاء برنامج جديد</h1>
+
+  <div class="steps">
+    <div class="step done">✓ الفكرة</div>
+    <div class="step done">✓ الفهم</div>
+    <div class="step done">✓ المتطلبات</div>
+    <div class="step done">✓ التخطيط</div>
+    <div class="step active">5 الإنشاء</div>
+  </div>
+
+  <section class="card">
+    <span class="badge">المرحلة 5 — إنشاء البرنامج</span>
+    <h2 id="title">عبقرينو ينشئ برنامجك الآن</h2>
+    <p class="sub" id="message">
+      يتم تحويل الخطة التي اعتمدتها إلى مشروع حقيقي.
+    </p>
+
+    <div id="status" class="status">
+      <div class="spinner"></div>
+      <strong>جاري إنشاء المشروع...</strong>
+      <p class="sub">يرجى الانتظار حتى ينتهي المولّد.</p>
+    </div>
+
+    <div class="actions" id="actions" style="display:none">
+      <button class="back" onclick="location.href='/create/plan'">
+        ↩ مراجعة التخطيط
+      </button>
+    </div>
+  </section>
+</main>
+
+<script>
+const idea=sessionStorage.getItem("abqarynoIdea")||"";
+const analysis=JSON.parse(
+  sessionStorage.getItem("abqarynoAnalysis")||"{}"
+);
+const selected=JSON.parse(
+  sessionStorage.getItem("abqarynoSelectedScreens")||"[]"
+);
+const selectedOptions=JSON.parse(
+  sessionStorage.getItem("abqarynoOptions")||"[]"
+);
+
+const screens=analysis.screens||analysis.requirements?.screens||[];
+const approved=screens.filter(x=>selected.includes(x.id));
+
+const status=document.getElementById("status");
+const title=document.getElementById("title");
+const message=document.getElementById("message");
+const actions=document.getElementById("actions");
+
+async function createProject(){
+  if(!idea || !approved.length){
+    throw new Error("بيانات الفكرة أو المتطلبات المعتمدة غير موجودة.");
+  }
+
+  const response=await fetch("/api/create",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      idea,
+      approved,
+      options:selectedOptions
+    })
+  });
+
+  const result=await response.json();
+
+  if(!response.ok || !result.ok){
+    throw new Error(result.error||"تعذر إنشاء المشروع.");
+  }
+
+  return result;
+}
+
+createProject()
+.then(result=>{
+  title.textContent="🎉 تم إنشاء البرنامج بنجاح";
+  message.textContent="عبقرينو أنهى إنشاء المشروع وفق الخطة التي اعتمدتها.";
+
+  const name=result.path
+    ? result.path.split("/").pop()
+    : "مشروع عبقرينو";
+
+  status.className="status success";
+  status.innerHTML=`
+    <strong>تم إنشاء المشروع فعليًا.</strong>
+    <div class="info">
+      <div class="box">
+        <div class="label">اسم المشروع</div>
+        <div class="value">${name}</div>
+      </div>
+      <div class="box">
+        <div class="label">عدد الشاشات</div>
+        <div class="value">${approved.length}</div>
+      </div>
+      <div class="box" style="grid-column:1/-1">
+        <div class="label">مسار المشروع</div>
+        <div class="value">${result.path||"غير متاح"}</div>
+      </div>
+    </div>
+  `;
+
+  actions.style.display="flex";
+})
+.catch(error=>{
+  title.textContent="تعذر إنشاء البرنامج";
+  message.textContent="حدثت مشكلة أثناء تنفيذ المولّد.";
+
+  status.className="status error";
+  status.innerHTML=`
+    <strong>❌ لم يكتمل الإنشاء</strong>
+    <p class="sub">${error.message}</p>
+  `;
+
+  actions.style.display="flex";
+});
+</script>
+</body>
+</html>

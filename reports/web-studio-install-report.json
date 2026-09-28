@@ -1,0 +1,18 @@
+{
+  "status": "WEB_STUDIO_INSTALLED",
+  "studio": "studio/index.html",
+  "server": "studio/server.py",
+  "launcher": "run_web_studio.sh",
+  "port": 8787,
+  "features": [
+    "browser idea input",
+    "requirements screens",
+    "three visual designs",
+    "more designs",
+    "screen modification",
+    "screen rejection",
+    "screen approval",
+    "creation state",
+    "project generation"
+  ]
+}

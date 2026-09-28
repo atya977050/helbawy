@@ -1,0 +1,15 @@
+from enum import Enum
+
+
+class CoreState(str, Enum):
+    NEW = "NEW"
+    UNDERSTANDING = "UNDERSTANDING"
+    REQUIREMENTS = "REQUIREMENTS"
+    PLANNING = "PLANNING"
+    MAPPING = "MAPPING"
+    DECISION = "DECISION"
+    NEXT_STEP = "NEXT_STEP"
+    WAITING = "WAITING"
+    BLOCKED = "BLOCKED"
+    STOPPED = "STOPPED"
+    COMPLETED = "COMPLETED"

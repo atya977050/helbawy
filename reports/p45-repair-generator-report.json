@@ -1,0 +1,25 @@
+{
+  "report": "P45-REPAIR-GENERATOR-001",
+  "timestamp": "2026-09-26T19:50:41.976812+00:00",
+  "status": "ADDED_AND_COMPILED",
+  "execution_allowed": false,
+  "components": [
+    "engine/repair_design.py",
+    "engine/repair_generator.py"
+  ],
+  "capabilities": [
+    "compile repair designs",
+    "read exact current source",
+    "derive old_text from unique anchors",
+    "generate deterministic new_text where an explicit template exists",
+    "preserve before SHA-256",
+    "never modify target files",
+    "never approve repairs",
+    "never execute repairs"
+  ],
+  "explicit_limits": [
+    "WebRTC negotiation generation is not guessed.",
+    "Multi-file Socket.IO signaling generation requires an explicit protocol template.",
+    "Runtime verification does not generate source code."
+  ]
+}

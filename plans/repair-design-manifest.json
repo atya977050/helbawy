@@ -1,0 +1,306 @@
+{
+  "schema": "P45-RepairDesignManifest-v1",
+  "generated_at": "2026-09-26T19:42:55.439970+00:00",
+  "source_plan": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/plans/execution-plan.json",
+  "source_actions": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/plans/repair-actions.json",
+  "status": "DESIGN_ONLY",
+  "execution_allowed": false,
+  "rule": "No old_text/new_text is executable until exact source anchors are verified against the current target files.",
+  "actions": [
+    {
+      "action_id": "P45-REPAIR-CANDIDATE-RC-WEBRTC-001:ACTION-01",
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-WEBRTC-001",
+      "target": "public/app.js",
+      "reason": "RC-WEBRTC-001",
+      "design": {
+        "design_id": "DESIGN-WEBRTC-001",
+        "type": "exact_code_insertion",
+        "target": "public/app.js",
+        "intent": "Construct RTCPeerConnection before lifecycle methods use peerConnection.",
+        "depends_on": [],
+        "requires_exact_source_anchor": true,
+        "old_text": null,
+        "new_text": null,
+        "design_status": "DESIGN_ONLY"
+      },
+      "approval": {
+        "status": "APPROVED",
+        "approved": true,
+        "approved_at": "2026-09-26T18:23:52.796719+00:00"
+      },
+      "evidence": [
+        {
+          "file": "public/app.js",
+          "finding": "No RTCPeerConnection construction exists in public/app.js."
+        },
+        {
+          "source": "contract-graph.json",
+          "finding": "webrtc:peer-connection => MISSING"
+        }
+      ],
+      "verification": [
+        "Confirm RTCPeerConnection construction exists.",
+        "Run WebRTC runtime verification."
+      ],
+      "execution_allowed": false,
+      "status": "DESIGN_ONLY"
+    },
+    {
+      "action_id": "P45-REPAIR-CANDIDATE-RC-SIGNALING-001:ACTION-01",
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-SIGNALING-001",
+      "target": "server.js",
+      "reason": "RC-SIGNALING-001",
+      "design": {
+        "design_id": "DESIGN-SIGNALING-001",
+        "type": "multi_file_signaling_contract",
+        "targets": [
+          "server.js",
+          "public/app.js"
+        ],
+        "intent": "Create explicit Socket.IO signaling events connecting offer, answer and ICE exchange.",
+        "depends_on": [
+          "DESIGN-WEBRTC-001",
+          "DESIGN-WEBRTC-002"
+        ],
+        "requires_exact_source_anchor": true,
+        "old_text": null,
+        "new_text": null,
+        "design_status": "DESIGN_ONLY"
+      },
+      "approval": {
+        "status": "APPROVED",
+        "approved": true,
+        "approved_at": "2026-09-26T18:23:52.799906+00:00"
+      },
+      "evidence": [
+        {
+          "file": "server.js",
+          "finding": "Socket.IO server is initialized, but no connection, handler, or emit contract exists."
+        },
+        {
+          "file": "public/app.js",
+          "finding": "Socket.IO client is initialized with io(), but no signaling event contract exists."
+        },
+        {
+          "source": "contract-graph.json",
+          "finding": "socketio:signaling => MISSING"
+        }
+      ],
+      "verification": [
+        "Verify Socket.IO connection and signaling handlers.",
+        "Verify offer/answer/ICE messages in runtime."
+      ],
+      "execution_allowed": false,
+      "status": "DESIGN_ONLY"
+    },
+    {
+      "action_id": "P45-REPAIR-CANDIDATE-RC-SIGNALING-001:ACTION-02",
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-SIGNALING-001",
+      "target": "public/app.js",
+      "reason": "RC-SIGNALING-001",
+      "design": {
+        "design_id": "DESIGN-SIGNALING-001",
+        "type": "multi_file_signaling_contract",
+        "targets": [
+          "server.js",
+          "public/app.js"
+        ],
+        "intent": "Create explicit Socket.IO signaling events connecting offer, answer and ICE exchange.",
+        "depends_on": [
+          "DESIGN-WEBRTC-001",
+          "DESIGN-WEBRTC-002"
+        ],
+        "requires_exact_source_anchor": true,
+        "old_text": null,
+        "new_text": null,
+        "design_status": "DESIGN_ONLY"
+      },
+      "approval": {
+        "status": "APPROVED",
+        "approved": true,
+        "approved_at": "2026-09-26T18:23:52.799906+00:00"
+      },
+      "evidence": [
+        {
+          "file": "server.js",
+          "finding": "Socket.IO server is initialized, but no connection, handler, or emit contract exists."
+        },
+        {
+          "file": "public/app.js",
+          "finding": "Socket.IO client is initialized with io(), but no signaling event contract exists."
+        },
+        {
+          "source": "contract-graph.json",
+          "finding": "socketio:signaling => MISSING"
+        }
+      ],
+      "verification": [
+        "Verify Socket.IO connection and signaling handlers.",
+        "Verify offer/answer/ICE messages in runtime."
+      ],
+      "execution_allowed": false,
+      "status": "DESIGN_ONLY"
+    },
+    {
+      "action_id": "P45-REPAIR-CANDIDATE-RC-MEDIA-UI-001:ACTION-01",
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-MEDIA-UI-001",
+      "target": "public/index.html",
+      "reason": "RC-MEDIA-UI-001",
+      "design": {
+        "design_id": "DESIGN-MEDIA-UI-001",
+        "type": "dom_target_insertion",
+        "target": "public/index.html",
+        "intent": "Provide a remote video DOM element compatible with remoteVideo.srcObject.",
+        "depends_on": [],
+        "requires_exact_source_anchor": true,
+        "old_text": null,
+        "new_text": null,
+        "design_status": "DESIGN_ONLY"
+      },
+      "approval": {
+        "status": "APPROVED",
+        "approved": true,
+        "approved_at": "2026-09-26T18:23:52.802039+00:00"
+      },
+      "evidence": [
+        {
+          "file": "public/app.js",
+          "finding": "Code references remoteVideo as the target for the received media stream."
+        },
+        {
+          "file": "public/index.html",
+          "finding": "No element with id=\"remoteVideo\" exists."
+        }
+      ],
+      "verification": [
+        "Verify remote video DOM target exists.",
+        "Verify received MediaStream is rendered."
+      ],
+      "execution_allowed": false,
+      "status": "DESIGN_ONLY"
+    },
+    {
+      "action_id": "P45-REPAIR-CANDIDATE-RC-MEDIA-LIFECYCLE-001:ACTION-01",
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-MEDIA-LIFECYCLE-001",
+      "target": "public/app.js",
+      "reason": "RC-MEDIA-LIFECYCLE-001",
+      "design": {
+        "design_id": "DESIGN-MEDIA-LIFECYCLE-001",
+        "type": "media_track_binding",
+        "target": "public/app.js",
+        "intent": "Attach captured local audio/video tracks to the peer connection.",
+        "depends_on": [
+          "DESIGN-WEBRTC-001"
+        ],
+        "requires_exact_source_anchor": true,
+        "old_text": null,
+        "new_text": null,
+        "design_status": "DESIGN_ONLY"
+      },
+      "approval": {
+        "status": "APPROVED",
+        "approved": true,
+        "approved_at": "2026-09-26T18:23:52.804009+00:00"
+      },
+      "evidence": [
+        {
+          "file": "public/app.js",
+          "finding": "getUserMedia() stores the result in localStream."
+        },
+        {
+          "file": "public/app.js",
+          "finding": "No addTrack() call was detected."
+        },
+        {
+          "source": "contract-graph.json",
+          "finding": "webrtc:media-capture -> webrtc:peer-connection => BROKEN"
+        }
+      ],
+      "verification": [
+        "Verify local tracks are attached to RTCPeerConnection.",
+        "Run camera/microphone WebRTC runtime test."
+      ],
+      "execution_allowed": false,
+      "status": "DESIGN_ONLY"
+    },
+    {
+      "action_id": "P45-REPAIR-CANDIDATE-RC-WEBRTC-002:ACTION-01",
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-WEBRTC-002",
+      "target": "public/app.js",
+      "reason": "RC-WEBRTC-002",
+      "design": {
+        "design_id": "DESIGN-WEBRTC-002",
+        "type": "webrtc_negotiation_lifecycle",
+        "target": "public/app.js",
+        "intent": "Implement offer/answer, local/remote descriptions and ICE candidate lifecycle.",
+        "depends_on": [
+          "DESIGN-WEBRTC-001",
+          "DESIGN-MEDIA-LIFECYCLE-001"
+        ],
+        "requires_exact_source_anchor": true,
+        "old_text": null,
+        "new_text": null,
+        "design_status": "DESIGN_ONLY"
+      },
+      "approval": {
+        "status": "APPROVED",
+        "approved": true,
+        "approved_at": "2026-09-26T18:23:52.808276+00:00"
+      },
+      "evidence": [
+        {
+          "file": "public/app.js",
+          "finding": "The following WebRTC APIs are absent: createOffer, createAnswer, setLocalDescription, setRemoteDescription, addIceCandidate, onicecandidate"
+        },
+        {
+          "source": "contract-graph.json",
+          "finding": "peer-connection node is MISSING with the same API set unresolved."
+        }
+      ],
+      "verification": [
+        "Verify offer/answer negotiation APIs.",
+        "Verify ICE candidate exchange.",
+        "Run end-to-end WebRTC runtime test."
+      ],
+      "execution_allowed": false,
+      "status": "DESIGN_ONLY"
+    },
+    {
+      "action_id": "P45-REPAIR-CANDIDATE-RC-RUNTIME-001:ACTION-01",
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-RUNTIME-001",
+      "target": "public/app.js",
+      "reason": "RC-RUNTIME-001",
+      "design": {
+        "design_id": "DESIGN-RUNTIME-001",
+        "type": "runtime_consistency_verification",
+        "target": "public/app.js",
+        "intent": "Verify that ontrack executes only against an initialized peer connection and renders the remote stream.",
+        "depends_on": [
+          "DESIGN-WEBRTC-001",
+          "DESIGN-MEDIA-UI-001"
+        ],
+        "requires_exact_source_anchor": false,
+        "old_text": null,
+        "new_text": null,
+        "design_status": "VERIFICATION_ONLY"
+      },
+      "approval": {
+        "status": "APPROVED",
+        "approved": true,
+        "approved_at": "2026-09-26T18:23:52.812378+00:00"
+      },
+      "evidence": [
+        {
+          "file": "public/app.js",
+          "finding": "peerConnection.ontrack is assigned while no RTCPeerConnection construction exists."
+        }
+      ],
+      "verification": [
+        "Run browser runtime test before claiming the inferred failure.",
+        "Confirm peerConnection lifecycle before ontrack assignment."
+      ],
+      "execution_allowed": false,
+      "status": "DESIGN_ONLY"
+    }
+  ]
+}

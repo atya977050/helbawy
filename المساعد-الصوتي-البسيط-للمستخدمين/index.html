@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المساعد الصوتي البسيط</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #0d0d0d, #1a1a1a);
+            color: #ffd700;
+            font-family: Tahoma, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(30, 30, 30, 0.95);
+            border: 3px solid #ffd700;
+            border-radius: 25px;
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 0 35px rgba(255, 215, 0, 0.4);
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #ffd700;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+        }
+        p {
+            font-size: 18px;
+            color: #ccc;
+            margin-bottom: 25px;
+        }
+        .mic-btn {
+            background: linear-gradient(145deg, #ffd700, #cca600);
+            color: #121212;
+            border: none;
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            font-size: 55px;
+            cursor: pointer;
+            box-shadow: 0 5px 25px rgba(255, 215, 0, 0.6);
+            transition: 0.3s;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .mic-btn:active {
+            transform: scale(0.92);
+        }
+        .status-box {
+            background: #111;
+            border: 2px dashed #ffd700;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            font-size: 22px;
+            color: #fff;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        .action-card {
+            background: #252525;
+            border: 2px solid #ffd700;
+            border-radius: 15px;
+            padding: 20px;
+            font-size: 22px;
+            cursor: pointer;
+            color: #ffd700;
+            transition: 0.2s;
+        }
+        .action-card:hover {
+            background: #ffd700;
+            color: #121212;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🎙️ مساعد عبقرينو الصوتي</h1>
+        <p>اضغط على الزر المتحدث وتكلم بما تريد وسأقوم بتنفيذه فوراً</p>
+
+        <!-- زر الميكروفون الكبير -->
+        <button class="mic-btn" onclick="startListening()" title="اضغط وتحدث">🗣️</button>
+
+        <div class="status-box" id="statusText">
+            أنا أستمع إليك الآن... اضغط وتحدث
+        </div>
+
+        <div class="action-grid">
+            <div class="action-card" onclick="speakText('أهلاً بك، كيف يمكنني مساعدتك اليوم؟')">📢 ترحيب</div>
+            <div class="action-card" onclick="speakText('تم تسجيل طلبك بنجاح، اطمئن')">✅ تأكيد</div>
+        </div>
+    </div>
+
+    <script>
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                let utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'ar-SA';
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+                document.getElementById('statusText').innerText = text;
+            } else {
+                alert(text);
+            }
+        }
+
+        function startListening() {
+            speakText("جاري الاستماع إليك، تفضل بالكلام...");
+            
+            // محاكاة أو تشغيل خاصية التعرف على الصوت إن وجدت بالمتصفح
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                setTimeout(() => {
+                    speakText("عذراً، متصفحك لا يدعم التعرف المباشر، لكنني جاهز لتنفيذ الأوامر.");
+                }, 2000);
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'ar-SA';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onresult = function(event) {
+                const speechResult = event.results[0][0].transcript;
+                document.getElementById('statusText').innerText = "قلت: " + speechResult;
+                speakText("فهمت طلبك: " + speechResult);
+            };
+
+            recognition.onerror = function(event) {
+                speakText("لم أسمعك جيداً، حاول مرة أخرى.");
+            };
+
+            recognition.start();
+        }
+
+        // ترحيب تلقائي عند الفتح للمستخدم
+        window.onload = function() {
+            setTimeout(() => {
+                speakText("مرحباً بك. اضغط على الزر الكبير للتحدث معي.");
+            }, 1000);
+        };
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,297 @@
+{
+  "schema": "P45-RepairActions-v1",
+  "generated_at": "2026-09-26T19:37:56.678345+00:00",
+  "source_plan": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/plans/execution-plan.json",
+  "execution_allowed": false,
+  "actions": [
+    {
+      "action_id": "P45-REPAIR-CANDIDATE-RC-WEBRTC-001:ACTION-01",
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-WEBRTC-001",
+      "target": "public/app.js",
+      "reason": "RC-WEBRTC-001",
+      "title": "PeerConnection construction is absent",
+      "classification": "CONFIRMED",
+      "severity": "HIGH",
+      "status": "PLANNED",
+      "approval": {
+        "status": "APPROVED",
+        "approved": true,
+        "approved_at": "2026-09-26T18:23:52.796719+00:00"
+      },
+      "evidence": [
+        {
+          "file": "public/app.js",
+          "finding": "No RTCPeerConnection construction exists in public/app.js."
+        },
+        {
+          "source": "contract-graph.json",
+          "finding": "webrtc:peer-connection => MISSING"
+        }
+      ],
+      "verification": [
+        "Confirm RTCPeerConnection construction exists.",
+        "Run WebRTC runtime verification."
+      ],
+      "old_text": null,
+      "new_text": null,
+      "snapshot_required": true,
+      "execution_allowed": false,
+      "blocking_requirements": [
+        "Concrete exact old_text must be supplied from evidence.",
+        "Concrete exact new_text must be supplied from an approved repair design.",
+        "Snapshot must exist before application.",
+        "Exact verification must pass after application.",
+        "Behavioral verification is required where candidate verification demands runtime proof."
+      ]
+    },
+    {
+      "action_id": "P45-REPAIR-CANDIDATE-RC-SIGNALING-001:ACTION-01",
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-SIGNALING-001",
+      "target": "server.js",
+      "reason": "RC-SIGNALING-001",
+      "title": "Socket.IO signaling contract is absent",
+      "classification": "CONFIRMED",
+      "severity": "HIGH",
+      "status": "PLANNED",
+      "approval": {
+        "status": "APPROVED",
+        "approved": true,
+        "approved_at": "2026-09-26T18:23:52.799906+00:00"
+      },
+      "evidence": [
+        {
+          "file": "server.js",
+          "finding": "Socket.IO server is initialized, but no connection, handler, or emit contract exists."
+        },
+        {
+          "file": "public/app.js",
+          "finding": "Socket.IO client is initialized with io(), but no signaling event contract exists."
+        },
+        {
+          "source": "contract-graph.json",
+          "finding": "socketio:signaling => MISSING"
+        }
+      ],
+      "verification": [
+        "Verify Socket.IO connection and signaling handlers.",
+        "Verify offer/answer/ICE messages in runtime."
+      ],
+      "old_text": null,
+      "new_text": null,
+      "snapshot_required": true,
+      "execution_allowed": false,
+      "blocking_requirements": [
+        "Concrete exact old_text must be supplied from evidence.",
+        "Concrete exact new_text must be supplied from an approved repair design.",
+        "Snapshot must exist before application.",
+        "Exact verification must pass after application.",
+        "Behavioral verification is required where candidate verification demands runtime proof."
+      ]
+    },
+    {
+      "action_id": "P45-REPAIR-CANDIDATE-RC-SIGNALING-001:ACTION-02",
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-SIGNALING-001",
+      "target": "public/app.js",
+      "reason": "RC-SIGNALING-001",
+      "title": "Socket.IO signaling contract is absent",
+      "classification": "CONFIRMED",
+      "severity": "HIGH",
+      "status": "PLANNED",
+      "approval": {
+        "status": "APPROVED",
+        "approved": true,
+        "approved_at": "2026-09-26T18:23:52.799906+00:00"
+      },
+      "evidence": [
+        {
+          "file": "server.js",
+          "finding": "Socket.IO server is initialized, but no connection, handler, or emit contract exists."
+        },
+        {
+          "file": "public/app.js",
+          "finding": "Socket.IO client is initialized with io(), but no signaling event contract exists."
+        },
+        {
+          "source": "contract-graph.json",
+          "finding": "socketio:signaling => MISSING"
+        }
+      ],
+      "verification": [
+        "Verify Socket.IO connection and signaling handlers.",
+        "Verify offer/answer/ICE messages in runtime."
+      ],
+      "old_text": null,
+      "new_text": null,
+      "snapshot_required": true,
+      "execution_allowed": false,
+      "blocking_requirements": [
+        "Concrete exact old_text must be supplied from evidence.",
+        "Concrete exact new_text must be supplied from an approved repair design.",
+        "Snapshot must exist before application.",
+        "Exact verification must pass after application.",
+        "Behavioral verification is required where candidate verification demands runtime proof."
+      ]
+    },
+    {
+      "action_id": "P45-REPAIR-CANDIDATE-RC-MEDIA-UI-001:ACTION-01",
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-MEDIA-UI-001",
+      "target": "public/index.html",
+      "reason": "RC-MEDIA-UI-001",
+      "title": "Remote video DOM target is absent",
+      "classification": "CONFIRMED",
+      "severity": "HIGH",
+      "status": "PLANNED",
+      "approval": {
+        "status": "APPROVED",
+        "approved": true,
+        "approved_at": "2026-09-26T18:23:52.802039+00:00"
+      },
+      "evidence": [
+        {
+          "file": "public/app.js",
+          "finding": "Code references remoteVideo as the target for the received media stream."
+        },
+        {
+          "file": "public/index.html",
+          "finding": "No element with id=\"remoteVideo\" exists."
+        }
+      ],
+      "verification": [
+        "Verify remote video DOM target exists.",
+        "Verify received MediaStream is rendered."
+      ],
+      "old_text": null,
+      "new_text": null,
+      "snapshot_required": true,
+      "execution_allowed": false,
+      "blocking_requirements": [
+        "Concrete exact old_text must be supplied from evidence.",
+        "Concrete exact new_text must be supplied from an approved repair design.",
+        "Snapshot must exist before application.",
+        "Exact verification must pass after application.",
+        "Behavioral verification is required where candidate verification demands runtime proof."
+      ]
+    },
+    {
+      "action_id": "P45-REPAIR-CANDIDATE-RC-MEDIA-LIFECYCLE-001:ACTION-01",
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-MEDIA-LIFECYCLE-001",
+      "target": "public/app.js",
+      "reason": "RC-MEDIA-LIFECYCLE-001",
+      "title": "Captured local media is not attached to a peer",
+      "classification": "DERIVED",
+      "severity": "HIGH",
+      "status": "PLANNED",
+      "approval": {
+        "status": "APPROVED",
+        "approved": true,
+        "approved_at": "2026-09-26T18:23:52.804009+00:00"
+      },
+      "evidence": [
+        {
+          "file": "public/app.js",
+          "finding": "getUserMedia() stores the result in localStream."
+        },
+        {
+          "file": "public/app.js",
+          "finding": "No addTrack() call was detected."
+        },
+        {
+          "source": "contract-graph.json",
+          "finding": "webrtc:media-capture -> webrtc:peer-connection => BROKEN"
+        }
+      ],
+      "verification": [
+        "Verify local tracks are attached to RTCPeerConnection.",
+        "Run camera/microphone WebRTC runtime test."
+      ],
+      "old_text": null,
+      "new_text": null,
+      "snapshot_required": true,
+      "execution_allowed": false,
+      "blocking_requirements": [
+        "Concrete exact old_text must be supplied from evidence.",
+        "Concrete exact new_text must be supplied from an approved repair design.",
+        "Snapshot must exist before application.",
+        "Exact verification must pass after application.",
+        "Behavioral verification is required where candidate verification demands runtime proof."
+      ]
+    },
+    {
+      "action_id": "P45-REPAIR-CANDIDATE-RC-WEBRTC-002:ACTION-01",
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-WEBRTC-002",
+      "target": "public/app.js",
+      "reason": "RC-WEBRTC-002",
+      "title": "WebRTC negotiation and ICE lifecycle is absent",
+      "classification": "CONFIRMED",
+      "severity": "HIGH",
+      "status": "PLANNED",
+      "approval": {
+        "status": "APPROVED",
+        "approved": true,
+        "approved_at": "2026-09-26T18:23:52.808276+00:00"
+      },
+      "evidence": [
+        {
+          "file": "public/app.js",
+          "finding": "The following WebRTC APIs are absent: createOffer, createAnswer, setLocalDescription, setRemoteDescription, addIceCandidate, onicecandidate"
+        },
+        {
+          "source": "contract-graph.json",
+          "finding": "peer-connection node is MISSING with the same API set unresolved."
+        }
+      ],
+      "verification": [
+        "Verify offer/answer negotiation APIs.",
+        "Verify ICE candidate exchange.",
+        "Run end-to-end WebRTC runtime test."
+      ],
+      "old_text": null,
+      "new_text": null,
+      "snapshot_required": true,
+      "execution_allowed": false,
+      "blocking_requirements": [
+        "Concrete exact old_text must be supplied from evidence.",
+        "Concrete exact new_text must be supplied from an approved repair design.",
+        "Snapshot must exist before application.",
+        "Exact verification must pass after application.",
+        "Behavioral verification is required where candidate verification demands runtime proof."
+      ]
+    },
+    {
+      "action_id": "P45-REPAIR-CANDIDATE-RC-RUNTIME-001:ACTION-01",
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-RUNTIME-001",
+      "target": "public/app.js",
+      "reason": "RC-RUNTIME-001",
+      "title": "ontrack is assigned to an unconstructed peer reference",
+      "classification": "INFERRED",
+      "severity": "HIGH",
+      "status": "PLANNED",
+      "approval": {
+        "status": "APPROVED",
+        "approved": true,
+        "approved_at": "2026-09-26T18:23:52.812378+00:00"
+      },
+      "evidence": [
+        {
+          "file": "public/app.js",
+          "finding": "peerConnection.ontrack is assigned while no RTCPeerConnection construction exists."
+        }
+      ],
+      "verification": [
+        "Run browser runtime test before claiming the inferred failure.",
+        "Confirm peerConnection lifecycle before ontrack assignment."
+      ],
+      "old_text": null,
+      "new_text": null,
+      "snapshot_required": true,
+      "execution_allowed": false,
+      "blocking_requirements": [
+        "Concrete exact old_text must be supplied from evidence.",
+        "Concrete exact new_text must be supplied from an approved repair design.",
+        "Snapshot must exist before application.",
+        "Exact verification must pass after application.",
+        "Behavioral verification is required where candidate verification demands runtime proof."
+      ]
+    }
+  ]
+}

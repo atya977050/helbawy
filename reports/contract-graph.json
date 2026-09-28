@@ -1,0 +1,307 @@
+{
+  "project": "/data/data/com.termux/files/home/عبقرينو",
+  "status": "EVIDENCED",
+  "nodes": [
+    {
+      "id": "server:socketio",
+      "kind": "socketio-server",
+      "status": "EXISTS",
+      "evidence": [
+        "بلبل-الجديد/server.js"
+      ],
+      "details": {
+        "initialization": [
+          {
+            "type": "server",
+            "file": "setup.py",
+            "evidence": "new Server(...)"
+          },
+          {
+            "type": "client",
+            "file": "setup.py",
+            "evidence": "io()"
+          },
+          {
+            "type": "client",
+            "file": "p45_phase5_persist.py",
+            "evidence": "io()"
+          },
+          {
+            "type": "server",
+            "file": "engine/socketio.py",
+            "evidence": "new Server(...)"
+          },
+          {
+            "type": "client",
+            "file": "engine/socketio.py",
+            "evidence": "io()"
+          },
+          {
+            "type": "client",
+            "file": "engine/root_cause.py",
+            "evidence": "io()"
+          },
+          {
+            "type": "server",
+            "file": "بلبل-الجديد/server.js",
+            "evidence": "new Server(...)"
+          },
+          {
+            "type": "client",
+            "file": "بلبل-الجديد/public/app.js",
+            "evidence": "io()"
+          },
+          {
+            "type": "server",
+            "file": "repair_creator_repo/engine/generator.py",
+            "evidence": "new Server(...)"
+          },
+          {
+            "type": "client",
+            "file": "repair_creator_repo/engine/generator.py",
+            "evidence": "io()"
+          }
+        ]
+      }
+    },
+    {
+      "id": "client:socketio",
+      "kind": "socketio-client",
+      "status": "EXISTS",
+      "evidence": [
+        "بلبل-الجديد/public/app.js"
+      ],
+      "details": {}
+    },
+    {
+      "id": "socketio:signaling",
+      "kind": "signaling-contract",
+      "status": "EXISTS",
+      "evidence": [
+        "/data/data/com.termux/files/home/عبقرينو/reports/contracts-report.json"
+      ],
+      "details": {
+        "emits": [
+          {
+            "event": ",\n            ],\n        )\n\n        client_signaling = self._has_any(\n            client,\n            [\n                ",
+            "file": "engine/root_cause.py"
+          },
+          {
+            "event": ",\n                ",
+            "file": "engine/root_cause.py"
+          },
+          {
+            "event": "webrtc:offer",
+            "file": "بلبل-الجديد/public/app.js"
+          },
+          {
+            "event": "webrtc:answer",
+            "file": "بلبل-الجديد/public/app.js"
+          },
+          {
+            "event": "webrtc:ice-candidate",
+            "file": "بلبل-الجديد/public/app.js"
+          }
+        ],
+        "handlers": [
+          {
+            "event": ",\n            ",
+            "file": "v4_upgrade.py"
+          },
+          {
+            "event": ",\n                ",
+            "file": "v4_upgrade.py"
+          },
+          {
+            "event": ",\n                            ",
+            "file": "v4_upgrade.py"
+          },
+          {
+            "event": ",\n                ",
+            "file": "engine/root_cause.py"
+          },
+          {
+            "event": ",\n                ",
+            "file": "engine/root_cause.py"
+          },
+          {
+            "event": ",\n                ",
+            "file": "engine/root_cause.py"
+          },
+          {
+            "event": "connection",
+            "file": "بلبل-الجديد/server.js"
+          },
+          {
+            "event": "webrtc:offer",
+            "file": "بلبل-الجديد/server.js"
+          },
+          {
+            "event": "webrtc:answer",
+            "file": "بلبل-الجديد/server.js"
+          },
+          {
+            "event": "webrtc:ice-candidate",
+            "file": "بلبل-الجديد/server.js"
+          },
+          {
+            "event": "connection",
+            "file": "بلبل-الجديد/public/app.js"
+          },
+          {
+            "event": "webrtc:offer",
+            "file": "بلبل-الجديد/public/app.js"
+          },
+          {
+            "event": "webrtc:answer",
+            "file": "بلبل-الجديد/public/app.js"
+          },
+          {
+            "event": "webrtc:ice-candidate",
+            "file": "بلبل-الجديد/public/app.js"
+          },
+          {
+            "event": "webrtc:offer",
+            "file": "بلبل-الجديد/public/app.js"
+          },
+          {
+            "event": "webrtc:answer",
+            "file": "بلبل-الجديد/public/app.js"
+          },
+          {
+            "event": "webrtc:ice-candidate",
+            "file": "بلبل-الجديد/public/app.js"
+          }
+        ]
+      }
+    },
+    {
+      "id": "webrtc:media-capture",
+      "kind": "media-capture",
+      "status": "EXISTS",
+      "evidence": [
+        "/data/data/com.termux/files/home/عبقرينو/reports/contracts-report.json"
+      ],
+      "details": {
+        "apis": [
+          "RTCPeerConnection",
+          "addIceCandidate",
+          "createAnswer",
+          "createOffer",
+          "getUserMedia",
+          "onicecandidate",
+          "ontrack",
+          "setLocalDescription",
+          "setRemoteDescription",
+          "srcObject"
+        ]
+      }
+    },
+    {
+      "id": "webrtc:peer-connection",
+      "kind": "peer-connection",
+      "status": "EXISTS",
+      "evidence": [
+        "/data/data/com.termux/files/home/عبقرينو/reports/contracts-report.json"
+      ],
+      "details": {
+        "detected_apis": [
+          "RTCPeerConnection",
+          "addIceCandidate",
+          "createAnswer",
+          "createOffer",
+          "onicecandidate",
+          "setLocalDescription",
+          "setRemoteDescription"
+        ],
+        "missing_apis": []
+      }
+    },
+    {
+      "id": "webrtc:remote-track",
+      "kind": "remote-track",
+      "status": "EXISTS",
+      "evidence": [
+        "/data/data/com.termux/files/home/عبقرينو/reports/contracts-report.json"
+      ],
+      "details": {}
+    },
+    {
+      "id": "dom:remote-video",
+      "kind": "dom-target",
+      "status": "EVIDENCE_LIMITED",
+      "evidence": [
+        "بلبل-الجديد/public/index.html"
+      ],
+      "details": {
+        "reason": "Static graph requires source inspection to resolve the remoteVideo DOM target."
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "client:socketio",
+      "target": "server:socketio",
+      "relation": "socketio-transport",
+      "status": "EXISTS",
+      "evidence": [
+        "بلبل-الجديد/public/app.js",
+        "بلبل-الجديد/server.js"
+      ],
+      "details": {}
+    },
+    {
+      "source": "client:socketio",
+      "target": "socketio:signaling",
+      "relation": "signaling-contract",
+      "status": "EXISTS",
+      "evidence": [
+        "/data/data/com.termux/files/home/عبقرينو/reports/contracts-report.json"
+      ],
+      "details": {}
+    },
+    {
+      "source": "webrtc:media-capture",
+      "target": "webrtc:peer-connection",
+      "relation": "media-to-peer",
+      "status": "EXISTS",
+      "evidence": [
+        "/data/data/com.termux/files/home/عبقرينو/reports/contracts-report.json"
+      ],
+      "details": {}
+    },
+    {
+      "source": "webrtc:peer-connection",
+      "target": "webrtc:remote-track",
+      "relation": "peer-to-remote-track",
+      "status": "EXISTS",
+      "evidence": [
+        "/data/data/com.termux/files/home/عبقرينو/reports/contracts-report.json"
+      ],
+      "details": {}
+    },
+    {
+      "source": "webrtc:remote-track",
+      "target": "dom:remote-video",
+      "relation": "remote-track-to-dom",
+      "status": "EVIDENCE_LIMITED",
+      "evidence": [
+        "بلبل-الجديد/public/app.js",
+        "بلبل-الجديد/public/index.html"
+      ],
+      "details": {}
+    }
+  ],
+  "summary": {
+    "nodes": 7,
+    "edges": 5,
+    "exists": 6,
+    "missing": 0,
+    "broken": 0,
+    "evidence_limited": 2
+  },
+  "sources": {
+    "scan_report": "/data/data/com.termux/files/home/عبقرينو/reports/scan-report.json",
+    "contracts_report": "/data/data/com.termux/files/home/عبقرينو/reports/contracts-report.json"
+  }
+}

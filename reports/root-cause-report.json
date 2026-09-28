@@ -1,0 +1,19 @@
+{
+  "project": "/data/data/com.termux/files/home/عبقرينو",
+  "status": "EVIDENCED",
+  "root_causes": [],
+  "summary": {
+    "total": 0,
+    "confirmed": 0,
+    "derived": 0,
+    "inferred": 0,
+    "evidence_limited": 0
+  },
+  "sources": {
+    "contract_graph": "/data/data/com.termux/files/home/عبقرينو/reports/contract-graph.json",
+    "scan_report": "/data/data/com.termux/files/home/عبقرينو/reports/scan-report.json",
+    "detected_server": "بلبل-الجديد/server.js",
+    "detected_client": "بلبل-الجديد/public/app.js",
+    "detected_html": "بلبل-الجديد/public/index.html"
+  }
+}

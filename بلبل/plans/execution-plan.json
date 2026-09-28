@@ -1,0 +1,38 @@
+{
+  "goal": "root_cause_diagnosis",
+  "diagnosis_findings": [
+    {
+      "severity": "WARNING",
+      "issue": "No dedicated client or server modules explicitly classified.",
+      "evidence": "Scan classification shows empty server/client arrays."
+    },
+    {
+      "severity": "INFO",
+      "issue": "Contract check: 0 emits and 0 handlers detected.",
+      "evidence": "SocketIOAnalyzer parsed codebase successfully."
+    }
+  ],
+  "execution_steps": [
+    {
+      "step": 1,
+      "action": "Verify environmental prerequisites and dependencies.",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "action": "Address diagnostic findings for goal: root_cause_diagnosis",
+      "status": "pending",
+      "findings_count": 2
+    },
+    {
+      "step": 3,
+      "action": "Execute structural or code-level repairs with atomic backups.",
+      "status": "pending"
+    },
+    {
+      "step": 4,
+      "action": "Run full verification tests and validate communication contracts.",
+      "status": "pending"
+    }
+  ]
+}

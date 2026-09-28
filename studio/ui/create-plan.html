@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>عبقرينو — التخطيط</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+  background:linear-gradient(145deg,#08111f,#101b31 55%,#18233d);
+  color:#eef4ff;
+}
+.wrap{width:min(980px,94%);margin:auto;padding:28px 0 50px}
+.brand{font-size:14px;font-weight:800;color:#8fb7ff;margin-bottom:18px}
+h1{margin:8px 0;font-size:clamp(27px,5vw,42px)}
+.sub{color:#aebbd0;line-height:1.8;max-width:720px}
+.steps{display:flex;gap:8px;overflow:auto;margin:26px 0}
+.step{white-space:nowrap;padding:9px 14px;border-radius:999px;background:#162238;color:#8998b1}
+.step.done{color:#b9d2ff;background:#19345b}
+.step.active{color:white;background:#315f9f}
+.card{
+  background:rgba(18,30,51,.88);
+  border:1px solid #263956;
+  border-radius:22px;
+  padding:24px;
+  box-shadow:0 20px 60px #0005;
+}
+.badge{display:inline-block;padding:7px 12px;border-radius:999px;background:#1d3558;color:#a9caff;font-size:13px;font-weight:800}
+.plan{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:22px}
+.item{border:1px solid #2b405f;border-radius:16px;padding:18px;background:#111e33}
+.num{font-size:13px;color:#83adf2}
+.item h3{margin:7px 0;font-size:20px}
+.item p{margin:0;color:#aebbd0;line-height:1.7}
+.actions{display:flex;gap:12px;justify-content:space-between;margin-top:24px;flex-wrap:wrap}
+button{
+  border:0;border-radius:13px;padding:13px 18px;
+  font:inherit;font-weight:800;cursor:pointer
+}
+.back{background:#202e43;color:#d8e4f5}
+.next{background:#3974c8;color:white}
+.next:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:700px){.plan{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="brand">🧠 عبقرينو Studio</div>
+  <h1>إنشاء برنامج جديد</h1>
+
+  <div class="steps">
+    <div class="step done">✓ الفكرة</div>
+    <div class="step done">✓ الفهم</div>
+    <div class="step done">✓ المتطلبات</div>
+    <div class="step active">4 التخطيط</div>
+    <div class="step">5 الإنشاء</div>
+  </div>
+
+  <section class="card">
+    <span class="badge">المرحلة 4 — تخطيط البرنامج</span>
+    <h2>كيف سيُبنى البرنامج؟</h2>
+    <p class="sub">
+      هذه هي الخطة الأولية التي اعتمدها عبقرينو من المتطلبات التي اخترتها.
+      راجعها قبل الانتقال إلى مرحلة إنشاء المشروع.
+    </p>
+
+    <div id="plan" class="plan"></div>
+
+    <div id="options" class="plan"></div>
+
+    <div class="actions">
+      <button class="back" id="back">↩ مراجعة المتطلبات</button>
+      <button class="next" id="next">اعتماد التخطيط والبدء في الإنشاء →</button>
+    </div>
+  </section>
+</main>
+
+<script>
+const analysis=JSON.parse(sessionStorage.getItem("abqarynoAnalysis")||"{}");
+const selected=JSON.parse(sessionStorage.getItem("abqarynoSelectedScreens")||"[]");
+const screens=analysis.screens||analysis.requirements?.screens||[];
+
+const chosen=screens.filter(x=>selected.includes(x.id));
+const list=document.getElementById("plan");
+const optionsList=document.getElementById("options");
+let selectedOptions=[];
+
+if(!chosen.length){
+  list.innerHTML='<div class="item"><h3>لا توجد متطلبات معتمدة</h3><p>ارجع إلى المرحلة السابقة واختر المتطلبات التي تريد الاحتفاظ بها.</p></div>';
+  document.getElementById("next").disabled=true;
+}else{
+  list.innerHTML=chosen.map((x,i)=>`
+    <article class="item">
+      <div class="num">الشاشة ${i+1}</div>
+      <h3>${x.title||x.id||"شاشة جديدة"}</h3>
+      <p>${x.purpose||"واجهة أساسية ضمن البرنامج."}</p>
+    </article>
+  `).join("");
+}
+
+document.getElementById("back").onclick=()=>{
+  location.href="/create/requirements";
+};
+
+async function loadOptions(){
+  try{
+    const response=await fetch("/api/options");
+    const result=await response.json();
+
+    if(!result.ok){
+      throw new Error("options");
+    }
+
+    optionsList.innerHTML=`
+      <article class="item" style="grid-column:1/-1">
+        <div class="num">خيارات إضافية للبرنامج</div>
+        <h3>اختر الإضافات التي تريد تضمينها</h3>
+        <div>
+          ${result.options.map(option=>`
+            <label style="display:block;margin:12px 0">
+              <input type="checkbox" value="${option.option_id}">
+              <strong>${option.title}</strong><br>
+              <span style="color:#aebbd0">${option.description}</span>
+            </label>
+          `).join("")}
+        </div>
+      </article>`;
+
+    optionsList.querySelectorAll("input[type=checkbox]").forEach(input=>{
+      input.addEventListener("change",()=>{
+        selectedOptions=[
+          ...optionsList.querySelectorAll("input:checked")
+        ].map(x=>x.value);
+      });
+    });
+
+  }catch(error){
+    optionsList.innerHTML=
+      '<div class="item" style="grid-column:1/-1"><h3>تعذر تحميل الخيارات</h3><p>يمكنك متابعة إنشاء البرنامج بدون إضافات.</p></div>';
+  }
+}
+
+loadOptions();
+
+document.getElementById("next").onclick=()=>{
+  sessionStorage.setItem(
+    "abqarynoPlan",
+    JSON.stringify({
+      screens:chosen.map(x=>x.id),
+      approved:true,
+      options:selectedOptions
+    })
+  );
+
+  sessionStorage.setItem(
+    "abqarynoOptions",
+    JSON.stringify(selectedOptions)
+  );
+
+  location.href="/create/build";
+};
+</script>
+</body>
+</html>

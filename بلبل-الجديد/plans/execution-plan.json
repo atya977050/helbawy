@@ -1,0 +1,559 @@
+{
+  "project": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد",
+  "goal": "root_cause_diagnosis",
+  "status": "PLANNED",
+  "created_at": "2026-09-26T15:56:02.520575+00:00",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "issue": "No test files were classified by the scanner.",
+      "evidence": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/scan-report.json"
+    },
+    {
+      "severity": "HIGH",
+      "issue": "Socket.IO initialization was detected, but no direct emit/on handlers were detected by the current analyzer.",
+      "code": "SOCKETIO_INITIALIZED_NOT_WIRED",
+      "evidence": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contracts-report.json",
+      "status": "EVIDENCED",
+      "details": {}
+    },
+    {
+      "severity": "HIGH",
+      "issue": "No RTCPeerConnection(...) construction was detected.",
+      "code": "PEER_CONNECTION_NOT_INITIALIZED",
+      "evidence": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contracts-report.json",
+      "status": "EVIDENCED",
+      "details": {}
+    },
+    {
+      "severity": "HIGH",
+      "issue": "Expected WebRTC signaling APIs were not detected by direct source analysis.",
+      "code": "SIGNALING_APIS_NOT_DETECTED",
+      "evidence": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contracts-report.json",
+      "status": "EVIDENCED",
+      "details": {
+        "missing": [
+          "addIceCandidate",
+          "createAnswer",
+          "createOffer",
+          "onicecandidate",
+          "setLocalDescription",
+          "setRemoteDescription"
+        ]
+      }
+    },
+    {
+      "severity": "INFO",
+      "issue": "Media capture and remote-track handling are present, but this does not prove a complete WebRTC connection.",
+      "code": "WEBRTC_PARTIAL",
+      "evidence": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contracts-report.json",
+      "status": "EVIDENCED",
+      "details": {}
+    },
+    {
+      "severity": "INFO",
+      "issue": "No direct Socket.IO emit/on contracts were found. This is not proof that no dynamic or indirect contract exists.",
+      "code": "CONTRACT_EVIDENCE_LIMITED",
+      "evidence": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contracts-report.json",
+      "status": "EVIDENCE_LIMITED",
+      "details": {}
+    }
+  ],
+  "evidence": [
+    {
+      "source": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/scan-report.json",
+      "finding": "Scanner identified 5 project files.",
+      "status": "EVIDENCED",
+      "file": null,
+      "line": null,
+      "details": {
+        "file_count": 5,
+        "directory_count": 2
+      }
+    },
+    {
+      "source": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/scan-report.json",
+      "finding": "Client classification contains 2 file(s).",
+      "status": "EVIDENCED",
+      "file": "public/app.js",
+      "line": null,
+      "details": {
+        "files": [
+          "public/app.js",
+          "public/index.html"
+        ]
+      }
+    },
+    {
+      "source": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/scan-report.json",
+      "finding": "Server classification contains 1 file(s).",
+      "status": "EVIDENCED",
+      "file": "server.js",
+      "line": null,
+      "details": {
+        "files": [
+          "server.js"
+        ]
+      }
+    },
+    {
+      "source": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/scan-report.json",
+      "finding": "Configuration classification contains 1 file(s).",
+      "status": "EVIDENCED",
+      "file": "package.json",
+      "line": null,
+      "details": {
+        "files": [
+          "package.json"
+        ]
+      }
+    },
+    {
+      "source": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/scan-report.json",
+      "finding": "No test files were classified.",
+      "status": "EVIDENCED",
+      "file": null,
+      "line": null,
+      "details": {
+        "classification": "tests",
+        "count": 0
+      }
+    },
+    {
+      "source": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contracts-report.json",
+      "finding": "Contract analyzer inspected 2 file(s).",
+      "status": "EVIDENCED",
+      "file": null,
+      "line": null,
+      "details": {
+        "emits": 0,
+        "handlers": 0,
+        "socketio_initialization": 2,
+        "webrtc_apis": 3,
+        "analyzer_findings": 5
+      }
+    },
+    {
+      "source": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contracts-report.json",
+      "finding": "Socket.IO initialization evidence was detected in 2 location(s).",
+      "status": "EVIDENCED",
+      "file": null,
+      "line": null,
+      "details": {
+        "initialization": [
+          {
+            "type": "server",
+            "file": "server.js",
+            "evidence": "new Server(...)"
+          },
+          {
+            "type": "client",
+            "file": "public/app.js",
+            "evidence": "io()"
+          }
+        ]
+      }
+    },
+    {
+      "source": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contracts-report.json",
+      "finding": "No direct Socket.IO emit/on contracts were detected by the current static analyzer.",
+      "status": "EVIDENCE_LIMITED",
+      "file": null,
+      "line": null,
+      "details": {
+        "limitation": "Absence of direct regex matches is not proof that no indirect or dynamic contract exists."
+      }
+    },
+    {
+      "source": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contracts-report.json",
+      "finding": "WebRTC API evidence detected across 3 API occurrence group(s).",
+      "status": "EVIDENCED",
+      "file": null,
+      "line": null,
+      "details": {
+        "webrtc": [
+          {
+            "api": "getUserMedia",
+            "file": "public/app.js",
+            "count": 1
+          },
+          {
+            "api": "ontrack",
+            "file": "public/app.js",
+            "count": 1
+          },
+          {
+            "api": "srcObject",
+            "file": "public/app.js",
+            "count": 1
+          }
+        ]
+      }
+    },
+    {
+      "source": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contracts-report.json",
+      "finding": "SOCKETIO_INITIALIZED_NOT_WIRED: Socket.IO initialization was detected, but no direct emit/on handlers were detected by the current analyzer.",
+      "status": "EVIDENCED",
+      "file": null,
+      "line": null,
+      "details": {
+        "code": "SOCKETIO_INITIALIZED_NOT_WIRED",
+        "severity": "HIGH",
+        "status": "EVIDENCED",
+        "message": "Socket.IO initialization was detected, but no direct emit/on handlers were detected by the current analyzer."
+      }
+    },
+    {
+      "source": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contracts-report.json",
+      "finding": "PEER_CONNECTION_NOT_INITIALIZED: No RTCPeerConnection(...) construction was detected.",
+      "status": "EVIDENCED",
+      "file": null,
+      "line": null,
+      "details": {
+        "code": "PEER_CONNECTION_NOT_INITIALIZED",
+        "severity": "HIGH",
+        "status": "EVIDENCED",
+        "message": "No RTCPeerConnection(...) construction was detected."
+      }
+    },
+    {
+      "source": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contracts-report.json",
+      "finding": "SIGNALING_APIS_NOT_DETECTED: Expected WebRTC signaling APIs were not detected by direct source analysis.",
+      "status": "EVIDENCED",
+      "file": null,
+      "line": null,
+      "details": {
+        "code": "SIGNALING_APIS_NOT_DETECTED",
+        "severity": "HIGH",
+        "status": "EVIDENCED",
+        "missing": [
+          "addIceCandidate",
+          "createAnswer",
+          "createOffer",
+          "onicecandidate",
+          "setLocalDescription",
+          "setRemoteDescription"
+        ],
+        "message": "Expected WebRTC signaling APIs were not detected by direct source analysis."
+      }
+    },
+    {
+      "source": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contracts-report.json",
+      "finding": "WEBRTC_PARTIAL: Media capture and remote-track handling are present, but this does not prove a complete WebRTC connection.",
+      "status": "EVIDENCED",
+      "file": null,
+      "line": null,
+      "details": {
+        "code": "WEBRTC_PARTIAL",
+        "severity": "INFO",
+        "status": "EVIDENCED",
+        "message": "Media capture and remote-track handling are present, but this does not prove a complete WebRTC connection."
+      }
+    },
+    {
+      "source": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contracts-report.json",
+      "finding": "CONTRACT_EVIDENCE_LIMITED: No direct Socket.IO emit/on contracts were found. This is not proof that no dynamic or indirect contract exists.",
+      "status": "EVIDENCE_LIMITED",
+      "file": null,
+      "line": null,
+      "details": {
+        "code": "CONTRACT_EVIDENCE_LIMITED",
+        "severity": "INFO",
+        "status": "EVIDENCE_LIMITED",
+        "message": "No direct Socket.IO emit/on contracts were found. This is not proof that no dynamic or indirect contract exists."
+      }
+    },
+    {
+      "source": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/root-cause-report.json",
+      "finding": "Root Cause Engine produced 6 traceable root cause(s).",
+      "status": "EVIDENCED",
+      "file": null,
+      "line": null,
+      "details": {
+        "summary": {
+          "total": 6,
+          "confirmed": 4,
+          "derived": 1,
+          "inferred": 1,
+          "evidence_limited": 0
+        }
+      }
+    }
+  ],
+  "actions": [
+    {
+      "action_id": "P45-PLAN-TEST-COVERAGE-001",
+      "target": "",
+      "reason": "Establish project verification coverage before claiming behavioral repair success.",
+      "status": "PLANNED",
+      "before_sha256": null,
+      "after_sha256": null,
+      "snapshot": null,
+      "verification": [
+        "Add or identify executable project tests.",
+        "Run tests after any repair."
+      ],
+      "evidence": [
+        {
+          "source": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/scan-report.json",
+          "finding": "No test files were classified.",
+          "status": "EVIDENCED",
+          "file": null,
+          "line": null,
+          "details": {
+            "classification": "tests",
+            "count": 0
+          }
+        }
+      ]
+    }
+  ],
+  "repair_candidates": [
+    {
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-WEBRTC-001",
+      "reason": "RC-WEBRTC-001",
+      "title": "PeerConnection construction is absent",
+      "classification": "CONFIRMED",
+      "severity": "HIGH",
+      "target": "public/app.js",
+      "status": "APPROVED",
+      "requires": "APPROVAL",
+      "evidence": [
+        {
+          "file": "public/app.js",
+          "finding": "No RTCPeerConnection construction exists in public/app.js."
+        },
+        {
+          "source": "contract-graph.json",
+          "finding": "webrtc:peer-connection => MISSING"
+        }
+      ],
+      "verification": [
+        "Confirm RTCPeerConnection construction exists.",
+        "Run WebRTC runtime verification."
+      ],
+      "approved": true,
+      "approved_at": "2026-09-26T18:23:52.796719+00:00"
+    },
+    {
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-SIGNALING-001",
+      "reason": "RC-SIGNALING-001",
+      "title": "Socket.IO signaling contract is absent",
+      "classification": "CONFIRMED",
+      "severity": "HIGH",
+      "target": "server.js + public/app.js",
+      "status": "APPROVED",
+      "requires": "APPROVAL",
+      "evidence": [
+        {
+          "file": "server.js",
+          "finding": "Socket.IO server is initialized, but no connection, handler, or emit contract exists."
+        },
+        {
+          "file": "public/app.js",
+          "finding": "Socket.IO client is initialized with io(), but no signaling event contract exists."
+        },
+        {
+          "source": "contract-graph.json",
+          "finding": "socketio:signaling => MISSING"
+        }
+      ],
+      "verification": [
+        "Verify Socket.IO connection and signaling handlers.",
+        "Verify offer/answer/ICE messages in runtime."
+      ],
+      "approved": true,
+      "approved_at": "2026-09-26T18:23:52.799906+00:00"
+    },
+    {
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-MEDIA-UI-001",
+      "reason": "RC-MEDIA-UI-001",
+      "title": "Remote video DOM target is absent",
+      "classification": "CONFIRMED",
+      "severity": "HIGH",
+      "target": "public/index.html",
+      "status": "APPROVED",
+      "requires": "APPROVAL",
+      "evidence": [
+        {
+          "file": "public/app.js",
+          "finding": "Code references remoteVideo as the target for the received media stream."
+        },
+        {
+          "file": "public/index.html",
+          "finding": "No element with id=\"remoteVideo\" exists."
+        }
+      ],
+      "verification": [
+        "Verify remote video DOM target exists.",
+        "Verify received MediaStream is rendered."
+      ],
+      "approved": true,
+      "approved_at": "2026-09-26T18:23:52.802039+00:00"
+    },
+    {
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-MEDIA-LIFECYCLE-001",
+      "reason": "RC-MEDIA-LIFECYCLE-001",
+      "title": "Captured local media is not attached to a peer",
+      "classification": "DERIVED",
+      "severity": "HIGH",
+      "target": "public/app.js",
+      "status": "APPROVED",
+      "requires": "APPROVAL",
+      "evidence": [
+        {
+          "file": "public/app.js",
+          "finding": "getUserMedia() stores the result in localStream."
+        },
+        {
+          "file": "public/app.js",
+          "finding": "No addTrack() call was detected."
+        },
+        {
+          "source": "contract-graph.json",
+          "finding": "webrtc:media-capture -> webrtc:peer-connection => BROKEN"
+        }
+      ],
+      "verification": [
+        "Verify local tracks are attached to RTCPeerConnection.",
+        "Run camera/microphone WebRTC runtime test."
+      ],
+      "approved": true,
+      "approved_at": "2026-09-26T18:23:52.804009+00:00"
+    },
+    {
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-WEBRTC-002",
+      "reason": "RC-WEBRTC-002",
+      "title": "WebRTC negotiation and ICE lifecycle is absent",
+      "classification": "CONFIRMED",
+      "severity": "HIGH",
+      "target": "public/app.js",
+      "status": "APPROVED",
+      "requires": "APPROVAL",
+      "evidence": [
+        {
+          "file": "public/app.js",
+          "finding": "The following WebRTC APIs are absent: createOffer, createAnswer, setLocalDescription, setRemoteDescription, addIceCandidate, onicecandidate"
+        },
+        {
+          "source": "contract-graph.json",
+          "finding": "peer-connection node is MISSING with the same API set unresolved."
+        }
+      ],
+      "verification": [
+        "Verify offer/answer negotiation APIs.",
+        "Verify ICE candidate exchange.",
+        "Run end-to-end WebRTC runtime test."
+      ],
+      "approved": true,
+      "approved_at": "2026-09-26T18:23:52.808276+00:00"
+    },
+    {
+      "candidate_id": "P45-REPAIR-CANDIDATE-RC-RUNTIME-001",
+      "reason": "RC-RUNTIME-001",
+      "title": "ontrack is assigned to an unconstructed peer reference",
+      "classification": "INFERRED",
+      "severity": "HIGH",
+      "target": "public/app.js",
+      "status": "APPROVED",
+      "requires": "APPROVAL",
+      "evidence": [
+        {
+          "file": "public/app.js",
+          "finding": "peerConnection.ontrack is assigned while no RTCPeerConnection construction exists."
+        }
+      ],
+      "verification": [
+        "Run browser runtime test before claiming the inferred failure.",
+        "Confirm peerConnection lifecycle before ontrack assignment."
+      ],
+      "approved": true,
+      "approved_at": "2026-09-26T18:23:52.812378+00:00"
+    }
+  ],
+  "diagnosis_findings": [
+    {
+      "severity": "WARNING",
+      "issue": "No test files were classified by the scanner.",
+      "evidence": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/scan-report.json"
+    },
+    {
+      "severity": "HIGH",
+      "issue": "Socket.IO initialization was detected, but no direct emit/on handlers were detected by the current analyzer.",
+      "code": "SOCKETIO_INITIALIZED_NOT_WIRED",
+      "evidence": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contracts-report.json",
+      "status": "EVIDENCED",
+      "details": {}
+    },
+    {
+      "severity": "HIGH",
+      "issue": "No RTCPeerConnection(...) construction was detected.",
+      "code": "PEER_CONNECTION_NOT_INITIALIZED",
+      "evidence": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contracts-report.json",
+      "status": "EVIDENCED",
+      "details": {}
+    },
+    {
+      "severity": "HIGH",
+      "issue": "Expected WebRTC signaling APIs were not detected by direct source analysis.",
+      "code": "SIGNALING_APIS_NOT_DETECTED",
+      "evidence": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contracts-report.json",
+      "status": "EVIDENCED",
+      "details": {
+        "missing": [
+          "addIceCandidate",
+          "createAnswer",
+          "createOffer",
+          "onicecandidate",
+          "setLocalDescription",
+          "setRemoteDescription"
+        ]
+      }
+    },
+    {
+      "severity": "INFO",
+      "issue": "Media capture and remote-track handling are present, but this does not prove a complete WebRTC connection.",
+      "code": "WEBRTC_PARTIAL",
+      "evidence": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contracts-report.json",
+      "status": "EVIDENCED",
+      "details": {}
+    },
+    {
+      "severity": "INFO",
+      "issue": "No direct Socket.IO emit/on contracts were found. This is not proof that no dynamic or indirect contract exists.",
+      "code": "CONTRACT_EVIDENCE_LIMITED",
+      "evidence": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contracts-report.json",
+      "status": "EVIDENCE_LIMITED",
+      "details": {}
+    }
+  ],
+  "execution_steps": [
+    {
+      "step": 1,
+      "action": "Verify environmental prerequisites and dependencies.",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "action": "Address evidence-backed diagnostic findings for goal: root_cause_diagnosis",
+      "status": "pending",
+      "findings_count": 6
+    },
+    {
+      "step": 3,
+      "action": "Execute only approved repair actions after snapshot creation.",
+      "status": "pending"
+    },
+    {
+      "step": 4,
+      "action": "Run verification and re-analyze the project.",
+      "status": "pending"
+    }
+  ],
+  "sources": {
+    "scan_report": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/scan-report.json",
+    "contracts_report": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contracts-report.json",
+    "contract_graph": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/contract-graph.json",
+    "root_cause_report": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/بلبل-الجديد/reports/root-cause-report.json"
+  }
+}

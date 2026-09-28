@@ -1,0 +1,68 @@
+{
+  "project": "/data/data/com.termux/files/home/عبقرينو/المساعد-الصوتي-البسيط-للمستخدمين",
+  "status": "EVIDENCED",
+  "nodes": [
+    {
+      "id": "socketio:signaling",
+      "kind": "signaling-contract",
+      "status": "MISSING",
+      "evidence": [
+        "/data/data/com.termux/files/home/عبقرينو/المساعد-الصوتي-البسيط-للمستخدمين/reports/contracts-report.json"
+      ],
+      "details": {
+        "limitation": "No direct Socket.IO emit/on contracts were detected."
+      }
+    },
+    {
+      "id": "webrtc:media-capture",
+      "kind": "media-capture",
+      "status": "MISSING",
+      "evidence": [
+        "/data/data/com.termux/files/home/عبقرينو/المساعد-الصوتي-البسيط-للمستخدمين/reports/contracts-report.json"
+      ],
+      "details": {}
+    },
+    {
+      "id": "webrtc:peer-connection",
+      "kind": "peer-connection",
+      "status": "MISSING",
+      "evidence": [
+        "/data/data/com.termux/files/home/عبقرينو/المساعد-الصوتي-البسيط-للمستخدمين/reports/contracts-report.json"
+      ],
+      "details": {
+        "detected_apis": [],
+        "missing_apis": [
+          "RTCPeerConnection",
+          "addIceCandidate",
+          "createAnswer",
+          "createOffer",
+          "onicecandidate",
+          "setLocalDescription",
+          "setRemoteDescription"
+        ]
+      }
+    },
+    {
+      "id": "webrtc:remote-track",
+      "kind": "remote-track",
+      "status": "MISSING",
+      "evidence": [
+        "/data/data/com.termux/files/home/عبقرينو/المساعد-الصوتي-البسيط-للمستخدمين/reports/contracts-report.json"
+      ],
+      "details": {}
+    }
+  ],
+  "edges": [],
+  "summary": {
+    "nodes": 4,
+    "edges": 0,
+    "exists": 0,
+    "missing": 4,
+    "broken": 0,
+    "evidence_limited": 0
+  },
+  "sources": {
+    "scan_report": "/data/data/com.termux/files/home/عبقرينو/المساعد-الصوتي-البسيط-للمستخدمين/reports/scan-report.json",
+    "contracts_report": "/data/data/com.termux/files/home/عبقرينو/المساعد-الصوتي-البسيط-للمستخدمين/reports/contracts-report.json"
+  }
+}

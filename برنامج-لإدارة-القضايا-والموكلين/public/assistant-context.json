@@ -1,0 +1,44 @@
+{
+  "idea": "برنامج لإدارة القضايا والموكلين",
+  "screens": [
+    {
+      "id": "home",
+      "title": "الشاشة الرئيسية",
+      "purpose": "الشاشة الرئيسية والتنقل بين وظائف البرنامج"
+    },
+    {
+      "id": "cases",
+      "title": "القضايا",
+      "purpose": "إدارة القضايا ومتابعة حالتها"
+    }
+  ],
+  "roles": [
+    "client"
+  ],
+  "capabilities": [
+    "auth",
+    "crud",
+    "database",
+    "reports",
+    "roles",
+    "search",
+    "settings",
+    "users"
+  ],
+  "capability_labels": {
+    "auth": "تسجيل الدخول والحسابات",
+    "crud": "الإضافة والتعديل والحذف والعرض",
+    "database": "قاعدة البيانات وحفظ السجلات",
+    "reports": "التقارير",
+    "roles": "الأدوار والصلاحيات",
+    "search": "البحث والتصفية",
+    "settings": "الإعدادات",
+    "users": "إدارة المستخدمين"
+  },
+  "app_types": [
+    "crm"
+  ],
+  "options": [
+    "search"
+  ]
+}

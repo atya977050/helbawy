@@ -1,0 +1,18 @@
+{
+  "status": "EVIDENCED",
+  "root": "/data/data/com.termux/files/home/عبقرينو/المساعد-الصوتي-البسيط-للمستخدمين",
+  "files": [
+    "index.html"
+  ],
+  "directories": [],
+  "classification": {
+    "client": [
+      "index.html"
+    ],
+    "server": [],
+    "config": [],
+    "tests": [],
+    "assets": [],
+    "other": []
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "schema": "P45-ControlledApply-v1",
+  "phase": 10,
+  "created_at": "2026-09-26T20:29:55.242594+00:00",
+  "status": "APPLIED_AND_EXACTLY_VERIFIED",
+  "targets_expected": 3,
+  "targets_applied": 3,
+  "failures": [],
+  "applied": [
+    {
+      "target": "public/app.js",
+      "original_sha256": "3458a244e2ecd913a1f504ae95e71cf44b542337ff908fdf603c9ef429fa1906",
+      "final_sha256": "29033dfabdb9a959602b5b5862269ffe6aa687e77809215579a41a7ef6a59aa5",
+      "actions": [
+        {
+          "action_id": "P45-REPAIR-CANDIDATE-RC-WEBRTC-001:ACTION-01",
+          "before_sha256": "3458a244e2ecd913a1f504ae95e71cf44b542337ff908fdf603c9ef429fa1906",
+          "after_sha256": "994327b81af47decd99f33968f7205a6ffd80384c757c3fa9f66aa62146251f6",
+          "status": "APPLIED_IN_MEMORY"
+        },
+        {
+          "action_id": "P45-REPAIR-CANDIDATE-RC-SIGNALING-001:ACTION-02",
+          "before_sha256": "994327b81af47decd99f33968f7205a6ffd80384c757c3fa9f66aa62146251f6",
+          "after_sha256": "1878a51382b8a52fd795116c5aa1b0b21758f34966c4e7bae37c89413229622d",
+          "status": "APPLIED_IN_MEMORY"
+        },
+        {
+          "action_id": "P45-REPAIR-CANDIDATE-RC-MEDIA-LIFECYCLE-001:ACTION-01",
+          "before_sha256": "1878a51382b8a52fd795116c5aa1b0b21758f34966c4e7bae37c89413229622d",
+          "after_sha256": "ade2fd5bb7b5c0024aef7c2ae19aa7b29e6a50b4545fb1f75536d56b24920101",
+          "status": "APPLIED_IN_MEMORY"
+        },
+        {
+          "action_id": "P45-REPAIR-CANDIDATE-RC-WEBRTC-002:ACTION-01",
+          "before_sha256": "ade2fd5bb7b5c0024aef7c2ae19aa7b29e6a50b4545fb1f75536d56b24920101",
+          "after_sha256": "29033dfabdb9a959602b5b5862269ffe6aa687e77809215579a41a7ef6a59aa5",
+          "status": "APPLIED_IN_MEMORY"
+        }
+      ],
+      "status": "APPLIED_AND_SHA_VERIFIED"
+    },
+    {
+      "target": "server.js",
+      "original_sha256": "d6cf739b7c5cd910100e020cdab8e073c957c3fc29f89f36773f0bdb06656298",
+      "final_sha256": "c3f11439fc989ac13a2b8c74e06124aa6988ef685841e59b7d8e3d1b691b4ca8",
+      "actions": [
+        {
+          "action_id": "P45-REPAIR-CANDIDATE-RC-SIGNALING-001:ACTION-01",
+          "before_sha256": "d6cf739b7c5cd910100e020cdab8e073c957c3fc29f89f36773f0bdb06656298",
+          "after_sha256": "c3f11439fc989ac13a2b8c74e06124aa6988ef685841e59b7d8e3d1b691b4ca8",
+          "status": "APPLIED_IN_MEMORY"
+        }
+      ],
+      "status": "APPLIED_AND_SHA_VERIFIED"
+    },
+    {
+      "target": "public/index.html",
+      "original_sha256": "0888dd1fee251dc4d97e5deb39b79b9fb82eb942b08b1002650de3563d722f04",
+      "final_sha256": "58495000759b67175cc0347680c49bbf7672a3fd3f0039b8cfa9f1aba6619f3e",
+      "actions": [
+        {
+          "action_id": "P45-REPAIR-CANDIDATE-RC-MEDIA-UI-001:ACTION-01",
+          "before_sha256": "0888dd1fee251dc4d97e5deb39b79b9fb82eb942b08b1002650de3563d722f04",
+          "after_sha256": "58495000759b67175cc0347680c49bbf7672a3fd3f0039b8cfa9f1aba6619f3e",
+          "status": "APPLIED_IN_MEMORY"
+        }
+      ],
+      "status": "APPLIED_AND_SHA_VERIFIED"
+    }
+  ],
+  "snapshot_used": "/data/data/com.termux/files/home/مستودع الإصلاح-فحص/مستودع الإصلاح/snapshots/p45-pre-repair-20260926-202550.tar.gz",
+  "execution_mode": "CONTROLLED_EXACT_COMPOSITION",
+  "target_modification": "APPLIED"
+}

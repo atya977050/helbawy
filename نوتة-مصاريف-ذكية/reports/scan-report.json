@@ -1,0 +1,14 @@
+{
+  "status": "EVIDENCED",
+  "root": "/data/data/com.termux/files/home/عبقرينو/نوتة-مصاريف-ذكية",
+  "files": [],
+  "directories": [],
+  "classification": {
+    "client": [],
+    "server": [],
+    "config": [],
+    "tests": [],
+    "assets": [],
+    "other": []
+  }
+}

@@ -1,0 +1,254 @@
+{
+  "status": "EVIDENCED",
+  "root": "/data/data/com.termux/files/home/\u0639\u0628\u0642\u0631\u064a\u0646\u0648",
+  "files_analyzed": 44,
+  "emits": [
+    {
+      "event": ",\n            ],\n        )\n\n        client_signaling = self._has_any(\n            client,\n            [\n                ",
+      "file": "engine/root_cause.py"
+    },
+    {
+      "event": ",\n                ",
+      "file": "engine/root_cause.py"
+    },
+    {
+      "event": "webrtc:offer",
+      "file": "\u0628\u0644\u0628\u0644-\u0627\u0644\u062c\u062f\u064a\u062f/public/app.js"
+    },
+    {
+      "event": "webrtc:answer",
+      "file": "\u0628\u0644\u0628\u0644-\u0627\u0644\u062c\u062f\u064a\u062f/public/app.js"
+    },
+    {
+      "event": "webrtc:ice-candidate",
+      "file": "\u0628\u0644\u0628\u0644-\u0627\u0644\u062c\u062f\u064a\u062f/public/app.js"
+    }
+  ],
+  "handlers": [
+    {
+      "event": ",\n            ",
+      "file": "v4_upgrade.py"
+    },
+    {
+      "event": ",\n                ",
+      "file": "v4_upgrade.py"
+    },
+    {
+      "event": ",\n                            ",
+      "file": "v4_upgrade.py"
+    },
+    {
+      "event": ",\n                ",
+      "file": "engine/root_cause.py"
+    },
+    {
+      "event": ",\n                ",
+      "file": "engine/root_cause.py"
+    },
+    {
+      "event": ",\n                ",
+      "file": "engine/root_cause.py"
+    },
+    {
+      "event": "connection",
+      "file": "\u0628\u0644\u0628\u0644-\u0627\u0644\u062c\u062f\u064a\u062f/server.js"
+    },
+    {
+      "event": "webrtc:offer",
+      "file": "\u0628\u0644\u0628\u0644-\u0627\u0644\u062c\u062f\u064a\u062f/server.js"
+    },
+    {
+      "event": "webrtc:answer",
+      "file": "\u0628\u0644\u0628\u0644-\u0627\u0644\u062c\u062f\u064a\u062f/server.js"
+    },
+    {
+      "event": "webrtc:ice-candidate",
+      "file": "\u0628\u0644\u0628\u0644-\u0627\u0644\u062c\u062f\u064a\u062f/server.js"
+    },
+    {
+      "event": "connection",
+      "file": "\u0628\u0644\u0628\u0644-\u0627\u0644\u062c\u062f\u064a\u062f/public/app.js"
+    },
+    {
+      "event": "webrtc:offer",
+      "file": "\u0628\u0644\u0628\u0644-\u0627\u0644\u062c\u062f\u064a\u062f/public/app.js"
+    },
+    {
+      "event": "webrtc:answer",
+      "file": "\u0628\u0644\u0628\u0644-\u0627\u0644\u062c\u062f\u064a\u062f/public/app.js"
+    },
+    {
+      "event": "webrtc:ice-candidate",
+      "file": "\u0628\u0644\u0628\u0644-\u0627\u0644\u062c\u062f\u064a\u062f/public/app.js"
+    },
+    {
+      "event": "webrtc:offer",
+      "file": "\u0628\u0644\u0628\u0644-\u0627\u0644\u062c\u062f\u064a\u062f/public/app.js"
+    },
+    {
+      "event": "webrtc:answer",
+      "file": "\u0628\u0644\u0628\u0644-\u0627\u0644\u062c\u062f\u064a\u062f/public/app.js"
+    },
+    {
+      "event": "webrtc:ice-candidate",
+      "file": "\u0628\u0644\u0628\u0644-\u0627\u0644\u062c\u062f\u064a\u062f/public/app.js"
+    }
+  ],
+  "socketio_initialization": [
+    {
+      "type": "server",
+      "file": "setup.py",
+      "evidence": "new Server(...)"
+    },
+    {
+      "type": "client",
+      "file": "setup.py",
+      "evidence": "io()"
+    },
+    {
+      "type": "client",
+      "file": "p45_phase5_persist.py",
+      "evidence": "io()"
+    },
+    {
+      "type": "server",
+      "file": "engine/socketio.py",
+      "evidence": "new Server(...)"
+    },
+    {
+      "type": "client",
+      "file": "engine/socketio.py",
+      "evidence": "io()"
+    },
+    {
+      "type": "client",
+      "file": "engine/root_cause.py",
+      "evidence": "io()"
+    },
+    {
+      "type": "server",
+      "file": "\u0628\u0644\u0628\u0644-\u0627\u0644\u062c\u062f\u064a\u062f/server.js",
+      "evidence": "new Server(...)"
+    },
+    {
+      "type": "client",
+      "file": "\u0628\u0644\u0628\u0644-\u0627\u0644\u062c\u062f\u064a\u062f/public/app.js",
+      "evidence": "io()"
+    },
+    {
+      "type": "server",
+      "file": "repair_creator_repo/engine/generator.py",
+      "evidence": "new Server(...)"
+    },
+    {
+      "type": "client",
+      "file": "repair_creator_repo/engine/generator.py",
+      "evidence": "io()"
+    }
+  ],
+  "webrtc": [
+    {
+      "api": "getUserMedia",
+      "file": "setup.py",
+      "count": 1
+    },
+    {
+      "api": "ontrack",
+      "file": "setup.py",
+      "count": 1
+    },
+    {
+      "api": "srcObject",
+      "file": "setup.py",
+      "count": 1
+    },
+    {
+      "api": "RTCPeerConnection",
+      "file": "p45_add_repair_generator.py",
+      "count": 1
+    },
+    {
+      "api": "getUserMedia",
+      "file": "p45_phase5_persist.py",
+      "count": 1
+    },
+    {
+      "api": "RTCPeerConnection",
+      "file": "engine/socketio.py",
+      "count": 1
+    },
+    {
+      "api": "RTCPeerConnection",
+      "file": "\u0628\u0644\u0628\u0644-\u0627\u0644\u062c\u062f\u064a\u062f/public/app.js",
+      "count": 1
+    },
+    {
+      "api": "getUserMedia",
+      "file": "\u0628\u0644\u0628\u0644-\u0627\u0644\u062c\u062f\u064a\u062f/public/app.js",
+      "count": 1
+    },
+    {
+      "api": "createOffer",
+      "file": "\u0628\u0644\u0628\u0644-\u0627\u0644\u062c\u062f\u064a\u062f/public/app.js",
+      "count": 1
+    },
+    {
+      "api": "createAnswer",
+      "file": "\u0628\u0644\u0628\u0644-\u0627\u0644\u062c\u062f\u064a\u062f/public/app.js",
+      "count": 1
+    },
+    {
+      "api": "setLocalDescription",
+      "file": "\u0628\u0644\u0628\u0644-\u0627\u0644\u062c\u062f\u064a\u062f/public/app.js",
+      "count": 2
+    },
+    {
+      "api": "setRemoteDescription",
+      "file": "\u0628\u0644\u0628\u0644-\u0627\u0644\u062c\u062f\u064a\u062f/public/app.js",
+      "count": 2
+    },
+    {
+      "api": "addIceCandidate",
+      "file": "\u0628\u0644\u0628\u0644-\u0627\u0644\u062c\u062f\u064a\u062f/public/app.js",
+      "count": 1
+    },
+    {
+      "api": "onicecandidate",
+      "file": "\u0628\u0644\u0628\u0644-\u0627\u0644\u062c\u062f\u064a\u062f/public/app.js",
+      "count": 1
+    },
+    {
+      "api": "ontrack",
+      "file": "\u0628\u0644\u0628\u0644-\u0627\u0644\u062c\u062f\u064a\u062f/public/app.js",
+      "count": 1
+    },
+    {
+      "api": "srcObject",
+      "file": "\u0628\u0644\u0628\u0644-\u0627\u0644\u062c\u062f\u064a\u062f/public/app.js",
+      "count": 1
+    },
+    {
+      "api": "ontrack",
+      "file": "repair_creator_repo/engine/repair.py",
+      "count": 1
+    },
+    {
+      "api": "srcObject",
+      "file": "repair_creator_repo/engine/repair.py",
+      "count": 1
+    },
+    {
+      "api": "getUserMedia",
+      "file": "repair_creator_repo/engine/generator.py",
+      "count": 1
+    }
+  ],
+  "findings": [
+    {
+      "code": "WEBRTC_PARTIAL",
+      "severity": "INFO",
+      "status": "EVIDENCED",
+      "message": "Media capture and remote-track handling are present, but this does not prove a complete WebRTC connection."
+    }
+  ]
+}
