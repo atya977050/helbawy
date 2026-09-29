@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="utf-8">
+
+<meta name="viewport"
+content="width=device-width,initial-scale=1">
+
+<title>اختبار عبقرينو لإنشاء مشروع حقيقي</title>
+
+<style>
+
+body {
+    margin: 0;
+    background: #101010;
+    color: #f5d76e;
+    font-family: Tahoma, Arial;
+}
+
+header {
+    padding: 30px;
+    text-align: center;
+    border-bottom: 1px solid #66551c;
+}
+
+main {
+    max-width: 1100px;
+    margin: auto;
+    padding: 25px;
+    display: grid;
+    grid-template-columns:
+        repeat(auto-fit,minmax(260px,1fr));
+    gap: 20px;
+}
+
+.screen {
+    background: #1d1d1d;
+    border: 1px solid #806b24;
+    border-radius: 18px;
+    padding: 25px;
+}
+
+</style>
+
+<link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+<header>
+
+<div class="brand-logo-wrap">
+    <button
+        id="logo-button"
+        class="logo-button"
+        type="button"
+        title="تغيير اللوجو"
+        aria-label="تغيير اللوجو"
+    >
+        <span id="logo-placeholder" class="logo-placeholder">👤</span>
+        <img id="app-logo" class="logo-image" alt="لوجو البرنامج">
+    </button>
+
+    <input
+        id="logo-input"
+        type="file"
+        accept="image/*"
+        hidden
+    >
+
+    <div class="logo-actions">
+        <button id="logo-change" type="button">تغيير اللوجو</button>
+        <button id="logo-remove" type="button">حذف اللوجو</button>
+    </div>
+</div>
+
+<h1>اختبار عبقرينو لإنشاء مشروع حقيقي</h1>
+
+<p>
+تم تصميم المشروع واعتماد شاشاته بواسطة عبقرينو
+</p>
+
+</header>
+
+<main>
+
+
+<section class="screen">
+<h2>الشاشة الرئيسية</h2>
+<p>الشاشة الرئيسية والتنقل بين وظائف البرنامج</p>
+<strong>
+التصميم: واجهة قياسية متجاوبة
+</strong>
+</section>
+
+
+
+<section id="abqaryno-tools" class="tools-panel">
+
+    <div class="tool-card" id="chat-tool">
+        <h2>💬 المحادثة</h2>
+        <div id="chat-messages" class="chat-messages"></div>
+        <div class="chat-input-row">
+            <input id="chat-input" type="text" placeholder="اكتب رسالتك...">
+            <button id="chat-send">إرسال</button>
+        </div>
+    </div>
+
+    <div class="tool-card" id="camera-tool">
+        <h2>📷 الكاميرا</h2>
+        <video id="camera-preview" autoplay playsinline muted></video>
+        <div class="tool-actions">
+            <button id="camera-start">تشغيل الكاميرا</button>
+            <button id="camera-stop">إيقاف الكاميرا</button>
+        </div>
+    </div>
+
+    <div class="tool-card" id="microphone-tool">
+        <h2>🎙️ المايك والتسجيل</h2>
+        <div class="tool-actions">
+            <button id="mic-start">تشغيل المايك</button>
+            <button id="mic-record">بدء التسجيل</button>
+            <button id="mic-stop">إيقاف التسجيل</button>
+        </div>
+        <audio id="recorded-audio" controls hidden></audio>
+    </div>
+
+    <div class="tool-card" id="attachments-tool">
+        <h2>📎 المرفقات</h2>
+        <input id="attachment-input" type="file" multiple>
+        <div id="attachment-list"></div>
+    </div>
+
+</section>
+
+
+<style>
+#abqaryno-assistant .assistant-action-confirmation {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid rgba(255, 193, 7, 0.35);
+    border-radius: 10px;
+}
+
+#abqaryno-assistant .assistant-action-confirmation button {
+    border: 0;
+    border-radius: 8px;
+    padding: 8px 14px;
+    cursor: pointer;
+    font: inherit;
+}
+
+#abqaryno-assistant .assistant-action-confirmation button:first-child {
+    background: #198754;
+    color: #fff;
+}
+
+#abqaryno-assistant .assistant-action-confirmation button:nth-child(2) {
+    background: #6c757d;
+    color: #fff;
+}
+
+#abqaryno-assistant .assistant-action-confirmation button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+#abqaryno-assistant .assistant-action-status {
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+</style>
+
+<section id="abqaryno-assistant" class="assistant-panel">
+    <div class="assistant-header">
+        <div>
+            <h2>🧠 المساعد الذكي</h2>
+            <p id="assistant-context-label">
+                يفهم البرنامج والشاشة الحالية ويساعدك أثناء الاستخدام.
+            </p>
+        </div>
+        <button
+            id="assistant-clear"
+            type="button"
+            aria-label="مسح محادثة المساعد"
+        >
+            مسح
+        </button>
+    </div>
+
+    <div
+        id="assistant-messages"
+        class="assistant-messages"
+        aria-live="polite"
+    ></div>
+
+    <div class="assistant-input-row">
+        <input
+            id="assistant-input"
+            type="text"
+            placeholder="اسأل المساعد عن البرنامج أو الشاشة الحالية..."
+            autocomplete="off"
+        >
+        <button id="assistant-send" type="button">
+            إرسال
+        </button>
+    </div>
+
+    <div class="assistant-suggestions">
+        <button type="button" data-assistant-question="ماذا يمكنني أن أفعل هنا؟">
+            ماذا أفعل هنا؟
+        </button>
+        <button type="button" data-assistant-question="ما الشاشات الموجودة في البرنامج؟">
+            الشاشات
+        </button>
+        <button type="button" data-assistant-question="ما الوظائف المتاحة؟">
+            الوظائف
+        </button>
+    </div>
+</section>
+
+<script src="/js/assistant.js"></script>
+
+</main>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    // لوجو البرنامج: اختيار وتغيير وحذف وحفظ محلي
+    const logoButton = document.getElementById("logo-button");
+    const logoInput = document.getElementById("logo-input");
+    const logoImage = document.getElementById("app-logo");
+    const logoPlaceholder = document.getElementById("logo-placeholder");
+    const logoChange = document.getElementById("logo-change");
+    const logoRemove = document.getElementById("logo-remove");
+    const logoStorageKey = "abqarynoLogo";
+
+    function renderLogo(value) {
+        if (value) {
+            logoImage.src = value;
+            logoImage.style.display = "block";
+            logoPlaceholder.style.display = "none";
+        } else {
+            logoImage.removeAttribute("src");
+            logoImage.style.display = "none";
+            logoPlaceholder.style.display = "inline";
+        }
+    }
+
+    function openLogoPicker() {
+        if (logoInput) {
+            logoInput.click();
+        }
+    }
+
+    renderLogo(localStorage.getItem(logoStorageKey));
+
+    if (logoButton) {
+        logoButton.addEventListener("click", openLogoPicker);
+    }
+
+    if (logoChange) {
+        logoChange.addEventListener("click", openLogoPicker);
+    }
+
+    if (logoInput) {
+        logoInput.addEventListener("change", event => {
+            const file = event.target.files && event.target.files[0];
+
+            if (!file) return;
+
+            if (!file.type.startsWith("image/")) {
+                alert("من فضلك اختر صورة فقط.");
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = () => {
+                const value = reader.result;
+                localStorage.setItem(logoStorageKey, value);
+                renderLogo(value);
+            };
+
+            reader.readAsDataURL(file);
+        });
+    }
+
+    if (logoRemove) {
+        logoRemove.addEventListener("click", () => {
+            localStorage.removeItem(logoStorageKey);
+            renderLogo(null);
+
+            if (logoInput) {
+                logoInput.value = "";
+            }
+        });
+    }
+
+    const chatInput = document.getElementById("chat-input");
+    const chatSend = document.getElementById("chat-send");
+    const chatMessages = document.getElementById("chat-messages");
+
+    if (window.abqarynoChat && chatInput && chatSend) {
+        chatSend.addEventListener("click", () => {
+            const item = window.abqarynoChat.send(chatInput.value);
+
+            if (!item) return;
+
+            const message = document.createElement("div");
+            message.className = "chat-message";
+            message.textContent = item.text;
+
+            chatMessages.appendChild(message);
+            chatInput.value = "";
+            chatInput.focus();
+        });
+
+        chatInput.addEventListener("keydown", event => {
+            if (event.key === "Enter") {
+                chatSend.click();
+            }
+        });
+    }
+
+    const video = document.getElementById("camera-preview");
+    const cameraStart = document.getElementById("camera-start");
+    const cameraStop = document.getElementById("camera-stop");
+
+    const camera = window.AbqarynoCamera
+        ? new window.AbqarynoCamera()
+        : null;
+
+    if (camera && cameraStart) {
+        cameraStart.addEventListener("click", async () => {
+            try {
+                await camera.start(video);
+            } catch (error) {
+                alert("تعذر تشغيل الكاميرا: " + error.message);
+            }
+        });
+    }
+
+    if (camera && cameraStop) {
+        cameraStop.addEventListener("click", () => camera.stop());
+    }
+
+    const micStart = document.getElementById("mic-start");
+    const micRecord = document.getElementById("mic-record");
+    const micStop = document.getElementById("mic-stop");
+    const recordedAudio = document.getElementById("recorded-audio");
+
+    const microphone = window.AbqarynoMicrophone
+        ? new window.AbqarynoMicrophone()
+        : null;
+
+    if (microphone && micStart) {
+        micStart.addEventListener("click", async () => {
+            try {
+                await microphone.start();
+            } catch (error) {
+                alert("تعذر تشغيل المايك: " + error.message);
+            }
+        });
+    }
+
+    if (microphone && micRecord) {
+        micRecord.addEventListener("click", () => {
+            try {
+                microphone.record();
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+    }
+
+    if (microphone && micStop) {
+        micStop.addEventListener("click", async () => {
+            const blob = await microphone.stopRecording();
+
+            if (!blob || !recordedAudio) return;
+
+            recordedAudio.src = URL.createObjectURL(blob);
+            recordedAudio.hidden = false;
+        });
+    }
+
+    const attachmentInput =
+        document.getElementById("attachment-input");
+
+    const attachmentList =
+        document.getElementById("attachment-list");
+
+    if (window.abqarynoAttachments && attachmentInput) {
+        attachmentInput.addEventListener("change", event => {
+
+            const files =
+                window.abqarynoAttachments.add(
+                    event.target.files
+                );
+
+            attachmentList.innerHTML = "";
+
+            files.forEach(file => {
+                const item = document.createElement("div");
+
+                item.className = "attachment-item";
+                item.textContent =
+                    file.name +
+                    " (" +
+                    Math.round(file.size / 1024) +
+                    " KB)";
+
+                attachmentList.appendChild(item);
+            });
+        });
+    }
+});
+</script>
+
+<script src="/js/microphone.js"></script>
+</body>
+
+</html>

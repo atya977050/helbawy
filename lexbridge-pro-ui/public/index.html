@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>LexBridge Pro UI</title>
+    <style>
+        body { font-family: Tahoma, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: auto; background: #1e293b; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        h1 { color: #fbbf24; text-align: center; }
+        .card { background: #334155; padding: 15px; margin-bottom: 15px; border-radius: 8px; }
+        button { background: #fbbf24; color: #0f172a; border: none; padding: 10px 20px; font-weight: bold; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #f59e0b; }
+        input, select { width: 100%; padding: 10px; margin: 8px 0; background: #0f172a; border: 1px solid #475569; color: white; border-radius: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #475569; padding: 10px; text-align: right; }
+        th { background: #1e293b; color: #fbbf24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚖️ LexBridge Pro UI</h1>
+        <p style="text-align: center; color: #94a3b8;">تم الإنشاء آلياً بواسطة عبقرينو AI Software Factory</p>
+        
+        <div class="card">
+            <h3>إدارة القضايا والعملاء</h3>
+            <div id="status" style="color: #4ade80; margin-bottom: 10px;">🟢 النظام متصل وجاهز</div>
+            <div id="data-container">
+                <button onclick="loadCases()">تحميل قائمة القضايا</button>
+                <table id="casesTable">
+                    <thead><tr><th>رقم القضية</th><th>عنوان القضية</th><th>الحالة</th></tr></thead>
+                    <tbody><tr><td colspan="3" style="text-align:center;">اضغط التحميل لعرض البيانات</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadCases() {
+            try {
+                const res = await fetch('/api/cases');
+                const data = await res.json();
+                const tbody = document.querySelector('#casesTable tbody');
+                tbody.innerHTML = '';
+                if(data.cases && data.cases.length > 0) {
+                    data.cases.forEach(c => {
+                        tbody.innerHTML += `<tr><td>${c.case_number}</td><td>${c.title}</td><td>${c.status}</td></tr>`;
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">لا توجد قضايا مسجلة بعد</td></tr>';
+                }
+            } catch(e) {
+                alert('خطأ في الاتصال بالخادم');
+            }
+        }
+    </script>
+</body>
+</html>

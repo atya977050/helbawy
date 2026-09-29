@@ -39,6 +39,68 @@ h1{font-size:38px;margin:16px 0 8px}
 .stat{padding:13px 18px;border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.035)}
 .stat strong{display:block;font-size:21px}
 .stat span{color:var(--muted);font-size:12px}
+
+.stage-section{
+  margin:18px 0 12px;
+  padding:16px 18px;
+  border:1px solid rgba(217,180,90,.25);
+  border-radius:16px;
+  background:rgba(217,180,90,.045);
+}
+
+.stage-section-title{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.stage-section-title > span{
+  width:30px;
+  height:30px;
+  display:grid;
+  place-items:center;
+  border-radius:10px;
+  background:rgba(217,180,90,.14);
+  color:#e8d08b;
+  font-weight:900;
+}
+
+.stage-section-title strong{
+  color:#f2d98b;
+  font-size:16px;
+}
+
+.stage-section-title b{
+  margin-right:auto;
+  padding:5px 9px;
+  border-radius:999px;
+  background:rgba(255,255,255,.06);
+  color:#c9d8e6;
+  font-size:12px;
+}
+
+.stage-section p{
+  margin:9px 0 0;
+  color:var(--muted);
+  line-height:1.7;
+  font-size:13px;
+}
+
+.design-stage{
+  border-color:rgba(57,168,255,.25);
+  background:rgba(57,168,255,.035);
+}
+
+.design-stage .stage-section-title > span{
+  background:rgba(57,168,255,.13);
+  color:#9fdbff;
+}
+
+.design-stage .stage-section-title strong{
+  color:#bde7ff;
+}
+
 .list{display:grid;gap:14px}
 .req{border:1px solid var(--line);border-radius:20px;background:var(--panel2);padding:20px;transition:.2s}
 .req.selected{border-color:rgba(25,184,120,.65);box-shadow:0 0 0 1px rgba(25,184,120,.12)}
@@ -82,6 +144,150 @@ h1{font-size:38px;margin:16px 0 8px}
 .preview-btn{height:28px;min-width:65px;padding:0 12px;border-radius:9px;border:1px solid rgba(217,180,90,.35);background:rgba(217,180,90,.12);color:#e8d08b;font-size:11px;display:flex;align-items:center;justify-content:center}
 @media (max-width:600px){.preview-side{width:24%;padding:12px 7px}.preview-content{padding:13px}.preview-body{min-height:125px}}
 
+
+.edit-panel{
+  margin:14px 0;
+  padding:16px;
+  border:1px solid rgba(212,175,55,.35);
+  border-radius:14px;
+  background:rgba(20,20,20,.45);
+}
+.edit-panel label{
+  display:block;
+  margin-bottom:12px;
+  font-weight:700;
+}
+.edit-panel input,
+.edit-panel textarea{
+  display:block;
+  width:100%;
+  box-sizing:border-box;
+  margin-top:7px;
+  padding:11px 12px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.18);
+  background:#111;
+  color:#fff;
+  font:inherit;
+}
+.edit-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.edit-requirement,
+.save-edit,
+.cancel-edit{
+  cursor:pointer;
+  border-radius:10px;
+  padding:9px 13px;
+  font:inherit;
+}
+.edit-requirement{
+  border:1px solid rgba(212,175,55,.45);
+  background:transparent;
+  color:inherit;
+}
+.save-edit{
+  border:0;
+  background:#c9a227;
+  color:#111;
+}
+.cancel-edit{
+  border:1px solid rgba(255,255,255,.2);
+  background:transparent;
+  color:inherit;
+}
+
+
+.proposal-box{margin-top:10px}
+.proposal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.proposal-card{
+  border:1px solid rgba(217,180,90,.28);
+  border-radius:16px;
+  padding:15px;
+  background:#101722;
+}
+.proposal-card.approved{
+  border-color:rgba(25,184,120,.75);
+  box-shadow:0 0 0 1px rgba(25,184,120,.18);
+}
+.proposal-head{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:flex-start;
+}
+.proposal-head strong{
+  color:#d9b45a;
+  font-size:12px;
+}
+.proposal-head h3{
+  margin:5px 0 0;
+  font-size:17px;
+}
+.proposal-approved{
+  color:#5ee0a0;
+  font-size:12px;
+  font-weight:800;
+  white-space:nowrap;
+}
+.proposal-components{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin:12px 0;
+}
+.proposal-components span{
+  padding:5px 8px;
+  border-radius:8px;
+  background:rgba(217,180,90,.10);
+  color:#e8d08b;
+  font-size:11px;
+}
+.proposal-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  color:#8fa4c1;
+  font-size:11px;
+}
+.proposal-actions{
+  display:flex;
+  gap:7px;
+  margin-top:14px;
+  flex-wrap:wrap;
+}
+.proposal-actions button,
+.proposal-more button{
+  border:0;
+  border-radius:9px;
+  padding:9px 11px;
+  font:inherit;
+  font-size:11px;
+  font-weight:800;
+  cursor:pointer;
+}
+.approve-proposal{
+  background:#176b4d;
+  color:#fff;
+}
+.reject-proposal{
+  background:#472a32;
+  color:#f2cbd2;
+}
+.proposal-more{
+  margin-top:12px;
+}
+.proposal-more button{
+  background:rgba(217,180,90,.12);
+  color:#e8d08b;
+  border:1px solid rgba(217,180,90,.3);
+}
+@media(max-width:850px){
+  .proposal-grid{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 
@@ -110,9 +316,40 @@ h1{font-size:38px;margin:16px 0 8px}
     </p>
 
     <div class="summary">
-      <div class="stat"><strong id="total">0</strong><span>إجمالي المقترحات</span></div>
-      <div class="stat"><strong id="approved">0</strong><span>معتمد</span></div>
-      <div class="stat"><strong id="rejected">0</strong><span>مستبعد</span></div>
+      <div class="stat">
+        <strong id="total">0</strong>
+        <span>إجمالي المتطلبات</span>
+      </div>
+      <div class="stat">
+        <strong id="requirementsApproved">0 / 0</strong>
+        <span>اعتماد المتطلبات</span>
+      </div>
+      <div class="stat">
+        <strong id="designsApproved">0 / 0</strong>
+        <span>اعتماد تصميمات الشاشات</span>
+      </div>
+      <div class="stat">
+        <strong id="rejected">0</strong>
+        <span>مستبعد</span>
+      </div>
+
+      <div class="stage-section">
+        <div class="stage-section-title">
+          <span>①</span>
+          <strong>اعتماد المتطلبات</strong>
+          <b id="requirementsProgress">0 / 0</b>
+        </div>
+        <p>راجع الشاشات والوظائف وحدد ما تريد الاحتفاظ به.</p>
+      </div>
+
+      <div class="stage-section design-stage">
+        <div class="stage-section-title">
+          <span>②</span>
+          <strong>اعتماد تصميمات الشاشات</strong>
+          <b id="designProgress">0 / 0</b>
+        </div>
+        <p>اختر تصميمًا واحدًا لكل شاشة مختارة قبل الانتقال إلى التخطيط.</p>
+      </div>
     </div>
 
     <div id="list" class="list">
@@ -139,12 +376,228 @@ const screens =
   analysis.requirements?.screens ||
   [];
 
+const savedRequirementChoices = JSON.parse(
+  sessionStorage.getItem("abqarynoRequirementChoices") || "{}"
+);
+
 const choices = {};
 
 screens.forEach((item, index) => {
   const id = item.id || `screen-${index + 1}`;
-  choices[id] = true;
+
+  choices[id] =
+    Object.prototype.hasOwnProperty.call(savedRequirementChoices, id)
+      ? Boolean(savedRequirementChoices[id])
+      : true;
 });
+
+function saveRequirementChoices(){
+  sessionStorage.setItem(
+    "abqarynoRequirementChoices",
+    JSON.stringify(choices)
+  );
+}
+
+
+const approvedProposals = JSON.parse(
+  sessionStorage.getItem("abqarynoApprovedProposals") || "{}"
+);
+
+const proposalCache = {};
+
+function saveApprovedProposals(){
+  sessionStorage.setItem(
+    "abqarynoApprovedProposals",
+    JSON.stringify(approvedProposals)
+  );
+}
+
+async function fetchProposals(screenId, offset = 0){
+  const screen = screens.find(
+    item => (item.id || "") === screenId
+  );
+
+  if(!screen){
+    throw new Error("تعذر العثور على الشاشة المطلوبة.");
+  }
+
+  const response = await fetch("/api/proposals", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      screen,
+      offset,
+      idea: sessionStorage.getItem("abqarynoIdea") || ""
+    })
+  });
+
+  const result = await response.json();
+
+  if(!response.ok || !result.ok){
+    throw new Error(
+      result.error || "تعذر تحميل تصميمات الشاشة."
+    );
+  }
+
+  return result.proposals || [];
+}
+
+function proposalHtml(screenId, proposals){
+  const approved = approvedProposals[screenId];
+
+  return proposals.map((proposal, index) => {
+    const isApproved =
+      approved &&
+      approved.variant === proposal.variant;
+
+    const components = Array.isArray(proposal.components)
+      ? proposal.components
+      : [];
+
+    return `
+      <article class="proposal-card ${isApproved ? "approved" : ""}">
+        <div class="proposal-head">
+          <strong>التصميم ${index + 1}</strong>
+          <h3>${esc(proposal.layout || "واجهة قياسية")}</h3>
+        </div>
+
+        <p>${esc(proposal.purpose || "تصميم مقترح للشاشة.")}</p>
+
+        <div class="proposal-components">
+          ${components.map(component =>
+            `<span>${esc(component)}</span>`
+          ).join("")}
+        </div>
+
+        ${
+          isApproved
+            ? `<div class="proposal-approved">✓ تم اعتماد هذا التصميم</div>`
+            : `
+              <button
+                type="button"
+                class="approve-proposal"
+                data-screen-id="${esc(screenId)}"
+                data-proposal-index="${index}"
+              >
+                ✓ نعم، أعتمد هذا التصميم
+              </button>
+            `
+        }
+      </article>
+    `;
+  }).join("");
+}
+
+async function loadProposalsForScreen(screenId, offset = 0){
+  const box = Array.from(
+    document.querySelectorAll(".proposal-box")
+  ).find(
+    item => item.dataset.proposals === screenId
+  );
+
+  if(!box){
+    return;
+  }
+
+  const grid = box.querySelector(".proposal-grid");
+
+  grid.innerHTML = `
+    <div class="proposal-card">
+      <strong>جاري تحليل وتصميم الشاشة...</strong>
+    </div>
+  `;
+
+  try{
+    const proposals = await fetchProposals(screenId, offset);
+
+    proposalCache[screenId] = {
+      proposals,
+      offset
+    };
+
+    if(!proposals.length){
+      grid.innerHTML = `
+        <div class="proposal-card">
+          <strong>لم يتم توليد تصميمات لهذه الشاشة.</strong>
+        </div>
+      `;
+      return;
+    }
+
+    grid.innerHTML = proposalHtml(screenId, proposals);
+    bindProposalButtons();
+
+  }catch(error){
+    grid.innerHTML = `
+      <div class="proposal-card">
+        <strong>تعذر تحميل التصميمات</strong>
+        <p>${esc(error.message)}</p>
+      </div>
+    `;
+  }
+}
+
+function bindProposalButtons(){
+  document.querySelectorAll(".approve-proposal").forEach(button => {
+    if(button.dataset.bound === "1"){
+      return;
+    }
+
+    button.dataset.bound = "1";
+
+    button.addEventListener("click", () => {
+      const screenId = button.dataset.screenId;
+      const index = Number(button.dataset.proposalIndex);
+      const cached = proposalCache[screenId];
+
+      if(
+        !screenId ||
+        !cached ||
+        !Array.isArray(cached.proposals) ||
+        !cached.proposals[index]
+      ){
+        document.getElementById("status").textContent =
+          "تعذر العثور على التصميم المختار.";
+        return;
+      }
+
+      const proposal = {
+        ...cached.proposals[index],
+        approved: true,
+        approved_at: new Date().toISOString()
+      };
+
+      approvedProposals[screenId] = proposal;
+      saveApprovedProposals();
+      updateStats();
+
+      document.getElementById("status").textContent =
+        `تم اعتماد تصميم شاشة ${proposal.title || screenId}.`;
+
+      const box = Array.from(
+        document.querySelectorAll(".proposal-box")
+      ).find(
+        item => item.dataset.proposals === screenId
+      );
+
+      if(box){
+        box.querySelector(".proposal-grid").innerHTML =
+          proposalHtml(screenId, cached.proposals);
+      }
+    });
+  });
+}
+
+async function loadAllProposals(){
+  const jobs = screens
+    .map(screen => screen.id || "")
+    .filter(Boolean)
+    .map(id => loadProposalsForScreen(id, 0));
+
+  await Promise.all(jobs);
+}
 
 const list = document.getElementById("list");
 
@@ -181,6 +634,57 @@ function draw(){
 
         <p>${esc(purpose)}</p>
 
+        <div class="proposal-box" data-proposals="${esc(id)}">
+          <div class="preview-label">🎨 عبقرينو يقترح تصميم الشاشة</div>
+          <div class="proposal-grid">
+            ${
+              proposalCache[id] &&
+              Array.isArray(proposalCache[id].proposals) &&
+              proposalCache[id].proposals.length
+                ? proposalHtml(id, proposalCache[id].proposals)
+                : `
+                  <div class="proposal-card">
+                    <strong>جاري تحميل التصميمات...</strong>
+                  </div>
+                `
+            }
+          </div>
+        </div>
+
+        <div class="edit-panel" id="edit-${esc(id)}" hidden>
+          <label>
+            اسم المتطلب
+            <input
+              class="edit-title"
+              data-edit-id="${esc(id)}"
+              value="${esc(title)}"
+            >
+          </label>
+
+          <label>
+            وصف المتطلب
+            <textarea
+              class="edit-purpose"
+              data-edit-id="${esc(id)}"
+              rows="3"
+            >${esc(purpose)}</textarea>
+          </label>
+
+          <div class="edit-actions">
+            <button
+              type="button"
+              class="save-edit"
+              data-id="${esc(id)}"
+            >حفظ التعديل</button>
+
+            <button
+              type="button"
+              class="cancel-edit"
+              data-id="${esc(id)}"
+            >إلغاء</button>
+          </div>
+        </div>
+
         <div class="preview-label">👁️ معاينة تنسيق الشاشة قبل التنفيذ</div>
 
         <div class="screen-preview">
@@ -214,6 +718,12 @@ function draw(){
         </div>
 
         <div class="actions">
+          <button
+            type="button"
+            class="edit-requirement"
+            data-id="${esc(id)}"
+          >✏️ تعديل المتطلب</button>
+
           <button class="choice yes ${choices[id] ? "active" : ""}"
                   data-id="${esc(id)}" data-value="yes">
             ✓ نعم، أريده
@@ -232,6 +742,73 @@ function draw(){
     button.onclick = ()=>{
       const id = button.dataset.id;
       choices[id] = button.dataset.value === "yes";
+
+      saveRequirementChoices();
+      persistAnalysis();
+      draw();
+    };
+  });
+
+  document.querySelectorAll(".edit-requirement").forEach(button=>{
+    button.onclick = ()=>{
+      const id = button.dataset.id;
+      const panel = document.getElementById(`edit-${id}`);
+
+      if (!panel) {
+        document.getElementById("status").textContent =
+          "تعذر فتح محرر المتطلب.";
+        return;
+      }
+
+      panel.hidden = !panel.hidden;
+    };
+  });
+
+  document.querySelectorAll(".save-edit").forEach(button=>{
+    button.onclick = ()=>{
+      const id = button.dataset.id;
+      const item = screens.find(
+        entry => (entry.id || "") === id
+      );
+
+      if (!item) {
+        document.getElementById("status").textContent =
+          "تعذر العثور على المتطلب.";
+        return;
+      }
+
+      const titleInput = document.querySelector(
+        `.edit-title[data-edit-id="${CSS.escape(id)}"]`
+      );
+
+      const purposeInput = document.querySelector(
+        `.edit-purpose[data-edit-id="${CSS.escape(id)}"]`
+      );
+
+      const title = titleInput?.value.trim() || "";
+      const purpose = purposeInput?.value.trim() || "";
+
+      if (!title || !purpose) {
+        document.getElementById("status").textContent =
+          "يجب إدخال اسم ووصف المتطلب قبل الحفظ.";
+        return;
+      }
+
+      item.title = title;
+      item.purpose = purpose;
+      item.requirement_status = "EDITED";
+      item.edited_at = new Date().toISOString();
+
+      persistAnalysis();
+      document.getElementById("status").textContent =
+        "تم حفظ تعديل المتطلب فعليًا.";
+
+      draw();
+    };
+  });
+
+  document.querySelectorAll(".cancel-edit").forEach(button=>{
+    button.onclick = ()=>{
       draw();
     };
   });
@@ -239,16 +816,59 @@ function draw(){
   updateStats();
 }
 
+function persistAnalysis(){
+  analysis.screens = screens;
+
+  if (
+    analysis.requirements &&
+    typeof analysis.requirements === "object"
+  ) {
+    analysis.requirements.screens = screens;
+  }
+
+  sessionStorage.setItem(
+    "abqarynoAnalysis",
+    JSON.stringify(analysis)
+  );
+}
+
 function updateStats(){
   const total = screens.length;
-  const approved = Object.values(choices).filter(Boolean).length;
-  const rejected = total - approved;
+  const requirementsApproved =
+    Object.values(choices).filter(Boolean).length;
+  const rejected = total - requirementsApproved;
+
+  const selectedIds = Object.keys(choices).filter(
+    id => choices[id]
+  );
+
+  const designsApproved = selectedIds.filter(
+    id => approvedProposals[id]
+  ).length;
 
   document.getElementById("total").textContent = total;
-  document.getElementById("approved").textContent = approved;
+
+  document.getElementById("requirementsApproved").textContent =
+    `${requirementsApproved} / ${total}`;
+
+  document.getElementById("designsApproved").textContent =
+    `${designsApproved} / ${selectedIds.length}`;
+
+  document.getElementById("requirementsProgress").textContent =
+    `${requirementsApproved} / ${total}`;
+
+  document.getElementById("designProgress").textContent =
+    `${designsApproved} / ${selectedIds.length}`;
+
   document.getElementById("rejected").textContent = rejected;
-  document.getElementById("status").textContent =
-    `${approved} من ${total} متطلبات معتمدة`;
+
+  if(designsApproved === selectedIds.length && selectedIds.length){
+    document.getElementById("status").textContent =
+      `اعتماد المتطلبات مكتمل ✓ واعتماد التصميمات مكتمل ${designsApproved} من ${selectedIds.length}`;
+  }else{
+    document.getElementById("status").textContent =
+      `المتطلبات: ${requirementsApproved} من ${total} — التصميمات: ${designsApproved} من ${selectedIds.length}`;
+  }
 }
 
 document.getElementById("next").onclick = ()=>{
@@ -259,6 +879,20 @@ document.getElementById("next").onclick = ()=>{
       "اختر متطلبًا واحدًا على الأقل قبل المتابعة.";
     return;
   }
+
+  persistAnalysis();
+
+  const missingProposals = selected.filter(
+    id => !approvedProposals[id]
+  );
+
+  if(missingProposals.length){
+    document.getElementById("status").textContent =
+      `اعتمد تصميم كل شاشة مختارة أولًا. المتبقي: ${missingProposals.length}`;
+    return;
+  }
+
+  saveApprovedProposals();
 
   sessionStorage.setItem(
     "abqarynoSelectedScreens",
@@ -272,6 +906,7 @@ document.getElementById("next").onclick = ()=>{
 };
 
 draw();
+loadAllProposals();
 </script>
 </body>
 </html>

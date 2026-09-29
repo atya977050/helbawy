@@ -1,0 +1,123 @@
+{
+  "idea": "اختبار عبقرينو مصنع حقيقي",
+  "created_at": "2026-09-29T04:26:47.494102+00:00",
+  "requirements": {
+    "idea": "اختبار عبقرينو مصنع حقيقي",
+    "created_at": "2026-09-29T04:26:47.488000+00:00",
+    "screens": [
+      {
+        "id": "home",
+        "title": "الشاشة الرئيسية",
+        "purpose": "الشاشة الرئيسية والتنقل بين وظائف البرنامج"
+      }
+    ],
+    "features": [
+      "تسجيل المستخدم",
+      "حفظ البيانات",
+      "البحث"
+    ],
+    "app_types": [
+      "general"
+    ],
+    "roles": [
+      "user"
+    ],
+    "capabilities": [
+      "crud",
+      "database",
+      "settings"
+    ],
+    "capability_labels": {
+      "crud": "الإضافة والتعديل والحذف والعرض",
+      "database": "قاعدة البيانات وحفظ السجلات",
+      "settings": "الإعدادات"
+    }
+  },
+  "approved_screens": [
+    {
+      "id": "main",
+      "title": "الشاشة الرئيسية",
+      "name": "الشاشة الرئيسية",
+      "purpose": "عرض واجهة البرنامج الرئيسية والتنقل بين وظائفه",
+      "description": "واجهة البرنامج الرئيسية"
+    }
+  ],
+  "options": [],
+  "traceability": {
+    "version": 1,
+    "chain": [
+      "requirement",
+      "screen",
+      "contract",
+      "implementation",
+      "test",
+      "result"
+    ],
+    "items": [
+      {
+        "trace_id": "TRACE-0001",
+        "requirements": [
+          "تسجيل المستخدم",
+          "حفظ البيانات",
+          "البحث",
+          "crud",
+          "database",
+          "settings"
+        ],
+        "screen": {
+          "id": "main",
+          "title": "الشاشة الرئيسية"
+        },
+        "contracts": [
+          {
+            "contract_id": "main-contract-1",
+            "name": "وظائف الشاشة: الشاشة الرئيسية",
+            "status": "DEFINED"
+          }
+        ],
+        "implementation": {
+          "status": "GENERATED",
+          "targets": [
+            "public/index.html",
+            "public/css/style.css",
+            "public/js/assistant.js"
+          ]
+        },
+        "test": {
+          "status": "NOT_RUN",
+          "tests": [],
+          "result": "PENDING_GENERATED_PROJECT_VERIFICATION"
+        }
+      }
+    ]
+  },
+  "verification": {
+    "version": 1,
+    "status": "PASSED",
+    "checks": [
+      {
+        "name": "required_files",
+        "status": "PASSED",
+        "missing": []
+      },
+      {
+        "name": "python_syntax",
+        "status": "PASSED",
+        "files_checked": 4,
+        "errors": []
+      },
+      {
+        "name": "sqlite_integrity",
+        "status": "PASSED",
+        "error": null
+      },
+      {
+        "name": "frontend_structure",
+        "status": "PASSED",
+        "error": null
+      }
+    ],
+    "failed_checks": []
+  },
+  "creation_status": "VERIFIED"
+}

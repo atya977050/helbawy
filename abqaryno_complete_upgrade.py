@@ -1255,3 +1255,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# PHASE1 AUTHORITATIVE ENGINE NOTICE
+# engine/creation.py is the authoritative creation engine.
+# This legacy upgrade module is not an independent engine.

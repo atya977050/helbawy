@@ -1,0 +1,24 @@
+{
+  "report": "ABQARYNO_PLATFORM_CAPABILITY_REPORT",
+  "version": "1.0",
+  "timestamp": "2026-09-29T04:06:04.181231+00:00",
+  "status": "READY",
+  "total_capabilities": 16,
+  "required_capabilities": 11,
+  "optional_capabilities": 5,
+  "verified_capabilities": 0,
+  "unverified_required": [
+    "requirements",
+    "screen_design",
+    "project_architecture",
+    "database",
+    "authentication",
+    "api",
+    "responsive_ui",
+    "security",
+    "runtime",
+    "verification",
+    "evidence"
+  ],
+  "manifest": "plans/abqaryno-platform-capabilities.json"
+}

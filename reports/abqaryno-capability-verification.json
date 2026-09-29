@@ -1,0 +1,126 @@
+{
+  "report": "ABQARYNO_CAPABILITY_VERIFICATION",
+  "version": "2.0",
+  "timestamp": "2026-09-29T04:11:15.162185+00:00",
+  "project": "/data/data/com.termux/files/home/عبقرينو/مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاين",
+  "project_type": "python",
+  "status": "FAIL",
+  "results": [
+    {
+      "id": "requirements",
+      "name": "تحليل المتطلبات",
+      "required": true,
+      "verification": "requirements_report",
+      "status": "PASS"
+    },
+    {
+      "id": "screen_design",
+      "name": "تصميم الشاشات واعتمادها",
+      "required": true,
+      "verification": "approved_screen_plan",
+      "status": "PASS"
+    },
+    {
+      "id": "project_architecture",
+      "name": "تصميم معمارية المشروع",
+      "required": true,
+      "verification": "architecture_manifest",
+      "status": "PASS"
+    },
+    {
+      "id": "database",
+      "name": "قاعدة البيانات والعلاقات",
+      "required": true,
+      "verification": "database_schema_test",
+      "status": "PASS"
+    },
+    {
+      "id": "authentication",
+      "name": "تسجيل الدخول والصلاحيات",
+      "required": true,
+      "verification": "auth_test",
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "api",
+      "name": "REST/API",
+      "required": true,
+      "verification": "api_test",
+      "status": "PASS"
+    },
+    {
+      "id": "realtime",
+      "name": "الاتصال اللحظي",
+      "required": false,
+      "verification": "realtime_test",
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "file_uploads",
+      "name": "رفع وإدارة الملفات",
+      "required": false,
+      "verification": "upload_test",
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "notifications",
+      "name": "الإشعارات",
+      "required": false,
+      "verification": "notification_test",
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "payments",
+      "name": "الدفع الإلكتروني",
+      "required": false,
+      "verification": "payment_test",
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "search",
+      "name": "البحث والتصفية",
+      "required": false,
+      "verification": "search_test",
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "responsive_ui",
+      "name": "واجهة متجاوبة للموبايل والويب",
+      "required": true,
+      "verification": "ui_render_test",
+      "status": "PASS"
+    },
+    {
+      "id": "security",
+      "name": "الأمان والتحقق من المدخلات",
+      "required": true,
+      "verification": "security_test",
+      "status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "runtime",
+      "name": "تشغيل حقيقي للمشروع",
+      "required": true,
+      "verification": "runtime_test",
+      "status": "PASS"
+    },
+    {
+      "id": "verification",
+      "name": "التحقق النهائي",
+      "required": true,
+      "verification": "final_verification",
+      "status": "PASS"
+    },
+    {
+      "id": "evidence",
+      "name": "سجل الأدلة والتنفيذ",
+      "required": true,
+      "verification": "evidence_report",
+      "status": "PASS"
+    }
+  ],
+  "required_failures": [
+    "authentication",
+    "security"
+  ]
+}

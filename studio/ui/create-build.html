@@ -120,8 +120,18 @@ const selectedOptions=JSON.parse(
   sessionStorage.getItem("abqarynoOptions")||"[]"
 );
 
+const approvedProposals=JSON.parse(
+  sessionStorage.getItem("abqarynoApprovedProposals")||"{}"
+);
+
 const screens=analysis.screens||analysis.requirements?.screens||[];
-const approved=screens.filter(x=>selected.includes(x.id));
+
+const approved=screens
+  .filter(x=>selected.includes(x.id))
+  .map(screen=>({
+    ...screen,
+    ...(approvedProposals[screen.id] || {})
+  }));
 
 const status=document.getElementById("status");
 const title=document.getElementById("title");
@@ -131,6 +141,16 @@ const actions=document.getElementById("actions");
 async function createProject(){
   if(!idea || !approved.length){
     throw new Error("بيانات الفكرة أو المتطلبات المعتمدة غير موجودة.");
+  }
+
+  const missingProposals = approved.filter(
+    screen => !approvedProposals[screen.id]
+  );
+
+  if(missingProposals.length){
+    throw new Error(
+      "لا يمكن إنشاء البرنامج قبل اعتماد تصميم كل شاشة."
+    );
   }
 
   const response=await fetch("/api/create",{

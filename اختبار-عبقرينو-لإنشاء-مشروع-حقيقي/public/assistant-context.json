@@ -1,0 +1,35 @@
+{
+  "idea": "اختبار عبقرينو لإنشاء مشروع حقيقي",
+  "screens": [
+    {
+      "screen_id": "test-home",
+      "title": "الشاشة الرئيسية",
+      "purpose": "الشاشة الرئيسية والتنقل بين وظائف البرنامج",
+      "layout": "واجهة قياسية متجاوبة",
+      "actions": [
+        "فتح الشاشة الرئيسية"
+      ]
+    }
+  ],
+  "roles": [
+    "user"
+  ],
+  "capabilities": [
+    "crud",
+    "database",
+    "reports",
+    "search",
+    "settings"
+  ],
+  "capability_labels": {
+    "crud": "الإضافة والتعديل والحذف والعرض",
+    "database": "قاعدة البيانات وحفظ السجلات",
+    "reports": "التقارير",
+    "search": "البحث والتصفية",
+    "settings": "الإعدادات"
+  },
+  "app_types": [
+    "project_management"
+  ],
+  "options": []
+}

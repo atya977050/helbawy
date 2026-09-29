@@ -1,0 +1,109 @@
+{
+  "name": "ABQARYNO_PLATFORM_CAPABILITY_MATRIX",
+  "version": "1.0",
+  "created_at": "2026-09-29T04:06:04.180388+00:00",
+  "capabilities": [
+    {
+      "id": "requirements",
+      "name": "تحليل المتطلبات",
+      "required": true,
+      "verification": "requirements_report"
+    },
+    {
+      "id": "screen_design",
+      "name": "تصميم الشاشات واعتمادها",
+      "required": true,
+      "verification": "approved_screen_plan"
+    },
+    {
+      "id": "project_architecture",
+      "name": "تصميم معمارية المشروع",
+      "required": true,
+      "verification": "architecture_manifest"
+    },
+    {
+      "id": "database",
+      "name": "قاعدة البيانات والعلاقات",
+      "required": true,
+      "verification": "database_schema_test"
+    },
+    {
+      "id": "authentication",
+      "name": "تسجيل الدخول والصلاحيات",
+      "required": true,
+      "verification": "auth_test"
+    },
+    {
+      "id": "api",
+      "name": "REST/API",
+      "required": true,
+      "verification": "api_test"
+    },
+    {
+      "id": "realtime",
+      "name": "الاتصال اللحظي",
+      "required": false,
+      "verification": "realtime_test"
+    },
+    {
+      "id": "file_uploads",
+      "name": "رفع وإدارة الملفات",
+      "required": false,
+      "verification": "upload_test"
+    },
+    {
+      "id": "notifications",
+      "name": "الإشعارات",
+      "required": false,
+      "verification": "notification_test"
+    },
+    {
+      "id": "payments",
+      "name": "الدفع الإلكتروني",
+      "required": false,
+      "verification": "payment_test"
+    },
+    {
+      "id": "search",
+      "name": "البحث والتصفية",
+      "required": false,
+      "verification": "search_test"
+    },
+    {
+      "id": "responsive_ui",
+      "name": "واجهة متجاوبة للموبايل والويب",
+      "required": true,
+      "verification": "ui_render_test"
+    },
+    {
+      "id": "security",
+      "name": "الأمان والتحقق من المدخلات",
+      "required": true,
+      "verification": "security_test"
+    },
+    {
+      "id": "runtime",
+      "name": "تشغيل حقيقي للمشروع",
+      "required": true,
+      "verification": "runtime_test"
+    },
+    {
+      "id": "verification",
+      "name": "التحقق النهائي",
+      "required": true,
+      "verification": "final_verification"
+    },
+    {
+      "id": "evidence",
+      "name": "سجل الأدلة والتنفيذ",
+      "required": true,
+      "verification": "evidence_report"
+    }
+  ],
+  "rules": {
+    "required_capability_must_be_verified": true,
+    "optional_capability_must_not_be_claimed_without_evidence": true,
+    "build_pass_requires_runtime_verification": true,
+    "final_pass_requires_all_required_capabilities": true
+  }
+}

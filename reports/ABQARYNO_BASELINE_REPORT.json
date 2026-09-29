@@ -1,0 +1,1026 @@
+{
+  "report": "ABQARYNO_BASELINE_REPORT",
+  "version": "1.0",
+  "status": "PASS",
+  "timestamp": "2026-09-29T04:03:50.838009+00:00",
+  "project_root": "/data/data/com.termux/files/home/عبقرينو",
+  "runtime": {
+    "python": "3.14.6 (main, Jul  5 2026, 10:35:55) [Clang 21.0.0 (https://android.googlesource.com/toolchain/llvm-project 5e96669f0",
+    "python_executable": "/data/data/com.termux/files/usr/bin/python",
+    "node": "v26.4.0",
+    "npm": "11.19.1",
+    "platform": "Android-10-aarch64-64bit",
+    "machine": "aarch64"
+  },
+  "required_paths": {
+    "engine": true,
+    "studio": true,
+    "core": true,
+    "reports": true,
+    "plans": true,
+    "studio/server.py": true,
+    "engine/creation.py": true,
+    "engine/abqaryno_master_factory.py": true
+  },
+  "checks": {
+    "required_paths": true,
+    "python_files_compile": true,
+    "studio_server_exists": true,
+    "creation_engine_exists": true,
+    "master_factory_exists": true
+  },
+  "python_file_count": 126,
+  "python_compile_tests": [
+    {
+      "file": "abqaryno_complete_upgrade.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "abqaryno_master.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "core/__init__.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "core/decisions.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "core/engine.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "core/errors.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "core/history.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "core/models.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "core/states.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "core/tests/__init__.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "core/tests/test_decisions.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "core/tests/test_engine.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "core/tests/test_states.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "core/tests/test_transitions.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "core/transitions.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "core/validation.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "engine/__init__.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "engine/abqaryno_factory.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "engine/abqaryno_master_factory.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "engine/ai_core.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "engine/approval.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "engine/baseline_engine.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "engine/contract_graph.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "engine/contracts.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "engine/creation.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "engine/execution_log.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "engine/options.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "engine/planner.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "engine/repair.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "engine/repair_design.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "engine/repair_gate.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "engine/repair_generator.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "engine/root_cause.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "engine/scanner.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "engine/snapshot.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "engine/socketio.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "engine/verification.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "install_repair_studio.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "install_web_studio.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "p45_add_repair_generator.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "p45_engine_repair.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "p45_phase10_controlled_apply.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "p45_phase1_repair.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "p45_phase2_repair.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "p45_phase3_actions.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "p45_phase4_design.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "p45_phase5_generate_actions.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "p45_phase5_persist.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "p45_phase6_composition.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "p45_phase7_verify_composition.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "p45_phase8_snapshot.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "p45_phase9_apply_gate.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "repair-repository.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "repair_creator_repo/engine/generator.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "repair_creator_repo/engine/repair.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "repair_creator_repo/repair-creator.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "setup.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "snapshots/20260925T200124Z__engine__contracts.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "studio/repair_api.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "studio/server.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "tools/abqaryno_comprehensive_audit.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "tools/abqaryno_phase1_audit.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "tools/finish_phase1.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "tools/finish_phase2.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "tools/finish_phase3.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "v2_upgrade.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "v3_upgrade.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "v4_upgrade.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "أريد-إنشاء-برنامج-استشارات-قانونية-أون-لاينأول-شاشة--شاشة-تسجيل-دخول-للمستخدم-بر/database/database.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "أريد-إنشاء-برنامج-استشارات-قانونية-أون-لاينأول-شاشة--شاشة-تسجيل-دخول-للمستخدم-بر/routes/__init__.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "أريد-إنشاء-برنامج-استشارات-قانونية-أون-لاينأول-شاشة--شاشة-تسجيل-دخول-للمستخدم-بر/routes/ocr.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "أريد-إنشاء-برنامج-استشارات-قانونية-أون-لاينأول-شاشة--شاشة-تسجيل-دخول-للمستخدم-بر/routes/reports.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "أريد-إنشاء-برنامج-استشارات-قانونية-أون-لاينأول-شاشة--شاشة-تسجيل-دخول-للمستخدم-بر/routes/search.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "أريد-إنشاء-برنامج-استشارات-قانونية-أون-لاينأول-شاشة--شاشة-تسجيل-دخول-للمستخدم-بر/routes/translation.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "أريد-إنشاء-برنامج-استشارات-قانونية-أون-لاينأول-شاشة--شاشة-تسجيل-دخول-للمستخدم-بر/routes/voice.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "أريد-إنشاء-برنامج-استشارات-قانونية-أون-لاينأول-شاشة--شاشة-تسجيل-دخول-للمستخدم-بر/server/server.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "أريد-إنشاء-برنامج-استشارات-قانونية-أون-لاينأول-شاشة--شاشة-تسجيل-دخول-للمستخدم-بر/services/__init__.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "أريد-إنشاء-برنامج-استشارات-قانونية-أون-لاينأول-شاشة--شاشة-تسجيل-دخول-للمستخدم-بر/services/ocr.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "أريد-إنشاء-برنامج-استشارات-قانونية-أون-لاينأول-شاشة--شاشة-تسجيل-دخول-للمستخدم-بر/services/reports.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "أريد-إنشاء-برنامج-استشارات-قانونية-أون-لاينأول-شاشة--شاشة-تسجيل-دخول-للمستخدم-بر/services/search.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "أريد-إنشاء-برنامج-استشارات-قانونية-أون-لاينأول-شاشة--شاشة-تسجيل-دخول-للمستخدم-بر/services/translation.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "أريد-إنشاء-برنامج-استشارات-قانونية-أون-لاينأول-شاشة--شاشة-تسجيل-دخول-للمستخدم-بر/services/voice.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "أريد-من-عبقرينو-إنشاء-برنامج-عبارة-عن-منصة-بث-جماعي-مباشر-وتواصل-اجتماعي،-شبيهة-/database/database.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "أريد-من-عبقرينو-إنشاء-برنامج-عبارة-عن-منصة-بث-جماعي-مباشر-وتواصل-اجتماعي،-شبيهة-/routes/__init__.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "أريد-من-عبقرينو-إنشاء-برنامج-عبارة-عن-منصة-بث-جماعي-مباشر-وتواصل-اجتماعي،-شبيهة-/server/server.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "أريد-من-عبقرينو-إنشاء-برنامج-عبارة-عن-منصة-بث-جماعي-مباشر-وتواصل-اجتماعي،-شبيهة-/services/__init__.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "اختبار-عبقرينو-لإنشاء-مشروع-حقيقي/database/database.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "اختبار-عبقرينو-لإنشاء-مشروع-حقيقي/routes/__init__.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "اختبار-عبقرينو-لإنشاء-مشروع-حقيقي/server/server-8081-temp.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "اختبار-عبقرينو-لإنشاء-مشروع-حقيقي/server/server.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "اختبار-عبقرينو-لإنشاء-مشروع-حقيقي/services/__init__.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "برنامج-شات-مع-كاميرا-ومايك-ومرفقات/routes/__init__.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "برنامج-شات-مع-كاميرا-ومايك-ومرفقات/server/server.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "برنامج-شات-مع-كاميرا-ومايك-ومرفقات/services/__init__.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "برنامج-لإدارة-القضايا-والموكلين/database/database.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "برنامج-لإدارة-القضايا-والموكلين/routes/__init__.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "برنامج-لإدارة-القضايا-والموكلين/server/server.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "برنامج-لإدارة-القضايا-والموكلين/services/__init__.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاين/database/database.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاين/routes/__init__.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاين/routes/ocr.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاين/routes/reports.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاين/routes/search.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاين/routes/translation.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاين/routes/voice.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاين/server/server.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاين/services/__init__.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاين/services/ocr.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاين/services/reports.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاين/services/search.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاين/services/translation.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاين/services/voice.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاينوثيقة-تنفيذية-موجه/database/database.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاينوثيقة-تنفيذية-موجه/routes/__init__.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاينوثيقة-تنفيذية-موجه/routes/ocr.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاينوثيقة-تنفيذية-موجه/routes/reports.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاينوثيقة-تنفيذية-موجه/routes/search.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاينوثيقة-تنفيذية-موجه/routes/translation.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاينوثيقة-تنفيذية-موجه/routes/voice.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاينوثيقة-تنفيذية-موجه/server/server.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاينوثيقة-تنفيذية-موجه/services/__init__.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاينوثيقة-تنفيذية-موجه/services/ocr.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاينوثيقة-تنفيذية-موجه/services/reports.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاينوثيقة-تنفيذية-موجه/services/search.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاينوثيقة-تنفيذية-موجه/services/translation.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    {
+      "file": "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاينوثيقة-تنفيذية-موجه/services/voice.py",
+      "passed": true,
+      "exit_code": 0,
+      "stderr": ""
+    }
+  ],
+  "top_level_files": [
+    ".git/COMMIT_EDITMSG",
+    ".git/HEAD",
+    ".git/config",
+    ".git/description",
+    ".git/index",
+    ".phase1_backups/abqaryno_complete_upgrade.py.20260928_201242.bak",
+    ".repair-repository/last-scan.json",
+    "P45_ARCHITECTURE_MAP.md",
+    "P45_CODE_BOOK.md",
+    "Procfile",
+    "README.md",
+    "__pycache__/abqaryno_complete_upgrade.cpython-314.pyc",
+    "__pycache__/abqaryno_master.cpython-314.pyc",
+    "__pycache__/install_repair_studio.cpython-314.pyc",
+    "__pycache__/install_web_studio.cpython-314.pyc",
+    "__pycache__/p45_add_repair_generator.cpython-314.pyc",
+    "__pycache__/p45_engine_repair.cpython-314.pyc",
+    "__pycache__/p45_phase10_controlled_apply.cpython-314.pyc",
+    "__pycache__/p45_phase1_repair.cpython-314.pyc",
+    "__pycache__/p45_phase2_repair.cpython-314.pyc",
+    "__pycache__/p45_phase3_actions.cpython-314.pyc",
+    "__pycache__/p45_phase4_design.cpython-314.pyc",
+    "__pycache__/p45_phase5_generate_actions.cpython-314.pyc",
+    "__pycache__/p45_phase5_persist.cpython-314.pyc",
+    "__pycache__/p45_phase6_composition.cpython-314.pyc",
+    "__pycache__/p45_phase7_verify_composition.cpython-314.pyc",
+    "__pycache__/p45_phase8_snapshot.cpython-314.pyc",
+    "__pycache__/p45_phase9_apply_gate.cpython-314.pyc",
+    "__pycache__/repair-repository.cpython-314.pyc",
+    "__pycache__/setup.cpython-314.pyc",
+    "__pycache__/v2_upgrade.cpython-314.pyc",
+    "__pycache__/v3_upgrade.cpython-314.pyc",
+    "__pycache__/v4_upgrade.cpython-314.pyc",
+    "abqaryno_complete_upgrade.py",
+    "abqaryno_master.py",
+    "core/CORE_CONTRACT.md",
+    "core/__init__.py",
+    "core/decisions.py",
+    "core/engine.py",
+    "core/errors.py",
+    "core/history.py",
+    "core/models.py",
+    "core/states.py",
+    "core/transitions.py",
+    "core/validation.py",
+    "engine/__init__.py",
+    "engine/abqaryno_factory.py",
+    "engine/abqaryno_master_factory.py",
+    "engine/abqaryno_master_factory.py.before-real-verification",
+    "engine/ai_core.py",
+    "engine/approval.py",
+    "engine/baseline_engine.py",
+    "engine/contract_graph.py",
+    "engine/contracts.py",
+    "engine/creation.py",
+    "engine/execution_log.py",
+    "engine/options.py",
+    "engine/planner.py",
+    "engine/repair.py",
+    "engine/repair_design.py",
+    "engine/repair_gate.py",
+    "engine/repair_generator.py",
+    "engine/root_cause.py",
+    "engine/scanner.py",
+    "engine/snapshot.py",
+    "engine/socketio.py",
+    "engine/verification.py",
+    "install_repair_studio.py",
+    "install_web_studio.py",
+    "lexbridge-legal/.abqaryno-brain.json",
+    "lexbridge-legal/README.md",
+    "lexbridge-legal/package.json",
+    "lexbridge-legal/server.js",
+    "lexbridge-pro-ui/.abqaryno-evidence.json",
+    "lexbridge-pro-ui/package.json",
+    "lexbridge-pro-ui/server.js",
+    "lexbridge-pro/.abqaryno-brain.json",
+    "lexbridge-pro/package.json",
+    "lexbridge-pro/server.js",
+    "logs/execution-log.json",
+    "p45_add_repair_generator.py",
+    "p45_engine_repair.py",
+    "p45_phase10_controlled_apply.py",
+    "p45_phase1_repair.py",
+    "p45_phase2_repair.py",
+    "p45_phase3_actions.py",
+    "p45_phase4_design.py",
+    "p45_phase5_generate_actions.py",
+    "p45_phase5_persist.py",
+    "p45_phase6_composition.py",
+    "p45_phase7_verify_composition.py",
+    "p45_phase8_snapshot.py",
+    "p45_phase9_apply_gate.py",
+    "plans/execution-plan.json",
+    "plans/p45-apply-gate.json",
+    "plans/p45-controlled-apply-result.json",
+    "plans/p45-engine-repair-migration-phase2.json",
+    "plans/p45-engine-repair-migration-phase3.json",
+    "plans/p45-engine-repair-migration-phase4.json",
+    "plans/p45-engine-repair-migration-phase5.json",
+    "plans/p45-engine-repair-migration.json",
+    "plans/p45-snapshot-manifest.json",
+    "plans/phase2-requirements-contract.json",
+    "plans/repair-actions-generated.json",
+    "plans/repair-actions.json",
+    "plans/repair-composition-plan.json",
+    "plans/repair-composition-verification.json",
+    "plans/repair-design-manifest.json",
+    "railway.toml",
+    "repair-repository.py",
+    "repair_creator_repo/repair-creator.py",
+    "reports/abqaryno-comprehensive-audit.json",
+    "reports/abqaryno-comprehensive-audit.md",
+    "reports/abqaryno-phase1-audit.json",
+    "reports/abqaryno-phase1-audit.md",
+    "reports/complete-upgrade-report.json",
+    "reports/contract-graph.json",
+    "reports/contracts-report.json",
+    "reports/creation-final-report.json",
+    "reports/p45-phase1-repair-report.json",
+    "reports/p45-phase10-controlled-apply-report.json",
+    "reports/p45-phase2-repair-report.json",
+    "reports/p45-phase3-repair-report.json",
+    "reports/p45-phase4-design-report.json",
+    "reports/p45-phase5-generation-report.json",
+    "reports/p45-phase6-composition-report.json",
+    "reports/p45-phase7-composition-verification-report.json",
+    "reports/p45-phase8-snapshot-report.json",
+    "reports/p45-phase9-apply-gate-report.json",
+    "reports/p45-repair-generator-report.json",
+    "reports/phase1-final-report.json",
+    "reports/phase1-final-report.md",
+    "reports/phase1-state.json",
+    "reports/phase2-final-report.json",
+    "reports/phase2-final-report.md",
+    "reports/phase2-state.json",
+    "reports/repair-studio-install-report.json",
+    "reports/root-cause-report.json",
+    "reports/scan-report.json",
+    "reports/web-studio-install-report.json",
+    "requirements.txt",
+    "run_web_studio.sh",
+    "setup.py",
+    "snapshots/20260925T200124Z__engine__contracts.py",
+    "snapshots/20260925T200553Z__p45-repair-test.txt",
+    "snapshots/20260925T203218Z__p45-cli-test.txt",
+    "snapshots/p45-pre-repair-20260926-202550.tar.gz",
+    "studio/home.html",
+    "studio/index.html",
+    "studio/repair.html",
+    "studio/repair_api.py",
+    "studio/server.py",
+    "tools/abqaryno_comprehensive_audit.py",
+    "tools/abqaryno_phase1_audit.py",
+    "tools/finish_phase1.py",
+    "tools/finish_phase2.py",
+    "tools/finish_phase3.py",
+    "v2_upgrade.py",
+    "v3_upgrade.py",
+    "v4_upgrade.py",
+    "أريد-إنشاء-برنامج-استشارات-قانونية-أون-لاينأول-شاشة--شاشة-تسجيل-دخول-للمستخدم-بر/.abqaryno-requirements.json",
+    "أريد-إنشاء-برنامج-استشارات-قانونية-أون-لاينأول-شاشة--شاشة-تسجيل-دخول-للمستخدم-بر/OCR.md",
+    "أريد-إنشاء-برنامج-استشارات-قانونية-أون-لاينأول-شاشة--شاشة-تسجيل-دخول-للمستخدم-بر/README.md",
+    "أريد-إنشاء-برنامج-استشارات-قانونية-أون-لاينأول-شاشة--شاشة-تسجيل-دخول-للمستخدم-بر/REPORTS.md",
+    "أريد-إنشاء-برنامج-استشارات-قانونية-أون-لاينأول-شاشة--شاشة-تسجيل-دخول-للمستخدم-بر/SEARCH.md",
+    "أريد-إنشاء-برنامج-استشارات-قانونية-أون-لاينأول-شاشة--شاشة-تسجيل-دخول-للمستخدم-بر/TRANSLATION.md",
+    "أريد-إنشاء-برنامج-استشارات-قانونية-أون-لاينأول-شاشة--شاشة-تسجيل-دخول-للمستخدم-بر/VOICE.md",
+    "أريد-من-عبقرينو-إنشاء-برنامج-عبارة-عن-منصة-بث-جماعي-مباشر-وتواصل-اجتماعي،-شبيهة-/.abqaryno-requirements.json",
+    "أريد-من-عبقرينو-إنشاء-برنامج-عبارة-عن-منصة-بث-جماعي-مباشر-وتواصل-اجتماعي،-شبيهة-/README.md",
+    "اختبار-عبقرينو-لإنشاء-مشروع-حقيقي/.abqaryno-requirements.json",
+    "اختبار-عبقرينو-لإنشاء-مشروع-حقيقي/README.md",
+    "المساعد-الصوتي-البسيط-للمستخدمين/index.html",
+    "برنامج-شات-مع-كاميرا-ومايك-ومرفقات/.abqaryno-requirements.json",
+    "برنامج-شات-مع-كاميرا-ومايك-ومرفقات/README.md",
+    "برنامج-لإدارة-القضايا-والموكلين/.abqaryno-requirements.json",
+    "برنامج-لإدارة-القضايا-والموكلين/README.md",
+    "بلبل-الجديد/package-lock.json",
+    "بلبل-الجديد/package.json",
+    "بلبل-الجديد/server.js",
+    "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاين/.abqaryno-requirements.json",
+    "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاين/OCR.md",
+    "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاين/README.md",
+    "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاين/REPORTS.md",
+    "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاين/SEARCH.md",
+    "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاين/TRANSLATION.md",
+    "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاين/VOICE.md",
+    "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاينوثيقة-تنفيذية-موجه/.abqaryno-requirements.json",
+    "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاينوثيقة-تنفيذية-موجه/OCR.md",
+    "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاينوثيقة-تنفيذية-موجه/README.md",
+    "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاينوثيقة-تنفيذية-موجه/REPORTS.md",
+    "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاينوثيقة-تنفيذية-موجه/SEARCH.md",
+    "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاينوثيقة-تنفيذية-موجه/TRANSLATION.md",
+    "مشروع-منصة-الاستشارات-القانونيةالمستشار-عصام-الهلباوي-أون-لاينوثيقة-تنفيذية-موجه/VOICE.md"
+  ],
+  "engine_files": [
+    "engine/__init__.py",
+    "engine/abqaryno_factory.py",
+    "engine/abqaryno_master_factory.py",
+    "engine/abqaryno_master_factory.py.before-real-verification",
+    "engine/ai_core.py",
+    "engine/approval.py",
+    "engine/baseline_engine.py",
+    "engine/contract_graph.py",
+    "engine/contracts.py",
+    "engine/creation.py",
+    "engine/execution_log.py",
+    "engine/options.py",
+    "engine/planner.py",
+    "engine/repair.py",
+    "engine/repair_design.py",
+    "engine/repair_gate.py",
+    "engine/repair_generator.py",
+    "engine/root_cause.py",
+    "engine/scanner.py",
+    "engine/snapshot.py",
+    "engine/socketio.py",
+    "engine/verification.py"
+  ],
+  "studio_files": [
+    "studio/__pycache__/repair_api.cpython-314.pyc",
+    "studio/__pycache__/server.cpython-314.pyc",
+    "studio/home.html",
+    "studio/index.html",
+    "studio/repair.html",
+    "studio/repair_api.py",
+    "studio/server.py",
+    "studio/ui/create-build.html",
+    "studio/ui/create-idea.html",
+    "studio/ui/create-plan.html",
+    "studio/ui/create-requirements.html",
+    "studio/ui/create-understanding.html",
+    "studio/ui/index.html",
+    "studio/ui/portal.html"
+  ]
+}

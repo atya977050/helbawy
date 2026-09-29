@@ -1,0 +1,29 @@
+{
+  "idea": "اختبار عبقرينو مصنع حقيقي",
+  "screens": [
+    {
+      "id": "main",
+      "title": "الشاشة الرئيسية",
+      "name": "الشاشة الرئيسية",
+      "purpose": "عرض واجهة البرنامج الرئيسية والتنقل بين وظائفه",
+      "description": "واجهة البرنامج الرئيسية"
+    }
+  ],
+  "roles": [
+    "user"
+  ],
+  "capabilities": [
+    "crud",
+    "database",
+    "settings"
+  ],
+  "capability_labels": {
+    "crud": "الإضافة والتعديل والحذف والعرض",
+    "database": "قاعدة البيانات وحفظ السجلات",
+    "settings": "الإعدادات"
+  },
+  "app_types": [
+    "general"
+  ],
+  "options": []
+}

@@ -1,0 +1,503 @@
+{
+  "idea": "⚖️ مشروع منصة الاستشارات القانونية\n\nالمستشار عصام الهلباوي أون لاين\n\nوثيقة تنفيذية موجهة إلى برنامج إنشاء البرامج «عبقرينو»\n\n---\n\nأولاً: الهدف من المشروع\n\nإنشاء برنامج ويب حقيقي كامل الوظائف لمنصة مكتب محاماة واستشارات قانونية، يعمل على الهاتف والكمبيوتر، ويجمع بين:\n\n1. الصفحة التعريفية للمكتب.\n2. حسابات الموكلين.\n3. حسابات المحامين وموظفي المكتب.\n4. إدارة الموكلين.\n5. إدارة القضايا.\n6. إدارة المستندات.\n7. الشات.\n8. الاستشارات المجانية.\n9. الاستشارات المدفوعة.\n10. المحادثات الصوتية والمرئية.\n11. مشاركة الشاشة.\n12. إرسال الملفات والصور والتسجيلات.\n13. نظام الإشعارات.\n14. نظام المواعيد.\n15. نظام المدفوعات وإثبات التحويل.\n16. المساعد القانوني الذكي.\n17. التقارير.\n18. لوحة إدارة النظام.\n19. نظام الصلاحيات والأمان.\n20. قاعدة بيانات حقيقية قابلة للتوسع.\n\n---\n\nثانياً: قاعدة أساسية في التنفيذ\n\nلا يتم إنشاء البرنامج على هيئة مجموعة شاشات شكلية فقط.\n\nيجب أن تكون كل شاشة مرتبطة بوظائف حقيقية وقاعدة بيانات وواجهات API عند الحاجة.\n\nأي زر في البرنامج يجب أن يكون له:\n\nواجهة المستخدم\n        ↓\nJavaScript / Frontend Logic\n        ↓\nAPI / WebSocket\n        ↓\nBackend\n        ↓\nDatabase\n        ↓\nنتيجة حقيقية\n        ↓\nتحديث الواجهة\n\nولا يجوز إنشاء زر تجريبي من نوع:\n\nalert(\"تم بنجاح\");\n\nإذا كانت الوظيفة يفترض أن تنفذ عملية حقيقية.\n\n---\n\nثالثاً: التقنية المقترحة\n\nيمكن استخدام:\n\nFrontend:\nHTML\nCSS\nJavaScript\n\nBackend:\nNode.js\nExpress.js\n\nRealtime:\nSocket.IO\nWebRTC\n\nDatabase:\nSQLite في النسخة الأولى\nمع تصميم يسمح بالانتقال إلى PostgreSQL\n\nAuthentication:\nSession أو JWT\n\nFile Storage:\nLocal Storage في التطوير\nمع إمكانية نقل الملفات إلى Cloud Storage لاحقاً\n\nويجب أن يكون التصميم Modular بحيث يمكن تغيير أي جزء دون إعادة بناء البرنامج بالكامل.\n\n---\n\nرابعاً: هيكل المشروع\n\nيجب إنشاء المشروع بالشكل التالي:\n\nlegal-platform/\n│\n├── server/\n│   ├── server.js\n│   ├── config/\n│   ├── routes/\n│   ├── controllers/\n│   ├── services/\n│   ├── middleware/\n│   ├── database/\n│   ├── sockets/\n│   └── utils/\n│\n├── public/\n│   ├── index.html\n│   ├── login.html\n│   ├── client.html\n│   ├── lawyer.html\n│   ├── consultation.html\n│   ├── chat.html\n│   ├── cases.html\n│   ├── documents.html\n│   └── admin.html\n│\n├── public/assets/\n│\n├── uploads/\n│\n├── database/\n│   ├── schema.sql\n│   └── seed.sql\n│\n├── package.json\n├── .env.example\n└── README.md\n\n---\n\nخامساً: أنواع المستخدمين\n\n1. زائر\n\nيستطيع:\n\n- مشاهدة الصفحة الرئيسية.\n- مشاهدة خدمات المكتب.\n- معرفة معلومات التواصل.\n- طلب استشارة مجانية.\n- الانتقال إلى تسجيل الدخول.\n\n---\n\n2. موكل\n\nيستطيع:\n\n- إنشاء حساب.\n- تسجيل الدخول.\n- تعديل بياناته.\n- مشاهدة قضاياه.\n- مشاهدة مستنداته.\n- إرسال واستقبال الرسائل.\n- طلب استشارة.\n- حجز موعد.\n- الدخول إلى غرفة الفيديو.\n- رفع المستندات.\n- متابعة المدفوعات.\n- مشاهدة الإشعارات.\n\n---\n\n3. المحامي\n\nيستطيع:\n\n- إدارة الموكلين.\n- إدارة القضايا.\n- إدارة المستندات.\n- إدارة الاستشارات.\n- استقبال الرسائل.\n- إنشاء غرف فيديو.\n- التحكم في الميكروفون والكاميرا.\n- مشاركة الشاشة.\n- إرسال الملفات.\n- مراجعة إثباتات الدفع.\n- إعداد التقارير.\n- استخدام المساعد الذكي.\n\n---\n\n4. موظف المكتب\n\nصلاحياته تحدد من خلال نظام Permissions.\n\nمثلاً:\n\nCLIENT_VIEW\nCLIENT_EDIT\nCASE_VIEW\nCASE_EDIT\nDOCUMENT_UPLOAD\nDOCUMENT_DELETE\nPAYMENT_REVIEW\nREPORT_VIEW\n\n---\n\n5. مدير النظام\n\nيمتلك صلاحيات إدارة:\n\n- المستخدمين.\n- الأدوار.\n- الصلاحيات.\n- الخدمات.\n- الأسعار.\n- إعدادات النظام.\n- السجلات.\n- الإشعارات.\n\n---\n\nسادساً: الصفحة الرئيسية\n\nالوظائف\n\nيجب إنشاء:\n\n⚖️ شعار المكتب\n\nالمستشار عصام الهلباوي أون لاين\n\nمكتب المحاماة والاستشارات القانونية\n\nالأزرار:\n\n👤 دخول الموكل\n⚖️ دخول المكتب\n💬 استشارة مجانية\n📹 حجز استشارة\nℹ️ عن المكتب\n📞 تواصل معنا\n\n---\n\nسابعاً: نظام التسجيل والدخول\n\nتسجيل الموكل\n\nالحقول:\n\nالاسم\nرقم الهاتف\nالبريد الإلكتروني\nكلمة المرور\nتأكيد كلمة المرور\n\nBackend:\n\napp.post(\"/api/auth/register\", async (req, res) => {\n    const { name, phone, email, password } = req.body;\n\n    if (!name || !phone || !password) {\n        return res.status(400).json({\n            success: false,\n            message: \"البيانات الأساسية مطلوبة\"\n        });\n    }\n\n    const existing = db.prepare(\n        \"SELECT id FROM users WHERE phone = ? OR email = ?\"\n    ).get(phone, email);\n\n    if (existing) {\n        return res.status(409).json({\n            success: false,\n            message: \"الحساب موجود بالفعل\"\n        });\n    }\n\n    const passwordHash = await bcrypt.hash(password, 12);\n\n    const result = db.prepare(`\n        INSERT INTO users\n        (name, phone, email, password_hash, role)\n        VALUES (?, ?, ?, ?, 'client')\n    `).run(name, phone, email, passwordHash);\n\n    res.json({\n        success: true,\n        userId: result.lastInsertRowid\n    });\n});\n\n---\n\nثامناً: تسجيل الدخول\n\nAPI:\n\nPOST /api/auth/login\n\nالكود:\n\napp.post(\"/api/auth/login\", async (req, res) => {\n    const { phone, password } = req.body;\n\n    const user = db.prepare(`\n        SELECT *\n        FROM users\n        WHERE phone = ?\n    `).get(phone);\n\n    if (!user) {\n        return res.status(401).json({\n            success: false,\n            message: \"بيانات الدخول غير صحيحة\"\n        });\n    }\n\n    const valid = await bcrypt.compare(\n        password,\n        user.password_hash\n    );\n\n    if (!valid) {\n        return res.status(401).json({\n            success: false,\n            message: \"بيانات الدخول غير صحيحة\"\n        });\n    }\n\n    req.session.userId = user.id;\n    req.session.role = user.role;\n\n    res.json({\n        success: true,\n        user: {\n            id: user.id,\n            name: user.name,\n            role: user.role\n        }\n    });\n});\n\n---\n\nتاسعاً: لوحة الموكل\n\nبعد الدخول:\n\nمرحباً بك يا [اسم الموكل]\n\n📁 قضاياي\n💬 رسائلي\n📄 مستنداتي\n📹 استشاراتي\n📅 مواعيدي\n💳 مدفوعاتي\n🔔 إشعاراتي\n👤 بياناتي\n\nكل زر ينتقل إلى وحدة حقيقية.\n\n---\n\nعاشراً: إدارة الموكلين\n\nجدول:\n\nclients\n\nوالواجهة:\n\nبحث عن موكل\n+\nإضافة موكل\n+\nقائمة الموكلين\n\nAPI:\n\nGET    /api/clients\nGET    /api/clients/:id\nPOST   /api/clients\nPUT    /api/clients/:id\nDELETE /api/clients/:id\n\nمثال:\n\napp.get(\"/api/clients\", requireRole(\"lawyer\", \"admin\"), (req, res) => {\n    const clients = db.prepare(`\n        SELECT id, name, phone, email, status, created_at\n        FROM users\n        WHERE role = 'client'\n        ORDER BY created_at DESC\n    `).all();\n\n    res.json({\n        success: true,\n        clients\n    });\n});\n\n---\n\nالحادي عشر: نظام القضايا\n\nكل قضية مرتبطة بموكل.\n\nجدول:\n\ncases\n\nالحقول:\n\nid\nclient_id\nlawyer_id\ncase_number\ntitle\ncase_type\ncourt\nstatus\ndescription\ncreated_at\nupdated_at\n\nAPI:\n\nGET    /api/cases\nGET    /api/cases/:id\nPOST   /api/cases\nPUT    /api/cases/:id\nDELETE /api/cases/:id\n\n---\n\nالثاني عشر: مستندات القضية\n\nجدول:\n\ndocuments\n\nالحقول:\n\nid\ncase_id\nuploaded_by\noriginal_name\nstored_name\nmime_type\nsize\npath\ncreated_at\n\nرفع الملف:\n\napp.post(\n    \"/api/documents/upload\",\n    requireAuth,\n    upload.single(\"file\"),\n    (req, res) => {\n\n        if (!req.file) {\n            return res.status(400).json({\n                success: false,\n                message: \"لم يتم اختيار ملف\"\n            });\n        }\n\n        const result = db.prepare(`\n            INSERT INTO documents\n            (case_id, uploaded_by, original_name,\n             stored_name, mime_type, size, path)\n            VALUES (?, ?, ?, ?, ?, ?, ?)\n        `).run(\n            req.body.caseId,\n            req.session.userId,\n            req.file.originalname,\n            req.file.filename,\n            req.file.mimetype,\n            req.file.size,\n            req.file.path\n        );\n\n        res.json({\n            success: true,\n            documentId: result.lastInsertRowid\n        });\n    }\n);\n\n---\n\nالثالث عشر: الشات\n\nيجب تحويل الشات الحالي إلى WebSocket حقيقي.\n\nSocket.IO:\n\nio.on(\"connection\", (socket) => {\n\n    socket.on(\"join-chat\", ({ conversationId }) => {\n        socket.join(`chat:${conversationId}`);\n    });\n\n    socket.on(\"send-message\", (message) => {\n\n        io.to(`chat:${message.conversationId}`)\n          .emit(\"new-message\", message);\n    });\n\n});\n\nلكن يجب أيضاً حفظ الرسالة في قاعدة البيانات:\n\nconst result = db.prepare(`\n    INSERT INTO messages\n    (conversation_id, sender_id, message_type, content)\n    VALUES (?, ?, ?, ?)\n`).run(\n    conversationId,\n    senderId,\n    \"text\",\n    content\n);\n\n---\n\nالرابع عشر: أنواع الرسائل\n\nالنظام يجب أن يدعم:\n\ntext\nimage\nfile\naudio\nvideo\nsystem\n\nويظهر النوع المناسب في الواجهة.\n\n---\n\nالخامس عشر: الاستشارة المجانية\n\nالمسار:\n\nاستشارة مجانية\n       ↓\nالاسم\n       ↓\nإنشاء جلسة\n       ↓\nفتح الشات\n       ↓\nإرسال السؤال\n       ↓\nرد المكتب\n\nولا يلزم إنشاء حساب كامل لهذه الخدمة إذا تم اعتماد سياسة الشات المفتوح.\n\n---\n\nالسادس عشر: الاستشارة المدفوعة\n\nيتم تعريف الخدمات في جدول:\n\nservices\n\nمثلاً:\n\nاسم الخدمة\nالوصف\nالسعر\nالمدة\nالحالة\n\nالمستخدم يختار:\n\nاستشارة قانونية مدفوعة\n\nثم:\n\nالسعر\nطريقة الدفع\nرفع إثبات الدفع\nإرسال الطلب\n\n---\n\nالسابع عشر: نظام الدفع اليدوي\n\nلأن النموذج الحالي يعتمد على التحويل وإيصال الدفع، يجب تنفيذ Workflow حقيقي:\n\nالموكل\n ↓\nاختيار الخدمة\n ↓\nإنشاء Payment\n ↓\nرفع الإيصال\n ↓\nحالة = pending\n ↓\nالمحامي/المدير يراجع\n ↓\napproved / rejected\n ↓\nعند approved\nتفعيل الخدمة\n\nمثال:\n\napp.put(\n    \"/api/payments/:id/review\",\n    requireRole(\"lawyer\", \"admin\"),\n    (req, res) => {\n\n        const { status } = req.body;\n\n        if (![\"approved\", \"rejected\"].includes(status)) {\n            return res.status(400).json({\n                success: false,\n                message: \"حالة غير صحيحة\"\n            });\n        }\n\n        db.prepare(`\n            UPDATE payments\n            SET status = ?, reviewed_by = ?, reviewed_at = CURRENT_TIMESTAMP\n            WHERE id = ?\n        `).run(\n            status,\n            req.session.userId,\n            req.params.id\n        );\n\n        res.json({\n            success: true\n        });\n    }\n);\n\n---\n\nالثامن عشر: غرفة الفيديو\n\nيجب استخدام WebRTC.\n\nالوظائف:\n\nكاميرا\nميكروفون\nمشاركة الشاشة\nإنهاء المكالمة\nإرسال ملفات\nحالة الاتصال\n\nالإشارة Signaling تتم بواسطة Socket.IO.\n\nمثال:\n\nsocket.on(\"webrtc-offer\", ({ roomId, offer }) => {\n    socket.to(roomId).emit(\"webrtc-offer\", offer);\n});\n\nsocket.on(\"webrtc-answer\", ({ roomId, answer }) => {\n    socket.to(roomId).emit(\"webrtc-answer\", answer);\n});\n\nsocket.on(\"webrtc-ice\", ({ roomId, candidate }) => {\n    socket.to(roomId).emit(\"webrtc-ice\", candidate);\n});\n\nوالـFrontend:\n\nconst peerConnection = new RTCPeerConnection({\n    iceServers: [\n        {\n            urls: \"stun:stun.l.google.com:19302\"\n        }\n    ]\n});\n\n---\n\nالتاسع عشر: التحكم في الجلسة\n\nالمحامي هو صاحب صلاحيات الجلسة.\n\nحالات:\n\nwaiting\nactive\npaused\nended\n\nويمكن للمحامي:\n\nفتح الميكروفون\nمنع الميكروفون\nالسماح بالكاميرا\nإيقاف الكاميرا\nإنهاء الجلسة\n\n---\n\nالعشرون: المواعيد\n\nجدول:\n\nappointments\n\nالبيانات:\n\nclient_id\nlawyer_id\ndate\nstart_time\nend_time\ntype\nstatus\nnotes\n\nالحالات:\n\nrequested\nconfirmed\ncancelled\ncompleted\n\n---\n\nالحادي والعشرون: الإشعارات\n\nجدول:\n\nnotifications\n\nويتم إنشاء إشعار عند:\n\nرسالة جديدة\nقبول موعد\nرفض موعد\nتغيير حالة قضية\nرفع مستند\nقبول دفع\nرفض دفع\nبدء جلسة\n\n---\n\nالثاني والعشرون: المساعد الذكي\n\nالمساعد الذكي يكون وحدة منفصلة:\n\n🤖 المساعد القانوني\n\n[اكتب طلبك]\n\n🔎 بحث\n📄 تحليل مستند\n📝 تلخيص\n📊 تقرير\n\nFrontend:\n\nasync function sendAiRequest() {\n\n    const input = document.getElementById(\"ai-input\");\n\n    const response = await fetch(\"/api/ai/query\", {\n        method: \"POST\",\n        headers: {\n            \"Content-Type\": \"application/json\"\n        },\n        body: JSON.stringify({\n            prompt: input.value\n        })\n    });\n\n    const data = await response.json();\n\n    addAiMessage(data.answer);\n}\n\nBackend:\n\napp.post(\n    \"/api/ai/query\",\n    requireRole(\"lawyer\", \"admin\"),\n    async (req, res) => {\n\n        const { prompt } = req.body;\n\n        if (!prompt?.trim()) {\n            return res.status(400).json({\n                success: false,\n                message: \"الطلب فارغ\"\n            });\n        }\n\n        // استدعاء مزود الذكاء الاصطناعي\n        // يجب وضع مفتاح API في متغيرات البيئة\n        // وليس داخل الكود.\n\n        const answer = await aiService.ask(prompt);\n\n        res.json({\n            success: true,\n            answer\n        });\n    }\n);\n\nويجب عدم وضع API Key داخل HTML أو JavaScript الخاص بالمتصفح.\n\n---\n\nالثالث والعشرون: التقارير\n\nيجب إنشاء:\n\nتقرير الموكل\nتقرير القضية\nتقرير الاستشارات\nتقرير المدفوعات\nتقرير الجلسات\nتقرير المستندات\n\nوتوفير:\n\nعرض\nطباعة\nPDF\nCSV / Excel\n\n---\n\nالرابع والعشرون: قاعدة البيانات\n\nالجداول الأساسية:\n\nusers\nroles\npermissions\nrole_permissions\n\nclients\nlawyers\n\ncases\ncase_notes\ncase_documents\n\nconversations\nconversation_members\nmessages\n\nconsultations\nappointments\nvideo_sessions\n\nservices\npayments\npayment_receipts\n\nnotifications\n\nai_requests\n\naudit_logs\n\n---\n\nالخامس والعشرون: العلاقات الأساسية\n\nusers\n  │\n  ├── clients\n  │\n  ├── lawyers\n  │\n  └── messages\n\nclients\n  │\n  ├── cases\n  ├── consultations\n  ├── appointments\n  └── payments\n\ncases\n  │\n  ├── documents\n  ├── notes\n  └── conversations\n\nconversations\n  │\n  └── messages\n\nconsultations\n  │\n  └── video_sessions\n\n---\n\nالسادس والعشرون: الأمان\n\nيجب تنفيذ:\n\nPassword Hashing\nAuthentication\nAuthorization\nRole-Based Access Control\nInput Validation\nFile Validation\nFile Size Limits\nSession Security\nRate Limiting\nAudit Logging\n\nويمنع تماماً:\n\npassword = \"123456\";\n\nأو تخزين كلمات المرور كنص صريح.\n\n---\n\nالسابع والعشرون: حماية الملفات\n\nلا يسمح للمستخدم بتحميل أي ملف تنفيذي بشكل مباشر.\n\nيجب التحقق من:\n\nMIME Type\nExtension\nFile Size\nUser Permission\nCase Permission\n\nولا يستطيع موكل مشاهدة ملف قضية موكل آخر.\n\n---\n\nالثامن والعشرون: نظام سجل العمليات\n\nيجب تسجيل العمليات الحساسة:\n\nتسجيل الدخول\nإنشاء قضية\nتعديل قضية\nرفع ملف\nحذف ملف\nإرسال رسالة\nمراجعة دفع\nتغيير صلاحية\nبدء جلسة\nإنهاء جلسة\n\nمثال:\n\nfunction audit(userId, action, entityType, entityId) {\n\n    db.prepare(`\n        INSERT INTO audit_logs\n        (user_id, action, entity_type, entity_id)\n        VALUES (?, ?, ?, ?)\n    `).run(\n        userId,\n        action,\n        entityType,\n        entityId\n    );\n}\n\n---\n\nالتاسع والعشرون: API النهائية\n\nيجب أن يكون النظام منظماً تقريباً هكذا:\n\n/api/auth\n/api/users\n/api/clients\n/api/lawyers\n/api/cases\n/api/documents\n/api/messages\n/api/conversations\n/api/consultations\n/api/appointments\n/api/video\n/api/services\n/api/payments\n/api/notifications\n/api/ai\n/api/reports\n/api/admin\n\n---\n\nالثلاثون: تصميم الواجهة\n\nالهوية البصرية:\n\nخلفية كحلية داكنة\nذهبي ملكي\nأبيض\nدرجات ذهبية هادئة\nحدود ذهبية مزدوجة عند الحاجة\nزوايا ناعمة\nواجهة فخمة\n\nويجب أن تكون:\n\nMobile First\nResponsive\nRTL\nArabic\nAccessible\n\n---\n\nالحادي والثلاثون: تحسين الكود الحالي\n\nالكود الذي تم إرساله يحتوي حالياً على شاشات:\n\n1 تسجيل الدخول\n2 لوحة المستخدم\n3 المساعد الذكي\n4 الشات المجاني\n5 قاعة الاستشارة\n6 الدفع\n7 الشات المدفوع\n\nيجب الاحتفاظ بهذه الأفكار، ولكن تحويلها من Screens تجريبية إلى Modules حقيقية.\n\nمثلاً:\n\nnextScreen(3)\n\nيستبدل تدريجياً بنظام Routing حقيقي:\n\n/login\n/dashboard\n/ai\n/free-chat\n/consultation\n/payment\n/paid-chat\n\n---\n\nالثاني والثلاثون: إصلاح الشات الحالي\n\nيجب عدم استخدام:\n\nbox.innerHTML += ...\n\nلبناء الرسائل بدون معالجة.\n\nيجب إنشاء عنصر DOM آمن:\n\nfunction addMessage(text, type) {\n\n    const message = document.createElement(\"div\");\n\n    message.className = `msg ${type}`;\n\n    message.textContent = text;\n\n    document.getElementById(\"chat-box\")\n        .appendChild(message);\n}\n\nوهذا يمنع إدخال HTML ضار من رسائل المستخدم.\n\n---\n\nالثالث والثلاثون: إدارة الحالة\n\nيجب أن يعرف البرنامج:\n\nالمستخدم الحالي\nصلاحياته\nالقضية الحالية\nالمحادثة الحالية\nحالة الدفع\nحالة الجلسة\nحالة الاتصال\n\nولا يعتمد على متغيرات مؤقتة في الصفحة فقط.\n\n---\n\nالرابع والثلاثون: حالات الخطأ\n\nكل عملية يجب أن تتعامل مع:\n\nنجاح\nفشل\nانقطاع الإنترنت\nجلسة منتهية\nعدم وجود صلاحية\nملف غير صالح\nبيانات ناقصة\nخطأ بالخادم\n\nويجب عرض رسالة عربية مفهومة للمستخدم.\n\n---\n\nالخامس والثلاثون: الاختبارات\n\nقبل اعتبار البرنامج مكتملاً يجب اختبار:\n\nAuthentication\n\nتسجيل مستخدم\nدخول صحيح\nدخول خاطئ\nتسجيل خروج\nجلسة منتهية\n\nClients\n\nإضافة\nتعديل\nبحث\nعرض\n\nCases\n\nإنشاء\nتعديل\nربط بالموكل\nعرض\n\nFiles\n\nرفع\nتحميل\nحذف\nصلاحيات\n\nChat\n\nإرسال\nاستقبال\nتخزين\nإعادة فتح المحادثة\n\nVideo\n\nOffer\nAnswer\nICE\nCamera\nMicrophone\nScreen Share\nDisconnect\n\nPayments\n\nإنشاء طلب\nرفع إيصال\nمراجعة\nقبول\nرفض\nتفعيل الخدمة\n\n---\n\nالسادس والثلاثون: معايير اكتمال البرنامج\n\nلا يعتبر البرنامج مكتملاً لمجرد أن جميع الشاشات ظهرت.\n\nيعتبر مكتملاً فقط عندما:\n\n✓ قاعدة البيانات تعمل\n✓ تسجيل الدخول يعمل\n✓ الصلاحيات تعمل\n✓ الموكل يعمل\n✓ المحامي يعمل\n✓ القضايا تعمل\n✓ المستندات تعمل\n✓ الشات يعمل\n✓ الرسائل تحفظ\n✓ الفيديو يعمل\n✓ الملفات تعمل\n✓ الدفع له Workflow حقيقي\n✓ الإشعارات تعمل\n✓ التقارير تعمل\n✓ المساعد الذكي متصل بالBackend\n✓ معالجة الأخطاء موجودة\n✓ حماية البيانات موجودة\n✓ الاختبارات ناجحة\n\n---\n\nالسابع والثلاثون: تعليمات خاصة لعبقرينو\n\nيجب على عبقرينو عدم الاكتفاء بإنشاء التصميم.\n\nعند بناء كل وحدة يجب أن ينشئ:\n\n1. HTML\n2. CSS\n3. JavaScript\n4. Backend API\n5. Database Table\n6. Validation\n7. Error Handling\n8. Permission Check\n9. Test\n\nمثلاً عند إنشاء وحدة القضايا لا ينشئ صفحة القضايا فقط.\n\nبل ينشئ:\n\ncases.html\ncases.js\ncases.css\n\nGET /api/cases\nPOST /api/cases\nPUT /api/cases/:id\nDELETE /api/cases/:id\n\ncases table\n\nvalidation\n\npermissions\n\ntests\n\n---\n\nالثامن والثلاثون: أسلوب التنفيذ المرحلي\n\nيجب ألا يحاول عبقرينو إنشاء المشروع كله في خطوة واحدة إذا كان ذلك سيؤدي إلى كود ناقص أو وهمي.\n\nالتنفيذ يكون:\n\nالمرحلة 1\nالهيكل الأساسي + قاعدة البيانات\n\n        ↓\n\nالمرحلة 2\nAuthentication + Users\n\n        ↓\n\nالمرحلة 3\nClient Dashboard\n\n        ↓\n\nالمرحلة 4\nLawyer Dashboard\n\n        ↓\n\nالمرحلة 5\nClients + Cases\n\n        ↓\n\nالمرحلة 6\nDocuments\n\n        ↓\n\nالمرحلة 7\nChat + Socket.IO\n\n        ↓\n\nالمرحلة 8\nVideo + WebRTC\n\n        ↓\n\nالمرحلة 9\nPayments\n\n        ↓\n\nالمرحلة 10\nAppointments + Notifications\n\n        ↓\n\nالمرحلة 11\nAI Assistant\n\n        ↓\n\nالمرحلة 12\nReports\n\n        ↓\n\nالمرحلة 13\nSecurity\n\n        ↓\n\nالمرحلة 14\nTesting\n\n        ↓\n\nالمرحلة 15\nProduction Build\n\n---\n\nالتاسع والثلاثون: قاعدة مهمة جداً\n\nإذا كان هناك جزء لا يمكن تنفيذه فعلياً بدون خدمة خارجية، فلا يتم إنشاء زر وهمي له.\n\nمثلاً:\n\nالدفع الإلكتروني\nSMS\nالبريد الإلكتروني\nAI API\nCloud Storage\nTURN Server\n\nيجب إنشاء Integration Interface واضحة، مع وضع إعداداتها في:\n\n.env\n\nمثال:\n\nPORT=3000\nSESSION_SECRET=\nAI_API_KEY=\nDATABASE_PATH=\nTURN_SERVER=\nTURN_USERNAME=\nTURN_PASSWORD=\n\n---\n\nالأربعون: المطلوب من عبقرينو في نهاية كل مرحلة\n\nبعد إنهاء كل مرحلة يجب أن يعرض:\n\n✓ الملفات التي تم إنشاؤها\n✓ الملفات التي تم تعديلها\n✓ الوظائف التي تم تنفيذها\n✓ API التي تم إنشاؤها\n✓ جداول قاعدة البيانات\n✓ الاختبارات التي تم تشغيلها\n✓ نتيجة الاختبارات\n✓ الأخطاء المتبقية\n\nولا يقول:\n\nتم بنجاح\n\nإلا بعد تشغيل اختبار فعلي للوظيفة.\n\n---\n\nالحادي والأربعون: النتيجة النهائية المطلوبة\n\nالمنتج النهائي يجب أن يكون:\n\n⚖️ منصة قانونية متكاملة\n\nوليست مجرد:\n\nHTML Demo\n\nبل:\n\nFrontend\n      +\nBackend\n      +\nDatabase\n      +\nAuthentication\n      +\nAuthorization\n      +\nRealtime\n      +\nWebRTC\n      +\nFile Management\n      +\nPayment Workflow\n      +\nNotifications\n      +\nAI Integration\n      +\nReports\n      +\nSecurity\n\n---\n\nالثاني والأربعون: أمر التنفيذ النهائي لعبقرينو\n\nيجب اعتبار هذه الوثيقة مواصفة المشروع الأساسية.\n\nابدأ من الكود الحالي المقدم لك، وحافظ على الهوية البصرية والفكرة العامة، ثم قم بتحويل النموذج التجريبي إلى تطبيق حقيقي كامل الوظائف.\n\nلا تحذف الوظائف الموجودة إلا إذا كان هناك سبب تقني واضح.\n\nلا تنشئ وظائف وهمية.\n\nلا تستخدم \"alert()\" كبديل عن Backend.\n\nلا تخزن كلمات المرور بشكل صريح.\n\nلا تضع مفاتيح API داخل Frontend.\n\nلا تسمح للمستخدم بالوصول إلى بيانات مستخدم آخر.\n\nكل وظيفة يجب أن يكون لها Frontend وBackend وDatabase عند الحاجة.\n\nبعد كل مرحلة شغّل الاختبارات المناسبة وسجل نتيجتها.\n\nإذا كانت هناك خدمة خارجية مطلوبة، أنشئ لها Integration Layer وإعدادات \".env\" بدلاً من اختراع خدمة وهمية.\n\nابدأ أولاً ببناء البنية الأساسية وقاعدة البيانات والمصادقة، ثم نفذ باقي الوحدات بالترتيب المرحلي المحدد أعلاه.\n\nالهدف النهائي:\n\nمنصة استشارات قانونية حقيقية قابلة للتشغيل والتطوير والنشر، وليست مجرد نموذج واجهات.",
+  "screens": [
+    {
+      "id": "home",
+      "title": "الشاشة الرئيسية",
+      "purpose": "الشاشة الرئيسية والتنقل بين وظائف البرنامج",
+      "screen_id": "home",
+      "variant": 1,
+      "layout": "لوحة تحكم",
+      "components": [
+        "العنوان",
+        "ملخص البرنامج",
+        "بطاقات الوظائف",
+        "شريط التنقل"
+      ],
+      "approved": true,
+      "fields": [],
+      "actions": [
+        "فتح الوظيفة",
+        "الانتقال للإعدادات",
+        "بحث"
+      ],
+      "roles": [
+        "admin",
+        "employee",
+        "lawyer",
+        "client",
+        "support"
+      ],
+      "capabilities": [
+        "dashboard"
+      ],
+      "navigation": {
+        "from": [],
+        "to": []
+      },
+      "approved_at": "2026-09-29T02:07:21.276Z"
+    },
+    {
+      "id": "chat",
+      "title": "غرفة الشات",
+      "purpose": "إرسال واستقبال الرسائل وإدارة المحادثة",
+      "screen_id": "chat",
+      "variant": 1,
+      "layout": "محادثة",
+      "components": [
+        "قائمة المحادثات",
+        "منطقة الرسائل",
+        "حقل كتابة",
+        "زر إرسال"
+      ],
+      "approved": true,
+      "fields": [
+        "الرسالة"
+      ],
+      "actions": [
+        "إرسال رسالة",
+        "إرفاق ملف",
+        "فتح الكاميرا",
+        "تسجيل صوت",
+        "بحث"
+      ],
+      "roles": [
+        "admin",
+        "employee",
+        "lawyer",
+        "client",
+        "support"
+      ],
+      "capabilities": [
+        "chat"
+      ],
+      "navigation": {
+        "from": [
+          "home"
+        ],
+        "to": [
+          "home"
+        ]
+      },
+      "approved_at": "2026-09-29T02:07:40.600Z"
+    },
+    {
+      "id": "camera",
+      "title": "الكاميرا والفيديو",
+      "purpose": "تشغيل الكاميرا ومعاينة وإرسال الفيديو",
+      "screen_id": "camera",
+      "variant": 1,
+      "layout": "وسائط",
+      "components": [
+        "معاينة الكاميرا",
+        "أزرار التحكم",
+        "معاينة الوسائط"
+      ],
+      "approved": true,
+      "fields": [],
+      "actions": [
+        "تشغيل الكاميرا",
+        "إيقاف الكاميرا",
+        "التقاط",
+        "إرسال"
+      ],
+      "roles": [
+        "admin",
+        "employee",
+        "lawyer",
+        "client",
+        "support"
+      ],
+      "capabilities": [
+        "camera"
+      ],
+      "navigation": {
+        "from": [
+          "home"
+        ],
+        "to": [
+          "home"
+        ]
+      },
+      "approved_at": "2026-09-29T02:07:54.374Z"
+    },
+    {
+      "id": "microphone",
+      "title": "المايك والصوت",
+      "purpose": "تشغيل الميكروفون وإرسال الصوت",
+      "screen_id": "microphone",
+      "variant": 1,
+      "layout": "وسائط",
+      "components": [
+        "مؤشر التسجيل",
+        "أزرار التحكم",
+        "مشغل الصوت"
+      ],
+      "approved": true,
+      "fields": [],
+      "actions": [
+        "بدء التسجيل",
+        "إيقاف التسجيل",
+        "تشغيل",
+        "إرسال"
+      ],
+      "roles": [
+        "admin",
+        "employee",
+        "lawyer",
+        "client",
+        "support"
+      ],
+      "capabilities": [
+        "microphone"
+      ],
+      "navigation": {
+        "from": [
+          "home"
+        ],
+        "to": [
+          "home"
+        ]
+      },
+      "approved_at": "2026-09-29T02:08:06.180Z"
+    },
+    {
+      "id": "attachments",
+      "title": "المرفقات",
+      "purpose": "اختيار وإرسال الملفات والمرفقات داخل المحادثة",
+      "screen_id": "attachments",
+      "variant": 1,
+      "layout": "قائمة ملفات",
+      "components": [
+        "اختيار الملفات",
+        "قائمة المرفقات",
+        "حالة الرفع"
+      ],
+      "approved": true,
+      "fields": [
+        "الملف"
+      ],
+      "actions": [
+        "اختيار ملف",
+        "رفع",
+        "حذف",
+        "فتح",
+        "بحث"
+      ],
+      "roles": [
+        "admin",
+        "employee",
+        "lawyer",
+        "client",
+        "support"
+      ],
+      "capabilities": [
+        "attachments"
+      ],
+      "navigation": {
+        "from": [
+          "home"
+        ],
+        "to": [
+          "home"
+        ]
+      },
+      "approved_at": "2026-09-29T02:08:37.711Z"
+    },
+    {
+      "id": "cases",
+      "title": "القضايا",
+      "purpose": "إدارة القضايا ومتابعة حالتها",
+      "screen_id": "cases",
+      "variant": 1,
+      "layout": "إدارة سجلات",
+      "components": [
+        "شريط بحث",
+        "قائمة القضايا",
+        "بيانات القضية",
+        "حالة القضية"
+      ],
+      "approved": true,
+      "fields": [
+        "رقم القضية",
+        "المحكمة",
+        "الدائرة",
+        "الحالة",
+        "ملاحظات"
+      ],
+      "actions": [
+        "إضافة",
+        "تعديل",
+        "عرض",
+        "حذف",
+        "بحث",
+        "إرفاق ملف"
+      ],
+      "roles": [
+        "admin",
+        "employee",
+        "lawyer",
+        "client",
+        "support"
+      ],
+      "capabilities": [
+        "crud",
+        "database"
+      ],
+      "navigation": {
+        "from": [
+          "home"
+        ],
+        "to": [
+          "home"
+        ]
+      },
+      "approved_at": "2026-09-29T02:09:08.954Z"
+    },
+    {
+      "id": "clients",
+      "title": "الموكلون",
+      "purpose": "إدارة بيانات الموكلين",
+      "screen_id": "clients",
+      "variant": 1,
+      "layout": "إدارة سجلات",
+      "components": [
+        "شريط بحث",
+        "قائمة الموكلين",
+        "بطاقة الموكل"
+      ],
+      "approved": true,
+      "fields": [
+        "الاسم",
+        "رقم الهاتف",
+        "البريد",
+        "الحالة"
+      ],
+      "actions": [
+        "إضافة",
+        "تعديل",
+        "عرض",
+        "حذف",
+        "بحث"
+      ],
+      "roles": [
+        "admin",
+        "employee",
+        "lawyer",
+        "client",
+        "support"
+      ],
+      "capabilities": [
+        "crud",
+        "database"
+      ],
+      "navigation": {
+        "from": [
+          "home"
+        ],
+        "to": [
+          "home"
+        ]
+      },
+      "approved_at": "2026-09-29T02:09:24.019Z"
+    },
+    {
+      "id": "sessions",
+      "title": "الجلسات",
+      "purpose": "متابعة الجلسات والمواعيد",
+      "screen_id": "sessions",
+      "variant": 1,
+      "layout": "جدول مواعيد",
+      "components": [
+        "التقويم",
+        "قائمة المواعيد",
+        "تفاصيل الموعد"
+      ],
+      "approved": true,
+      "fields": [
+        "التاريخ",
+        "الوقت",
+        "الموضوع",
+        "الحالة"
+      ],
+      "actions": [
+        "حجز",
+        "تعديل",
+        "إلغاء",
+        "فتح",
+        "بحث"
+      ],
+      "roles": [
+        "admin",
+        "employee",
+        "lawyer",
+        "client",
+        "support"
+      ],
+      "capabilities": [
+        "crud",
+        "database"
+      ],
+      "navigation": {
+        "from": [
+          "home"
+        ],
+        "to": [
+          "home"
+        ]
+      },
+      "approved_at": "2026-09-29T02:09:42.061Z"
+    },
+    {
+      "id": "documents",
+      "title": "المستندات",
+      "purpose": "إدارة مستندات القضايا",
+      "screen_id": "documents",
+      "variant": 1,
+      "layout": "مكتبة ملفات",
+      "components": [
+        "شريط بحث",
+        "قائمة المستندات",
+        "رفع ملف",
+        "تفاصيل المستند"
+      ],
+      "approved": true,
+      "fields": [
+        "اسم المستند",
+        "نوع الملف",
+        "الوصف"
+      ],
+      "actions": [
+        "رفع",
+        "فتح",
+        "تحميل",
+        "حذف",
+        "بحث"
+      ],
+      "roles": [
+        "admin",
+        "employee",
+        "lawyer",
+        "client",
+        "support"
+      ],
+      "capabilities": [
+        "crud",
+        "database"
+      ],
+      "navigation": {
+        "from": [
+          "home"
+        ],
+        "to": [
+          "home"
+        ]
+      },
+      "approved_at": "2026-09-29T02:10:01.846Z"
+    }
+  ],
+  "roles": [
+    "admin",
+    "employee",
+    "lawyer",
+    "client",
+    "support"
+  ],
+  "capabilities": [
+    "audit",
+    "auth",
+    "camera",
+    "chat",
+    "crud",
+    "dashboard",
+    "database",
+    "document_processing",
+    "export",
+    "files",
+    "microphone",
+    "notifications",
+    "payments",
+    "print",
+    "reports",
+    "roles",
+    "scheduling",
+    "search",
+    "settings",
+    "users",
+    "webrtc"
+  ],
+  "capability_labels": {
+    "audit": "سجل العمليات",
+    "auth": "تسجيل الدخول والحسابات",
+    "camera": "الكاميرا والفيديو",
+    "chat": "المحادثات والرسائل",
+    "crud": "الإضافة والتعديل والحذف والعرض",
+    "dashboard": "لوحة التحكم والإحصائيات",
+    "database": "قاعدة البيانات وحفظ السجلات",
+    "document_processing": "معالجة المستندات واستخراج النصوص",
+    "export": "التصدير",
+    "files": "الملفات والمرفقات",
+    "microphone": "الميكروفون والصوت",
+    "notifications": "الإشعارات والتنبيهات",
+    "payments": "المدفوعات والفواتير",
+    "print": "الطباعة",
+    "reports": "التقارير",
+    "roles": "الأدوار والصلاحيات",
+    "scheduling": "المواعيد والحجوزات",
+    "search": "البحث والتصفية",
+    "settings": "الإعدادات",
+    "users": "إدارة المستخدمين",
+    "webrtc": "الاتصال المباشر WebRTC"
+  },
+  "app_types": [
+    "legal",
+    "commerce",
+    "education",
+    "booking",
+    "finance",
+    "crm",
+    "project_management"
+  ],
+  "options": [
+    {
+      "option_id": "legal_assistant",
+      "title": "⚖️ المساعد القانوني الخاص بالمحامي",
+      "description": "مساعد خاص بالمحامي يضاف إلى البرامج القانونية عند اختياره فقط.",
+      "category": "legal",
+      "enabled": false,
+      "requires_confirmation": true,
+      "config": {
+        "private": true,
+        "lawyer_only": true,
+        "client_access": false
+      }
+    },
+    {
+      "option_id": "voice",
+      "title": "🎙️ الصوت",
+      "description": "إضافة إمكانيات التسجيل وتحويل الصوت والنص.",
+      "category": "voice",
+      "enabled": false,
+      "requires_confirmation": false,
+      "config": {}
+    },
+    {
+      "option_id": "advanced_reports",
+      "title": "📊 التقارير المتقدمة",
+      "description": "إضافة تقارير وتحليلات متقدمة للبرنامج.",
+      "category": "reports",
+      "enabled": false,
+      "requires_confirmation": false,
+      "config": {}
+    },
+    {
+      "option_id": "search",
+      "title": "🔎 البحث المتقدم",
+      "description": "إضافة خدمة بحث عامة داخل بيانات المشروع الناتج.",
+      "category": "search",
+      "enabled": false,
+      "requires_confirmation": false,
+      "config": {}
+    }
+  ]
+}

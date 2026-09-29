@@ -27,6 +27,7 @@ from engine.ai_core import (
     AssistantAction,
 )
 from engine.options import OptionsEngine
+from engine.abqaryno_master_factory import MasterAbqarynoFactory
 
 from studio.repair_api import (
     scan as repair_scan,
@@ -202,7 +203,7 @@ class Handler(BaseHTTPRequestHandler):
         if self.path == "/":
 
             raw = (
-                STUDIO / "ui" / "index.html"
+                STUDIO / "ui" / "portal.html"
             ).read_bytes()
 
             self.send_response(200)
@@ -717,45 +718,95 @@ class Handler(BaseHTTPRequestHandler):
 
 
             if self.path == "/api/create":
+                idea = str(
+                    data.get("idea", "")
+                ).strip()
 
-                idea = data["idea"]
-
-                approved = data[
-                    "approved"
-                ]
-
-                options = data.get(
-                    "options",
+                approved = data.get(
+                    "approved",
                     []
                 )
 
                 options = OptionsEngine().validate(
-                    options
+                    data.get("options", [])
                 )
 
-                requirements = (
-                    RequirementsEngine()
-                    .analyze(idea)
-                )
-
-                generator = ProjectGenerator(
-                    ROOT
-                )
-
-                target, manifest = (
-                    generator.generate(
-                        idea,
-                        requirements,
-                        approved,
-                        options
+                if not idea:
+                    raise ValueError(
+                        "فكرة البرنامج مطلوبة"
                     )
+
+                if not approved:
+                    raise ValueError(
+                        "يجب اعتماد شاشة واحدة على الأقل قبل الإنشاء"
+                    )
+
+                specification = json.dumps(
+                    {
+                        "idea": idea,
+                        "approved_screens": approved,
+                        "options": options,
+                    },
+                    ensure_ascii=False,
+                    indent=2,
                 )
 
-                self.send_json({
-                    "ok":True,
-                    "path":str(target),
-                    "manifest":manifest
-                })
+                project_name = idea[:80]
+
+                factory = MasterAbqarynoFactory(
+                    project_name,
+                    specification,
+                    root_dir=ROOT,
+                )
+
+                factory.build()
+
+                target = factory.target_dir
+                evidence_path = (
+                    target / ".abqaryno-evidence.json"
+                )
+
+                evidence = {}
+
+                if evidence_path.exists():
+                    evidence = json.loads(
+                        evidence_path.read_text(
+                            encoding="utf-8"
+                        )
+                    )
+
+                status = evidence.get(
+                    "status",
+                    "FAILED",
+                )
+
+                if status != "PASS":
+                    self.send_json(
+                        {
+                            "ok": False,
+                            "status": status,
+                            "path": str(target),
+                            "verification": evidence,
+                        },
+                        500,
+                    )
+                    return
+
+                self.send_json(
+                    {
+                        "ok": True,
+                        "status": "VERIFIED",
+                        "path": str(target),
+                        "verification": evidence,
+                        "manifest": {
+                            "idea": idea,
+                            "approved_screens": approved,
+                            "options": options,
+                            "creation_engine":
+                                "MasterAbqarynoFactory",
+                        },
+                    }
+                )
 
                 return
 

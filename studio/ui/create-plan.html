@@ -83,6 +83,16 @@ const selected=JSON.parse(sessionStorage.getItem("abqarynoSelectedScreens")||"[]
 const screens=analysis.screens||analysis.requirements?.screens||[];
 
 const chosen=screens.filter(x=>selected.includes(x.id));
+
+const approvedProposals=JSON.parse(
+  sessionStorage.getItem("abqarynoApprovedProposals")||"{}"
+);
+
+const approvedChosen=chosen.map(screen=>({
+  ...screen,
+  proposal: approvedProposals[screen.id] || null
+}));
+
 const list=document.getElementById("plan");
 const optionsList=document.getElementById("options");
 let selectedOptions=[];
@@ -91,11 +101,29 @@ if(!chosen.length){
   list.innerHTML='<div class="item"><h3>لا توجد متطلبات معتمدة</h3><p>ارجع إلى المرحلة السابقة واختر المتطلبات التي تريد الاحتفاظ بها.</p></div>';
   document.getElementById("next").disabled=true;
 }else{
-  list.innerHTML=chosen.map((x,i)=>`
+  list.innerHTML=approvedChosen.map((x,i)=>`
     <article class="item">
       <div class="num">الشاشة ${i+1}</div>
       <h3>${x.title||x.id||"شاشة جديدة"}</h3>
       <p>${x.purpose||"واجهة أساسية ضمن البرنامج."}</p>
+
+      ${
+        x.proposal
+          ? `
+            <div class="item" style="margin-top:12px">
+              <strong>✓ التصميم المعتمد</strong>
+              <p>
+                ${x.proposal.layout || "واجهة قياسية"}
+                — الإصدار ${x.proposal.variant}
+              </p>
+            </div>
+          `
+          : `
+            <p style="color:#ffb4b4">
+              ⚠️ لا يوجد تصميم معتمد لهذه الشاشة.
+            </p>
+          `
+      }
     </article>
   `).join("");
 }
@@ -150,6 +178,7 @@ document.getElementById("next").onclick=()=>{
     JSON.stringify({
       screens:chosen.map(x=>x.id),
       approved:true,
+      approvedProposals,
       options:selectedOptions
     })
   );

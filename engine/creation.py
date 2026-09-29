@@ -49,6 +49,127 @@ class ConversationState:
             return {}
 
 
+
+# ABQARYNO PHASE 2 REQUIREMENTS CONTRACT
+# ------------------------------------------------------------
+# Requirement lifecycle:
+# Idea -> Requirement -> Acceptance Criteria -> Approval
+# ------------------------------------------------------------
+def _abqaryno_normalize_requirements(raw, idea):
+    raw = raw if isinstance(raw, dict) else {}
+
+    features = raw.get("features", [])
+    capabilities = raw.get("capabilities", [])
+    roles = raw.get("roles", [])
+    app_types = raw.get("app_types", [])
+
+    if not isinstance(features, list):
+        features = [features] if features else []
+
+    if not isinstance(capabilities, list):
+        capabilities = [capabilities] if capabilities else []
+
+    if not isinstance(roles, list):
+        roles = [roles] if roles else []
+
+    if not isinstance(app_types, list):
+        app_types = [app_types] if app_types else []
+
+    requirements = []
+
+    source_items = []
+
+    for item in features:
+        source_items.append(("FUNCTIONAL", item))
+
+    for item in capabilities:
+        source_items.append(("CAPABILITY", item))
+
+    for index, (category, item) in enumerate(source_items, start=1):
+        text = str(item).strip()
+
+        if not text:
+            continue
+
+        requirements.append({
+            "requirement_id": f"REQ-{index:04d}",
+            "text": text,
+            "source": "idea_analysis",
+            "category": category,
+            "priority": "HIGH",
+            "acceptance_criteria": [
+                f"يجب أن تكون الوظيفة الخاصة بـ: {text} محددة وقابلة للاختبار."
+            ],
+            "approval": "PENDING"
+        })
+
+    return {
+        "idea": str(idea).strip(),
+        "requirements": requirements,
+        "features": features,
+        "capabilities": capabilities,
+        "roles": roles,
+        "app_types": app_types,
+        "approval": {
+            "status": "PENDING",
+            "approved_count": 0,
+            "rejected_count": 0,
+            "pending_count": len(requirements)
+        },
+        "phase": "PHASE_2",
+        "contract_version": 2
+    }
+
+def _abqaryno_validate_requirements(data):
+    if not isinstance(data, dict):
+        return False, ["requirements_not_dict"]
+
+    errors = []
+
+    if not str(data.get("idea", "")).strip():
+        errors.append("idea_missing")
+
+    requirements = data.get("requirements", [])
+
+    if not isinstance(requirements, list):
+        errors.append("requirements_not_list")
+        return False, errors
+
+    ids = set()
+
+    for item in requirements:
+        if not isinstance(item, dict):
+            errors.append("requirement_not_object")
+            continue
+
+        rid = str(item.get("requirement_id", "")).strip()
+        text = str(item.get("text", "")).strip()
+        criteria = item.get("acceptance_criteria", [])
+        approval = item.get("approval")
+
+        if not rid:
+            errors.append("requirement_id_missing")
+        elif rid in ids:
+            errors.append(f"duplicate_requirement_id:{rid}")
+        ids.add(rid)
+
+        if not text:
+            errors.append(f"text_missing:{rid}")
+
+        if not isinstance(criteria, list) or not criteria:
+            errors.append(f"acceptance_criteria_missing:{rid}")
+
+        if approval not in {
+            "PENDING",
+            "APPROVED",
+            "REJECTED",
+            "EDIT_REQUIRED"
+        }:
+            errors.append(f"invalid_approval:{rid}")
+
+    return not errors, errors
+
+
 class RequirementsEngine:
 
     def analyze(self, idea):
@@ -1062,7 +1183,21 @@ class ProjectGenerator:
         options=None
     ):
 
-        name = self.safe_name(idea)
+        # فصل اسم البرنامج عن وثيقة المواصفات إذا كانت الوثيقة أُرسلت كاملة داخل idea.
+        raw_idea = str(idea or "").strip()
+        display_idea = raw_idea
+
+        # إذا احتوت الفكرة على وثيقة تنفيذية، نستخدم عنوان المشروع فقط في واجهة البرنامج.
+        document_marker = "وثيقة تنفيذية"
+        if document_marker in display_idea:
+            display_idea = display_idea.split(document_marker, 1)[0].strip()
+
+        # إزالة الشرطات/الفواصل الزائدة من نهاية عنوان المشروع.
+        display_idea = display_idea.rstrip(" -—:|")
+        if not display_idea:
+            display_idea = "مشروع عبقرينو"
+
+        name = self.safe_name(display_idea)
 
         options = options or []
 
@@ -1118,7 +1253,7 @@ class ProjectGenerator:
 <meta name="viewport"
 content="width=device-width,initial-scale=1">
 
-<title>{html.escape(idea)}</title>
+<title>{html.escape(display_idea)}</title>
 
 <style>
 
@@ -1185,7 +1320,7 @@ main {{
     </div>
 </div>
 
-<h1>{html.escape(idea)}</h1>
+<h1>{html.escape(display_idea)}</h1>
 
 <p>
 تم تصميم المشروع واعتماد شاشاته بواسطة عبقرينو
@@ -2070,12 +2205,100 @@ document.addEventListener("DOMContentLoaded", () => {
             encoding="utf-8"
         )
 
+        # ------------------------------------------------------------------
+        # ABQARYNO TRACEABILITY FOUNDATION
+        # Requirement -> Screen -> Contract -> Implementation -> Test -> Result
+        # ------------------------------------------------------------------
+        traceability = []
+
+        features = requirements.get("features", [])
+        capabilities = requirements.get("capabilities", [])
+
+        for index, screen in enumerate(approved_screens, start=1):
+            screen_id = str(
+                screen.get("screen_id")
+                or screen.get("id")
+                or f"screen-{index}"
+            )
+
+            screen_title = screen.get(
+                "title",
+                f"الشاشة {index}"
+            )
+
+            related_requirements = []
+
+            for requirement in features:
+                requirement_text = str(requirement).strip()
+                if requirement_text:
+                    related_requirements.append(requirement_text)
+
+            for capability in capabilities:
+                capability_text = str(capability).strip()
+                if capability_text and capability_text not in related_requirements:
+                    related_requirements.append(capability_text)
+
+            actions = screen.get("actions", [])
+            if not isinstance(actions, list):
+                actions = []
+
+            contracts = []
+
+            if actions:
+                for action_index, action in enumerate(actions, start=1):
+                    contracts.append({
+                        "contract_id": f"{screen_id}-contract-{action_index}",
+                        "name": str(action),
+                        "status": "DEFINED"
+                    })
+            else:
+                contracts.append({
+                    "contract_id": f"{screen_id}-contract-1",
+                    "name": f"وظائف الشاشة: {screen_title}",
+                    "status": "DEFINED"
+                })
+
+            traceability.append({
+                "trace_id": f"TRACE-{index:04d}",
+                "requirements": related_requirements,
+                "screen": {
+                    "id": screen_id,
+                    "title": screen_title
+                },
+                "contracts": contracts,
+                "implementation": {
+                    "status": "GENERATED",
+                    "targets": [
+                        "public/index.html",
+                        "public/css/style.css",
+                        "public/js/assistant.js"
+                    ]
+                },
+                "test": {
+                    "status": "NOT_RUN",
+                    "tests": [],
+                    "result": "PENDING_GENERATED_PROJECT_VERIFICATION"
+                }
+            })
+
         manifest = {
             "idea": idea,
             "created_at": now(),
             "requirements": requirements,
             "approved_screens": approved_screens,
-            "options": options
+            "options": options,
+            "traceability": {
+                "version": 1,
+                "chain": [
+                    "requirement",
+                    "screen",
+                    "contract",
+                    "implementation",
+                    "test",
+                    "result"
+                ],
+                "items": traceability
+            }
         }
 
         (target / ".abqaryno-requirements.json").write_text(
@@ -3256,7 +3479,429 @@ python server/server.py
             encoding="utf-8"
         )
 
+        # --------------------------------------------------------------
+        # ABQARYNO CREATION VERIFICATION GATE
+        # لا تعتبر عملية الإنشاء مكتملة قبل فحص المشروع الناتج فعليًا.
+        # --------------------------------------------------------------
+        verification = CreationVerificationEngine().verify(target)
+
+        manifest["verification"] = verification
+
+        if verification["status"] != "PASSED":
+            manifest["creation_status"] = "VERIFICATION_FAILED"
+        else:
+            manifest["creation_status"] = "VERIFIED"
+
+        (target / ".abqaryno-requirements.json").write_text(
+            json.dumps(manifest, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+
         return target, manifest
+
+
+class CreationVerificationEngine:
+    """بوابة تحقق فعلية للمشاريع التي ينشئها عبقرينو."""
+
+    NODE_REQUIRED_FILES = (
+        "package.json",
+        "server.js",
+        "database/schema.sql",
+        "public/index.html",
+    )
+
+    PYTHON_REQUIRED_FILES = (
+        "README.md",
+        "public/index.html",
+        "public/css/style.css",
+        "public/js/app.js",
+        "server/server.py",
+        "database/schema.sql",
+        "database/database.py",
+        "database/app.db",
+        ".abqaryno-requirements.json",
+    )
+
+    @staticmethod
+    def _run_http_check(url):
+        import urllib.request
+
+        request = urllib.request.Request(
+            url,
+            method="GET",
+            headers={"User-Agent": "Abqaryno-Verification/1.0"},
+        )
+
+        with urllib.request.urlopen(
+            request,
+            timeout=5,
+        ) as response:
+            body = response.read(4096).decode(
+                "utf-8",
+                errors="replace",
+            )
+
+            return {
+                "status_code": response.status,
+                "body_bytes_checked": len(body),
+            }
+
+    @staticmethod
+    def _detect_port(target):
+        import json
+        import re
+
+        package_path = target / "package.json"
+        server_path = target / "server.js"
+
+        port = 3000
+
+        if package_path.exists():
+            try:
+                package = json.loads(
+                    package_path.read_text(
+                        encoding="utf-8"
+                    )
+                )
+
+                config_port = (
+                    package.get("abqaryno", {})
+                    .get("port")
+                )
+
+                if isinstance(config_port, int):
+                    port = config_port
+            except Exception:
+                pass
+
+        if server_path.exists():
+            try:
+                server_text = server_path.read_text(
+                    encoding="utf-8"
+                )
+
+                matches = re.findall(
+                    r"listen\s*\(\s*(?:process\.env\.\w+\s*\|\|\s*)?(\d+)",
+                    server_text,
+                )
+
+                if matches:
+                    port = int(matches[-1])
+            except Exception:
+                pass
+
+        return port
+
+    def _verify_node_project(self, target, checks):
+        import json
+        import shutil
+        import subprocess
+        import time
+
+        missing = [
+            item for item in self.NODE_REQUIRED_FILES
+            if not (target / item).exists()
+        ]
+
+        checks.append({
+            "name": "required_files",
+            "status": "PASSED" if not missing else "FAILED",
+            "missing": missing,
+        })
+
+        if missing:
+            return
+
+        node = shutil.which("node")
+
+        if not node:
+            checks.append({
+                "name": "node_available",
+                "status": "FAILED",
+                "error": "node executable not found",
+            })
+            return
+
+        syntax = subprocess.run(
+            [node, "--check", "server.js"],
+            cwd=target,
+            text=True,
+            capture_output=True,
+            timeout=15,
+        )
+
+        checks.append({
+            "name": "node_syntax",
+            "status": (
+                "PASSED"
+                if syntax.returncode == 0
+                else "FAILED"
+            ),
+            "exit_code": syntax.returncode,
+            "stdout": syntax.stdout[-2000:],
+            "stderr": syntax.stderr[-2000:],
+        })
+
+        if syntax.returncode != 0:
+            return
+
+        package_path = target / "package.json"
+        package = json.loads(
+            package_path.read_text(
+                encoding="utf-8"
+            )
+        )
+
+        dependencies = package.get(
+            "dependencies",
+            {}
+        )
+
+        if dependencies and not (
+            target / "node_modules"
+        ).exists():
+            npm = shutil.which("npm")
+
+            if not npm:
+                checks.append({
+                    "name": "npm_dependencies",
+                    "status": "FAILED",
+                    "error": "npm executable not found",
+                })
+                return
+
+            install = subprocess.run(
+                [
+                    npm,
+                    "install",
+                    "--no-audit",
+                    "--no-fund",
+                ],
+                cwd=target,
+                text=True,
+                capture_output=True,
+                timeout=180,
+            )
+
+            checks.append({
+                "name": "npm_dependencies",
+                "status": (
+                    "PASSED"
+                    if install.returncode == 0
+                    else "FAILED"
+                ),
+                "exit_code": install.returncode,
+                "stdout": install.stdout[-3000:],
+                "stderr": install.stderr[-3000:],
+            })
+
+            if install.returncode != 0:
+                return
+
+        port = self._detect_port(target)
+
+        process = None
+
+        try:
+            process = subprocess.Popen(
+                [node, "server.js"],
+                cwd=target,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+
+            last_error = None
+            http_result = None
+
+            for _ in range(20):
+                time.sleep(0.25)
+
+                if process.poll() is not None:
+                    stdout, stderr = process.communicate(
+                        timeout=2
+                    )
+
+                    checks.append({
+                        "name": "runtime_process",
+                        "status": "FAILED",
+                        "exit_code": process.returncode,
+                        "stdout": stdout[-3000:],
+                        "stderr": stderr[-3000:],
+                    })
+
+                    return
+
+                try:
+                    http_result = self._run_http_check(
+                        f"http://127.0.0.1:{port}/"
+                    )
+                    break
+                except Exception as exc:
+                    last_error = str(exc)
+
+            if http_result is None:
+                checks.append({
+                    "name": "http_runtime",
+                    "status": "FAILED",
+                    "port": port,
+                    "error": last_error,
+                })
+                return
+
+            checks.append({
+                "name": "runtime_process",
+                "status": "PASSED",
+                "port": port,
+            })
+
+            checks.append({
+                "name": "http_runtime",
+                "status": (
+                    "PASSED"
+                    if 200 <= http_result["status_code"] < 500
+                    else "FAILED"
+                ),
+                "port": port,
+                **http_result,
+            })
+
+        except Exception as exc:
+            checks.append({
+                "name": "http_runtime",
+                "status": "FAILED",
+                "error": str(exc),
+            })
+
+        finally:
+            if process is not None:
+                try:
+                    process.terminate()
+                    process.wait(timeout=5)
+                except Exception:
+                    try:
+                        process.kill()
+                    except Exception:
+                        pass
+
+    def _verify_python_project(self, target, checks):
+        missing = [
+            item for item in self.PYTHON_REQUIRED_FILES
+            if not (target / item).exists()
+        ]
+
+        checks.append({
+            "name": "required_files",
+            "status": "PASSED" if not missing else "FAILED",
+            "missing": missing,
+        })
+
+        python_files = sorted(
+            target.rglob("*.py")
+        )
+
+        python_errors = []
+
+        for py_file in python_files:
+            try:
+                compile(
+                    py_file.read_text(
+                        encoding="utf-8"
+                    ),
+                    str(py_file),
+                    "exec",
+                )
+            except Exception as exc:
+                python_errors.append({
+                    "file": str(
+                        py_file.relative_to(target)
+                    ),
+                    "error": str(exc),
+                })
+
+        checks.append({
+            "name": "python_syntax",
+            "status": (
+                "PASSED"
+                if not python_errors
+                else "FAILED"
+            ),
+            "files_checked": len(python_files),
+            "errors": python_errors,
+        })
+
+        database_status = "PASSED"
+        database_error = None
+
+        try:
+            import sqlite3
+
+            database_file = (
+                target / "database" / "app.db"
+            )
+
+            with sqlite3.connect(
+                database_file
+            ) as connection:
+                result = connection.execute(
+                    "PRAGMA integrity_check"
+                ).fetchone()
+
+            if not result or result[0] != "ok":
+                database_status = "FAILED"
+                database_error = str(result)
+
+        except Exception as exc:
+            database_status = "FAILED"
+            database_error = str(exc)
+
+        checks.append({
+            "name": "sqlite_integrity",
+            "status": database_status,
+            "error": database_error,
+        })
+
+    def verify(self, target):
+        target = Path(target)
+        checks = []
+
+        if (target / "server.js").exists():
+            project_type = "node"
+            self._verify_node_project(
+                target,
+                checks,
+            )
+        elif (target / "server/server.py").exists():
+            project_type = "python"
+            self._verify_python_project(
+                target,
+                checks,
+            )
+        else:
+            project_type = "unknown"
+            checks.append({
+                "name": "project_type",
+                "status": "FAILED",
+                "error": "No supported server entry point found",
+            })
+
+        failed = [
+            check["name"]
+            for check in checks
+            if check["status"] != "PASSED"
+        ]
+
+        return {
+            "version": 2,
+            "project_type": project_type,
+            "status": (
+                "FAILED"
+                if failed
+                else "PASSED"
+            ),
+            "checks": checks,
+            "failed_checks": failed,
+        }
 
 
 class FinalReport:

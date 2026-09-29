@@ -1,0 +1,47 @@
+{
+  "version": 2,
+  "phase": "PHASE_2",
+  "name": "ABQARYNO REQUIREMENTS CONTRACT",
+  "created_at": "2026-09-28T18:34:11.862891+00:00",
+  "lifecycle": [
+    "idea",
+    "understanding",
+    "requirement",
+    "acceptance_criteria",
+    "approval",
+    "screen_mapping",
+    "traceability"
+  ],
+  "requirement_schema": {
+    "required": [
+      "requirement_id",
+      "text",
+      "source",
+      "category",
+      "priority",
+      "acceptance_criteria",
+      "approval"
+    ],
+    "approval_values": [
+      "PENDING",
+      "APPROVED",
+      "REJECTED",
+      "EDIT_REQUIRED"
+    ],
+    "priority_values": [
+      "CRITICAL",
+      "HIGH",
+      "MEDIUM",
+      "LOW"
+    ]
+  },
+  "gates": [
+    "IDEA_PRESENT",
+    "REQUIREMENTS_PRESENT",
+    "REQUIREMENT_IDS_UNIQUE",
+    "ACCEPTANCE_CRITERIA_PRESENT",
+    "APPROVAL_STATE_PRESENT",
+    "NO_REJECTED_CRITICAL",
+    "SCREEN_MAPPING_READY"
+  ]
+}
