@@ -85,7 +85,32 @@ def verify_capability(cap, project):
     root = project["root"]
 
     if cid == "requirements":
-        return "PASS" if project["requirements"] else "FAIL"
+        requirements_file = root / ".abqaryno-requirements.json"
+
+        if not requirements_file.exists():
+            return "FAIL"
+
+        try:
+            requirements = json.loads(
+                requirements_file.read_text(encoding="utf-8")
+            )
+        except Exception:
+            return "FAIL"
+
+        if not isinstance(requirements, dict):
+            return "FAIL"
+
+        screens = requirements.get("screens", [])
+        capabilities = requirements.get("capabilities", [])
+
+        return (
+            "PASS"
+            if isinstance(screens, list)
+            and len(screens) > 0
+            and isinstance(capabilities, list)
+            and len(capabilities) > 0
+            else "FAIL"
+        )
 
     if cid == "screen_design":
         return "PASS" if project["frontend"] else "FAIL"
@@ -101,7 +126,24 @@ def verify_capability(cap, project):
         return "PASS" if project["database"] else "FAIL"
 
     if cid == "authentication":
-        return "PASS" if project["auth"] else "NOT_IMPLEMENTED"
+        if project["auth"]:
+            return "PASS"
+        if project["server_js"]:
+            try:
+                text = (root / "server.js").read_text(encoding="utf-8")
+                auth_markers = [
+                    "/api/auth/login",
+                    "/api/auth/logout",
+                    "getAuthenticatedUser",
+                    "requireAuth",
+                    "password_hash",
+                    "auth_sessions",
+                ]
+                matched = sum(1 for marker in auth_markers if marker in text)
+                return "PASS" if matched >= 4 else "NOT_IMPLEMENTED"
+            except Exception:
+                return "NOT_IMPLEMENTED"
+        return "NOT_IMPLEMENTED"
 
     if cid == "api":
         if project["server_py"] and project["routes"]:
@@ -125,9 +167,35 @@ def verify_capability(cap, project):
         "notifications",
         "payments",
         "search",
-        "security",
     }:
         return "NOT_IMPLEMENTED"
+
+    if cid == "security":
+        if not project["server_js"]:
+            return "NOT_IMPLEMENTED"
+
+        try:
+            source = (root / "server.js").read_text(encoding="utf-8")
+        except Exception:
+            return "FAIL"
+
+        security_markers = [
+            "crypto.scryptSync",
+            "password_hash",
+            "password_salt",
+            "auth_sessions",
+            "Bearer ",
+            "requireAuth",
+            "express.json({ limit:",
+            "app.use((err, req, res, next)",
+        ]
+
+        matched = sum(
+            1 for marker in security_markers
+            if marker in source
+        )
+
+        return "PASS" if matched >= 6 else "NOT_IMPLEMENTED"
 
     if cid == "runtime":
         if project["server_py"]:
@@ -146,10 +214,49 @@ def verify_capability(cap, project):
         return "FAIL"
 
     if cid == "verification":
-        return "PASS"
+        evidence_file = root / ".abqaryno-evidence.json"
+
+        if not evidence_file.exists():
+            return "FAIL"
+
+        try:
+            evidence = json.loads(
+                evidence_file.read_text(encoding="utf-8")
+            )
+        except Exception:
+            return "FAIL"
+
+        creation = evidence.get("creation_verification", {})
+        gate = evidence.get("creation_gate", {})
+
+        if (
+            evidence.get("verified") is True
+            and evidence.get("status") == "PASS"
+            and creation.get("status") == "PASSED"
+            and gate.get("status") == "PASSED"
+        ):
+            return "PASS"
+
+        return "FAIL"
 
     if cid == "evidence":
-        return "PASS"
+        evidence_file = root / ".abqaryno-evidence.json"
+        if not evidence_file.exists():
+            return "FAIL"
+        try:
+            evidence = json.loads(
+                evidence_file.read_text(encoding="utf-8")
+            )
+        except Exception:
+            return "FAIL"
+
+        if not isinstance(evidence, dict):
+            return "FAIL"
+
+        if evidence.get("status") == "PASS" and evidence.get("verified") is True:
+            return "PASS"
+
+        return "FAIL"
 
     return "NOT_IMPLEMENTED"
 

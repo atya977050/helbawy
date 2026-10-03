@@ -29,6 +29,7 @@ button:disabled{opacity:.55;cursor:wait}
 <div class="badge">المرحلة 1 — الفكرة</div>
 <h1>ما البرنامج الذي تريد إنشاءه؟</h1>
 <p>اكتب فكرتك كما هي. سيقوم عبقرينو بتحليلها واستخراج المتطلبات الأولية قبل الانتقال للشاشة التالية.</p>
+<input id="projectName" type="text" placeholder="اكتب اسم البرنامج الذي تريد إنشاءه..." autocomplete="off">
 <textarea id="idea" placeholder="مثال: أريد برنامجًا لإدارة مكتب محاماة أون لاين..."></textarea>
 <div class="actions">
 <button id="analyzeButton" onclick="analyzeIdea()">🧠 تحليل الفكرة</button>
@@ -39,9 +40,15 @@ button:disabled{opacity:.55;cursor:wait}
 </main>
 <script>
 async function analyzeIdea(){
+  const projectName=document.getElementById("projectName").value.trim();
   const idea=document.getElementById("idea").value.trim();
   const button=document.getElementById("analyzeButton");
   const status=document.getElementById("status");
+
+  if(!projectName){
+    status.textContent="اكتب اسم البرنامج أولًا.";
+    return;
+  }
   if(!idea){
     status.textContent="اكتب فكرة البرنامج أولًا.";
     status.className="status error";
@@ -50,23 +57,28 @@ async function analyzeIdea(){
   }
   button.disabled=true;
   status.className="status";
-  status.textContent="جاري تحليل الفكرة...";
-  status.style.display="block";
+  status.textContent="";
+  status.style.display="none";
   try{
     const response=await fetch("/api/analyze",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({idea})
+      body:JSON.stringify({
+        project_name:projectName,
+        idea
+      })
     });
     const result=await response.json();
     if(!response.ok || !result.ok) throw new Error(result.error||"تعذر تحليل الفكرة");
     sessionStorage.setItem("abqarynoIdea",idea);
-    sessionStorage.setItem("abqarynoAnalysis",JSON.stringify(result));
+    sessionStorage.setItem("abqarynoProjectName",projectName);
+      sessionStorage.setItem("abqarynoAnalysis",JSON.stringify(result));
     sessionStorage.setItem("abqarynoIdea", idea);
 location.href="/create/understanding";
   }catch(error){
     status.className="status error";
     status.textContent=error.message;
+    status.style.display="block";
     button.disabled=false;
   }
 }

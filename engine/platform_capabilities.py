@@ -138,7 +138,7 @@ def main() -> int:
         "report": "ABQARYNO_PLATFORM_CAPABILITY_REPORT",
         "version": "1.0",
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "status": "READY",
+        "status": "VERIFICATION_PENDING",
         "total_capabilities": len(CAPABILITIES),
         "required_capabilities": len(required),
         "optional_capabilities": len(CAPABILITIES) - len(required),
@@ -156,7 +156,7 @@ def main() -> int:
     print(f"Total      : {len(CAPABILITIES)}")
     print(f"Required   : {len(required)}")
     print(f"Optional   : {len(CAPABILITIES) - len(required)}")
-    print("STATUS     : READY")
+    print("STATUS     : VERIFICATION_PENDING")
     print(f"PLAN       : {plan_path}")
     print(f"REPORT     : {report_path}")
 

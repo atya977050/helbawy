@@ -371,33 +371,19 @@ const analysis = JSON.parse(
   sessionStorage.getItem("abqarynoAnalysis") || "{}"
 );
 
-const screens =
+const allScreens =
   analysis.screens ||
   analysis.requirements?.screens ||
   [];
 
-const savedRequirementChoices = JSON.parse(
-  sessionStorage.getItem("abqarynoRequirementChoices") || "{}"
+const savedSelectedIds = JSON.parse(
+  sessionStorage.getItem("abqarynoSelectedScreens") || "[]"
 );
 
-const choices = {};
 
-screens.forEach((item, index) => {
-  const id = item.id || `screen-${index + 1}`;
-
-  choices[id] =
-    Object.prototype.hasOwnProperty.call(savedRequirementChoices, id)
-      ? Boolean(savedRequirementChoices[id])
-      : true;
-});
-
-function saveRequirementChoices(){
-  sessionStorage.setItem(
-    "abqarynoRequirementChoices",
-    JSON.stringify(choices)
-  );
-}
-
+let selectedScreens = Array.isArray(savedSelectedIds)
+  ? savedSelectedIds
+  : [];
 
 const approvedProposals = JSON.parse(
   sessionStorage.getItem("abqarynoApprovedProposals") || "{}"
@@ -405,201 +391,17 @@ const approvedProposals = JSON.parse(
 
 const proposalCache = {};
 
-function saveApprovedProposals(){
+function saveState(){
+   sessionStorage.setItem(
+    "abqarynoSelectedScreens",
+    JSON.stringify(selectedScreens)
+  );
+
   sessionStorage.setItem(
     "abqarynoApprovedProposals",
     JSON.stringify(approvedProposals)
   );
 }
-
-async function fetchProposals(screenId, offset = 0){
-  const screen = screens.find(
-    item => (item.id || "") === screenId
-  );
-
-  if(!screen){
-    throw new Error("تعذر العثور على الشاشة المطلوبة.");
-  }
-
-  const response = await fetch("/api/proposals", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      screen,
-      offset,
-      idea: sessionStorage.getItem("abqarynoIdea") || ""
-    })
-  });
-
-  const result = await response.json();
-
-  if(!response.ok || !result.ok){
-    throw new Error(
-      result.error || "تعذر تحميل تصميمات الشاشة."
-    );
-  }
-
-  return result.proposals || [];
-}
-
-function proposalHtml(screenId, proposals){
-  const approved = approvedProposals[screenId];
-
-  return proposals.map((proposal, index) => {
-    const isApproved =
-      approved &&
-      approved.variant === proposal.variant;
-
-    const components = Array.isArray(proposal.components)
-      ? proposal.components
-      : [];
-
-    return `
-      <article class="proposal-card ${isApproved ? "approved" : ""}">
-        <div class="proposal-head">
-          <strong>التصميم ${index + 1}</strong>
-          <h3>${esc(proposal.layout || "واجهة قياسية")}</h3>
-        </div>
-
-        <p>${esc(proposal.purpose || "تصميم مقترح للشاشة.")}</p>
-
-        <div class="proposal-components">
-          ${components.map(component =>
-            `<span>${esc(component)}</span>`
-          ).join("")}
-        </div>
-
-        ${
-          isApproved
-            ? `<div class="proposal-approved">✓ تم اعتماد هذا التصميم</div>`
-            : `
-              <button
-                type="button"
-                class="approve-proposal"
-                data-screen-id="${esc(screenId)}"
-                data-proposal-index="${index}"
-              >
-                ✓ نعم، أعتمد هذا التصميم
-              </button>
-            `
-        }
-      </article>
-    `;
-  }).join("");
-}
-
-async function loadProposalsForScreen(screenId, offset = 0){
-  const box = Array.from(
-    document.querySelectorAll(".proposal-box")
-  ).find(
-    item => item.dataset.proposals === screenId
-  );
-
-  if(!box){
-    return;
-  }
-
-  const grid = box.querySelector(".proposal-grid");
-
-  grid.innerHTML = `
-    <div class="proposal-card">
-      <strong>جاري تحليل وتصميم الشاشة...</strong>
-    </div>
-  `;
-
-  try{
-    const proposals = await fetchProposals(screenId, offset);
-
-    proposalCache[screenId] = {
-      proposals,
-      offset
-    };
-
-    if(!proposals.length){
-      grid.innerHTML = `
-        <div class="proposal-card">
-          <strong>لم يتم توليد تصميمات لهذه الشاشة.</strong>
-        </div>
-      `;
-      return;
-    }
-
-    grid.innerHTML = proposalHtml(screenId, proposals);
-    bindProposalButtons();
-
-  }catch(error){
-    grid.innerHTML = `
-      <div class="proposal-card">
-        <strong>تعذر تحميل التصميمات</strong>
-        <p>${esc(error.message)}</p>
-      </div>
-    `;
-  }
-}
-
-function bindProposalButtons(){
-  document.querySelectorAll(".approve-proposal").forEach(button => {
-    if(button.dataset.bound === "1"){
-      return;
-    }
-
-    button.dataset.bound = "1";
-
-    button.addEventListener("click", () => {
-      const screenId = button.dataset.screenId;
-      const index = Number(button.dataset.proposalIndex);
-      const cached = proposalCache[screenId];
-
-      if(
-        !screenId ||
-        !cached ||
-        !Array.isArray(cached.proposals) ||
-        !cached.proposals[index]
-      ){
-        document.getElementById("status").textContent =
-          "تعذر العثور على التصميم المختار.";
-        return;
-      }
-
-      const proposal = {
-        ...cached.proposals[index],
-        approved: true,
-        approved_at: new Date().toISOString()
-      };
-
-      approvedProposals[screenId] = proposal;
-      saveApprovedProposals();
-      updateStats();
-
-      document.getElementById("status").textContent =
-        `تم اعتماد تصميم شاشة ${proposal.title || screenId}.`;
-
-      const box = Array.from(
-        document.querySelectorAll(".proposal-box")
-      ).find(
-        item => item.dataset.proposals === screenId
-      );
-
-      if(box){
-        box.querySelector(".proposal-grid").innerHTML =
-          proposalHtml(screenId, cached.proposals);
-      }
-    });
-  });
-}
-
-async function loadAllProposals(){
-  const jobs = screens
-    .map(screen => screen.id || "")
-    .filter(Boolean)
-    .map(id => loadProposalsForScreen(id, 0));
-
-  await Promise.all(jobs);
-}
-
-const list = document.getElementById("list");
 
 function esc(value){
   return String(value ?? "")
@@ -609,22 +411,101 @@ function esc(value){
     .replace(/"/g,"&quot;");
 }
 
-function draw(){
-  if(!screens.length){
-    list.innerHTML =
-      '<div class="req"><h2>لم تصل متطلبات من تحليل الفكرة.</h2>' +
-      '<p>ارجع إلى مرحلة فهم الفكرة وتأكد من اكتمال التحليل.</p></div>';
-    updateStats();
-    return;
-  }
+function updateStats(){
+  const total = allScreens.length;
+  const selected = selectedScreens.length;
+  const approved = selectedScreens.filter(
+    id => approvedProposals[id]
+  ).length;
 
-  list.innerHTML = screens.map((item,index)=>{
+  const totalEl = document.getElementById("total");
+  const reqEl = document.getElementById("requirementsApproved");
+  const designEl = document.getElementById("designsApproved");
+  const progressEl = document.getElementById("requirementsProgress");
+  const designProgressEl = document.getElementById("designProgress");
+  const rejectedEl = document.getElementById("rejected");
+
+  if(totalEl) totalEl.textContent = total;
+  if(reqEl) reqEl.textContent = `${selected} / ${total}`;
+  if(designEl) designEl.textContent = `${approved} / ${selected}`;
+  if(progressEl) progressEl.textContent = `${selected} شاشة مختارة`;
+  if(designProgressEl) designProgressEl.textContent =
+    `${approved} من ${selected} تصميم معتمد`;
+  if(rejectedEl) rejectedEl.textContent =
+    Math.max(total - selected, 0);
+
+  const status = document.getElementById("status");
+
+  if(status){
+    if(!total){
+      status.textContent =
+        "لم يقترح عبقرينو أي شاشات.";
+    }else if(!selected.length){
+      status.textContent =
+        "راجع الشاشات المقترحة واختر الشاشات التي تريدها.";
+    }else if(approved < selected.length){
+      status.textContent =
+        `تم اختيار ${selected.length} شاشة. اعتمد تصميم كل شاشة.`;
+    }else{
+      status.textContent =
+        `تم اعتماد ${approved} من ${selected.length} شاشات ✓`;
+    }
+  }
+}
+
+
+function drawScreenSelection(){
+  const list = document.getElementById("list");
+
+  const candidates = allScreens;
+
+  list.innerHTML = `
+    <div class="req">
+      <div class="req-head">
+        <div class="req-title">
+          <div class="num">2</div>
+          <h2>اختيار الشاشات</h2>
+        </div>
+      </div>
+
+      <p>
+        هذه شاشات مقترحة من عبقرينو بناءً على فكرة البرنامج.
+        اختر منها الشاشات التي تريد إدخالها في خطة إنشاء البرنامج.
+        الخصائص الموجودة داخل الشاشة مثل الملفات والصوت والفيديو
+        تظل وظائف داخل الشاشة وليست شاشات مستقلة.
+      </p>
+
+      <div id="screen-choice-list"></div>
+
+      <div class="actions">
+        <button
+          id="confirm-screen-selection"
+          class="primary"
+          type="button"
+        >
+          اعتماد الشاشات المختارة
+        </button>
+      </div>
+    </div>
+  `;
+
+  const choiceList =
+    document.getElementById("screen-choice-list");
+
+  choiceList.innerHTML = candidates.map((item,index) => {
     const id = item.id || `screen-${index + 1}`;
     const title = item.title || id;
-    const purpose = item.purpose || "متطلب مقترح ضمن البرنامج.";
+    const purpose =
+      item.purpose || "شاشة مقترحة ضمن البرنامج.";
+
+    const checked = selectedScreens.includes(id);
 
     return `
-      <article class="req ${choices[id] ? "selected" : ""}" data-card="${esc(id)}">
+      <article
+        class="req ${checked ? "selected" : ""}"
+        data-choice="${esc(id)}"
+        style="margin-top:12px"
+      >
         <div class="req-head">
           <div class="req-title">
             <div class="num">${index + 1}</div>
@@ -634,196 +515,268 @@ function draw(){
 
         <p>${esc(purpose)}</p>
 
-        <div class="proposal-box" data-proposals="${esc(id)}">
-          <div class="preview-label">🎨 عبقرينو يقترح تصميم الشاشة</div>
-          <div class="proposal-grid">
-            ${
-              proposalCache[id] &&
-              Array.isArray(proposalCache[id].proposals) &&
-              proposalCache[id].proposals.length
-                ? proposalHtml(id, proposalCache[id].proposals)
-                : `
-                  <div class="proposal-card">
-                    <strong>جاري تحميل التصميمات...</strong>
-                  </div>
-                `
-            }
-          </div>
-        </div>
-
-        <div class="edit-panel" id="edit-${esc(id)}" hidden>
-          <label>
-            اسم المتطلب
-            <input
-              class="edit-title"
-              data-edit-id="${esc(id)}"
-              value="${esc(title)}"
-            >
-          </label>
-
-          <label>
-            وصف المتطلب
-            <textarea
-              class="edit-purpose"
-              data-edit-id="${esc(id)}"
-              rows="3"
-            >${esc(purpose)}</textarea>
-          </label>
-
-          <div class="edit-actions">
-            <button
-              type="button"
-              class="save-edit"
-              data-id="${esc(id)}"
-            >حفظ التعديل</button>
-
-            <button
-              type="button"
-              class="cancel-edit"
-              data-id="${esc(id)}"
-            >إلغاء</button>
-          </div>
-        </div>
-
-        <div class="preview-label">👁️ معاينة تنسيق الشاشة قبل التنفيذ</div>
-
-        <div class="screen-preview">
-          <div class="preview-top">
-            <span class="preview-dot"></span>
-            <span class="preview-dot"></span>
-            <span class="preview-dot"></span>
-          </div>
-
-          <div class="preview-body">
-            <aside class="preview-side">
-              <div class="preview-side-line"></div>
-              <div class="preview-side-line short"></div>
-              <div class="preview-side-line"></div>
-              <div class="preview-side-line short"></div>
-            </aside>
-
-            <section class="preview-content">
-              <div class="preview-title"></div>
-              <div class="preview-line"></div>
-              <div class="preview-line short"></div>
-              <div class="preview-line"></div>
-
-              <div class="preview-actions">
-                <span class="preview-btn">فتح</span>
-                <span class="preview-btn">إضافة</span>
-                <span class="preview-btn">بحث</span>
-              </div>
-            </section>
-          </div>
-        </div>
-
         <div class="actions">
           <button
             type="button"
-            class="edit-requirement"
+            class="screen-select ${checked ? "active" : ""}"
             data-id="${esc(id)}"
-          >✏️ تعديل المتطلب</button>
-
-          <button class="choice yes ${choices[id] ? "active" : ""}"
-                  data-id="${esc(id)}" data-value="yes">
-            ✓ نعم، أريده
-          </button>
-
-          <button class="choice no ${!choices[id] ? "active" : ""}"
-                  data-id="${esc(id)}" data-value="no">
-            ✕ لا، استبعده
+          >
+            ${checked ? "✓ تم اختيارها" : "اختيار هذه الشاشة"}
           </button>
         </div>
       </article>
     `;
   }).join("");
 
-  document.querySelectorAll(".choice").forEach(button=>{
-    button.onclick = ()=>{
+  document.querySelectorAll(".screen-select").forEach(button => {
+    button.onclick = () => {
       const id = button.dataset.id;
-      choices[id] = button.dataset.value === "yes";
 
-      saveRequirementChoices();
-      persistAnalysis();
-      draw();
+      if(selectedScreens.includes(id)){
+        selectedScreens =
+          selectedScreens.filter(item => item !== id);
+      }else{
+        selectedScreens.push(id);
+      }
+
+      saveState();
+      drawScreenSelection();
     };
   });
 
-  document.querySelectorAll(".edit-requirement").forEach(button=>{
-    button.onclick = ()=>{
-      const id = button.dataset.id;
-      const panel = document.getElementById(`edit-${id}`);
-
-      if (!panel) {
-        document.getElementById("status").textContent =
-          "تعذر فتح محرر المتطلب.";
-        return;
-      }
-
-      panel.hidden = !panel.hidden;
-    };
-  });
-
-  document.querySelectorAll(".save-edit").forEach(button=>{
-    button.onclick = ()=>{
-      const id = button.dataset.id;
-      const item = screens.find(
-        entry => (entry.id || "") === id
-      );
-
-      if (!item) {
-        document.getElementById("status").textContent =
-          "تعذر العثور على المتطلب.";
-        return;
-      }
-
-      const titleInput = document.querySelector(
-        `.edit-title[data-edit-id="${CSS.escape(id)}"]`
-      );
-
-      const purposeInput = document.querySelector(
-        `.edit-purpose[data-edit-id="${CSS.escape(id)}"]`
-      );
-
-      const title = titleInput?.value.trim() || "";
-      const purpose = purposeInput?.value.trim() || "";
-
-      if (!title || !purpose) {
-        document.getElementById("status").textContent =
-          "يجب إدخال اسم ووصف المتطلب قبل الحفظ.";
-        return;
-      }
-
-      item.title = title;
-      item.purpose = purpose;
-      item.requirement_status = "EDITED";
-      item.edited_at = new Date().toISOString();
-
-      persistAnalysis();
+  document.getElementById("confirm-screen-selection").onclick = () => {
+    if(!selectedScreens.length){
       document.getElementById("status").textContent =
-        "تم حفظ تعديل المتطلب فعليًا.";
+        "اختر شاشة واحدة على الأقل للمتابعة.";
+      return;
+    }
 
-      draw();
-    };
-  });
-
-  document.querySelectorAll(".cancel-edit").forEach(button=>{
-    button.onclick = ()=>{
-      draw();
-    };
-  });
+    saveState();
+    drawApprovedScreenDesigns();
+  };
 
   updateStats();
 }
 
-function persistAnalysis(){
-  analysis.screens = screens;
+async function fetchProposal(screen){
+  const id = screen.id || "";
 
-  if (
+  const response = await fetch("/api/proposals", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      screen,
+      offset: 0,
+      idea: sessionStorage.getItem("abqarynoIdea") || ""
+    })
+  });
+
+  const result = await response.json();
+
+  if(!response.ok || !result.ok){
+    throw new Error(
+      result.error || "تعذر تحميل تصميم الشاشة."
+    );
+  }
+
+  const proposals = result.proposals || [];
+
+  if(!proposals.length){
+    throw new Error("لم يتم إنشاء تصميم للشاشة.");
+  }
+
+  proposalCache[id] = proposals[0];
+
+  return proposals[0];
+}
+
+function proposalHtml(screenId, proposal){
+  const approved = approvedProposals[screenId];
+
+  return `
+    <article class="proposal-card ${approved ? "approved" : ""}">
+      <div class="proposal-head">
+        <strong>التصميم المقترح</strong>
+        <h3>${esc(proposal.layout || "واجهة قياسية")}</h3>
+      </div>
+
+      <p>${esc(
+        proposal.purpose ||
+        "تصميم مقترح للشاشة."
+      )}</p>
+
+      <div class="proposal-components">
+        ${(Array.isArray(proposal.components)
+          ? proposal.components
+          : []
+        ).map(component =>
+          `<span>${esc(component)}</span>`
+        ).join("")}
+      </div>
+
+      ${
+        approved
+          ? `<div class="proposal-approved">
+               ✓ تم اعتماد هذا التصميم
+             </div>`
+          : `
+            <button
+              type="button"
+              class="approve-one-proposal"
+              data-screen-id="${esc(screenId)}"
+            >
+              ✓ نعم، أعتمد هذا التصميم
+            </button>
+          `
+      }
+    </article>
+  `;
+}
+
+async function drawApprovedScreenDesigns(){
+  const list = document.getElementById("list");
+
+  list.innerHTML = `
+    <div class="req">
+      <div class="req-head">
+        <div class="req-title">
+          <div class="num">3</div>
+          <h2>اعتماد تصميم الشاشات</h2>
+        </div>
+      </div>
+
+      <p>
+        سيعرض عبقرينو تصميمًا واحدًا لكل شاشة اخترتها.
+        اختر «نعم» لاعتماده أو «لا» لإعادة التصميم.
+      </p>
+
+      <div id="design-list"></div>
+    </div>
+  `;
+
+  const designList =
+    document.getElementById("design-list");
+
+  const selected = allScreens.filter(
+    screen => selectedScreens.includes(screen.id)
+  );
+
+  for(const screen of selected){
+    const id = screen.id;
+
+    const article = document.createElement("article");
+    article.className = "req";
+    article.innerHTML = `
+      <div class="req-head">
+        <div class="req-title">
+          <div class="num">✓</div>
+          <h2>${esc(screen.title || id)}</h2>
+        </div>
+      </div>
+
+      <p>${esc(screen.purpose || "")}</p>
+
+      <div class="proposal-box">
+        <div class="proposal-grid">
+          <div class="proposal-card">
+            <strong>جاري إعداد التصميم...</strong>
+          </div>
+        </div>
+      </div>
+    `;
+
+    designList.appendChild(article);
+
+    try{
+      const proposal = await fetchProposal(screen);
+
+      article.querySelector(".proposal-grid").innerHTML =
+        proposalHtml(id, proposal);
+
+      bindSingleApprovalButtons();
+
+    }catch(error){
+      article.querySelector(".proposal-grid").innerHTML = `
+        <div class="proposal-card">
+          <strong>تعذر إعداد التصميم</strong>
+          <p>${esc(error.message)}</p>
+          <button
+            type="button"
+            class="retry-design"
+            data-screen-id="${esc(id)}"
+          >
+            إعادة المحاولة
+          </button>
+        </div>
+      `;
+
+      article.querySelector(".retry-design").onclick = () => {
+        drawApprovedScreenDesigns();
+      };
+    }
+  }
+
+  updateStats();
+}
+
+function bindSingleApprovalButtons(){
+  document.querySelectorAll(".approve-one-proposal").forEach(
+    button => {
+      if(button.dataset.bound === "1"){
+        return;
+      }
+
+      button.dataset.bound = "1";
+
+      button.onclick = () => {
+        const screenId = button.dataset.screenId;
+        const proposal = proposalCache[screenId];
+
+        if(!proposal){
+          document.getElementById("status").textContent =
+            "تعذر العثور على التصميم.";
+          return;
+        }
+
+        approvedProposals[screenId] = {
+          ...proposal,
+          approved: true,
+          approved_at: new Date().toISOString()
+        };
+
+        saveState();
+
+        const card =
+          button.closest(".proposal-card");
+
+        if(card){
+          card.innerHTML = `
+            <div class="proposal-approved">
+              ✓ تم اعتماد هذا التصميم
+            </div>
+          `;
+        }
+
+        updateStats();
+      };
+    }
+  );
+}
+
+function persistFinalAnalysis(){
+  const chosen = allScreens.filter(
+    screen => selectedScreens.includes(screen.id)
+  );
+
+  analysis.screens = chosen;
+
+  if(
     analysis.requirements &&
     typeof analysis.requirements === "object"
-  ) {
-    analysis.requirements.screens = screens;
+  ){
+    analysis.requirements.screens = chosen;
   }
 
   sessionStorage.setItem(
@@ -832,81 +785,145 @@ function persistAnalysis(){
   );
 }
 
-function updateStats(){
-  const total = screens.length;
-  const requirementsApproved =
-    Object.values(choices).filter(Boolean).length;
-  const rejected = total - requirementsApproved;
+function draw(){
+  if(!allScreens.length){
+    document.getElementById("list").innerHTML =
+      '<div class="req"><h2>لم تصل متطلبات من تحليل الفكرة.</h2>' +
+      '<p>ارجع إلى مرحلة فهم الفكرة وتأكد من اكتمال التحليل.</p></div>';
 
-  const selectedIds = Object.keys(choices).filter(
-    id => choices[id]
-  );
-
-  const designsApproved = selectedIds.filter(
-    id => approvedProposals[id]
-  ).length;
-
-  document.getElementById("total").textContent = total;
-
-  document.getElementById("requirementsApproved").textContent =
-    `${requirementsApproved} / ${total}`;
-
-  document.getElementById("designsApproved").textContent =
-    `${designsApproved} / ${selectedIds.length}`;
-
-  document.getElementById("requirementsProgress").textContent =
-    `${requirementsApproved} / ${total}`;
-
-  document.getElementById("designProgress").textContent =
-    `${designsApproved} / ${selectedIds.length}`;
-
-  document.getElementById("rejected").textContent = rejected;
-
-  if(designsApproved === selectedIds.length && selectedIds.length){
-    document.getElementById("status").textContent =
-      `اعتماد المتطلبات مكتمل ✓ واعتماد التصميمات مكتمل ${designsApproved} من ${selectedIds.length}`;
-  }else{
-    document.getElementById("status").textContent =
-      `المتطلبات: ${requirementsApproved} من ${total} — التصميمات: ${designsApproved} من ${selectedIds.length}`;
+    updateStats();
+    return;
   }
+
+  drawScreenSelection();
 }
 
-document.getElementById("next").onclick = ()=>{
-  const selected = Object.keys(choices).filter(id => choices[id]);
+const nextButton = document.getElementById("next");
 
-  if(!selected.length){
-    document.getElementById("status").textContent =
-      "اختر متطلبًا واحدًا على الأقل قبل المتابعة.";
-    return;
-  }
+if(nextButton){
+  nextButton.onclick = () => {
+    if(!selectedScreens.length){
+      document.getElementById("status").textContent =
+        "اختر شاشة واحدة على الأقل للمتابعة.";
+      return;
+    }
 
-  persistAnalysis();
+    const missing = selectedScreens.filter(
+      id => !approvedProposals[id]
+    );
 
-  const missingProposals = selected.filter(
-    id => !approvedProposals[id]
-  );
+    if(missing.length){
+      document.getElementById("status").textContent =
+        `اعتمد تصميم ${missing.length} شاشة قبل المتابعة.`;
+      return;
+    }
 
-  if(missingProposals.length){
-    document.getElementById("status").textContent =
-      `اعتمد تصميم كل شاشة مختارة أولًا. المتبقي: ${missingProposals.length}`;
-    return;
-  }
+    persistFinalAnalysis();
 
-  saveApprovedProposals();
+    sessionStorage.setItem(
+      "abqarynoSelectedScreens",
+      JSON.stringify(selectedScreens)
+    );
 
-  sessionStorage.setItem(
-    "abqarynoSelectedScreens",
-    JSON.stringify(selected)
-  );
+    sessionStorage.setItem(
+      "abqarynoApprovedProposals",
+      JSON.stringify(approvedProposals)
+    );
 
-  /*
-   * الانتقال إلى المرحلة 4 — التخطيط.
-   */
-  location.href = "/create/plan";
-};
+    location.href = "/create/plan";
+  };
+}
 
 draw();
-loadAllProposals();
+
 </script>
+
+<section id="abqaryno-requirements-approval-v2"
+style="
+margin:24px 0;
+padding:22px;
+border-radius:18px;
+background:rgba(20,20,20,.94);
+border:1px solid rgba(212,175,55,.45);
+color:#fff;
+">
+<h2>اعتماد المتطلبات</h2>
+
+<p id="abqaryno-req-status-v2">حالة الاعتماد: في انتظار القرار</p>
+
+<div style="display:flex;gap:12px;flex-wrap:wrap">
+<button id="abqaryno-req-yes-v2" type="button">نعم — اعتماد المتطلبات</button>
+<button id="abqaryno-req-no-v2" type="button">لا — رفض المتطلبات</button>
+</div>
+
+<p id="abqaryno-req-next-v2">
+لن يتم إنشاء أي ملفات قبل اكتمال الاعتماد.
+</p>
+</section>
+
+<script>
+(function () {
+  "use strict";
+
+  const key = "abqaryno_requirements_approval_v2";
+
+  function render(value) {
+    const status = document.getElementById("abqaryno-req-status-v2");
+    const next = document.getElementById("abqaryno-req-next-v2");
+
+    if (!status || !next) return;
+
+    if (value === true) {
+      status.textContent = "حالة الاعتماد: ✓ المتطلبات معتمدة";
+      next.textContent = "المرحلة التالية: اختيار واعتماد تصميم الشاشات.";
+    } else if (value === false) {
+      status.textContent = "حالة الاعتماد: ✕ المتطلبات غير معتمدة";
+      next.textContent = "يجب تعديل المتطلبات ثم اعتمادها قبل الانتقال.";
+    } else {
+      status.textContent = "حالة الاعتماد: ⏳ في انتظار القرار";
+      next.textContent = "لن يتم إنشاء أي ملفات قبل اكتمال الاعتماد.";
+    }
+  }
+
+  function save(value) {
+    localStorage.setItem(key, value ? "approved" : "rejected");
+    render(value);
+
+    window.dispatchEvent(new CustomEvent(
+      "abqaryno:requirements-approval",
+      { detail: { approved: value } }
+    ));
+  }
+
+  document
+    .getElementById("abqaryno-req-yes-v2")
+    ?.addEventListener("click", function () {
+      save(true);
+
+      const mainStatus = document.getElementById("status");
+      if (mainStatus) {
+        mainStatus.textContent =
+          "✓ تم اعتماد المتطلبات. يمكنك الآن اختيار واعتماد تصميمات الشاشات.";
+      }
+
+      document
+        .getElementById("next")
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+
+  document
+    .getElementById("abqaryno-req-no-v2")
+    ?.addEventListener("click", function () {
+      save(false);
+    });
+
+  const saved = localStorage.getItem(key);
+
+  if (saved === "approved") render(true);
+  else if (saved === "rejected") render(false);
+  else render(null);
+})();
+</script>
+
 </body>
 </html>

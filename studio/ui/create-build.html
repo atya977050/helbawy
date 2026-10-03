@@ -109,6 +109,7 @@ button{
 </main>
 
 <script>
+const projectName=sessionStorage.getItem("abqarynoProjectName")||"";
 const idea=sessionStorage.getItem("abqarynoIdea")||"";
 const analysis=JSON.parse(
   sessionStorage.getItem("abqarynoAnalysis")||"{}"
@@ -130,7 +131,7 @@ const approved=screens
   .filter(x=>selected.includes(x.id))
   .map(screen=>({
     ...screen,
-    ...(approvedProposals[screen.id] || {})
+    proposal: approvedProposals[screen.id] || null
   }));
 
 const status=document.getElementById("status");
@@ -139,8 +140,8 @@ const message=document.getElementById("message");
 const actions=document.getElementById("actions");
 
 async function createProject(){
-  if(!idea || !approved.length){
-    throw new Error("بيانات الفكرة أو المتطلبات المعتمدة غير موجودة.");
+  if(!projectName || !idea || !approved.length){
+    throw new Error("اسم البرنامج أو الفكرة أو المتطلبات المعتمدة غير موجودة.");
   }
 
   const missingProposals = approved.filter(
@@ -157,6 +158,7 @@ async function createProject(){
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({
+        project_name:projectName,
       idea,
       approved,
       options:selectedOptions
@@ -291,5 +293,296 @@ createProject()
   actions.style.display="flex";
 });
 </script>
+<div id="abqaryno-build-gate-v2"></div>
+<script id="abqaryno-build-controller-v2"></script>
+<script>
+(function () {
+  "use strict";
+
+  const state = {
+    requirements: "PENDING",
+    screens: "PENDING",
+    build: "PENDING",
+    generation: "LOCKED",
+    execution: "NOT_RUN"
+  };
+
+  function statusText(value) {
+    if (value === "APPROVED") return "✓ تمت الموافقة";
+    if (value === "REJECTED") return "✕ مرفوض";
+    if (value === "READY") return "✓ جاهز";
+    if (value === "LOCKED") return "🔒 مقفول";
+    return "⏳ في انتظار الموافقة";
+  }
+
+  function render() {
+    const root = document.getElementById("abqaryno-build-gate-v2");
+    if (!root) return;
+
+    const ready =
+      state.requirements === "APPROVED" &&
+      state.screens === "APPROVED" &&
+      state.build === "APPROVED";
+
+    root.innerHTML = `
+      <section style="
+        margin:20px 0;
+        padding:22px;
+        border-radius:18px;
+        background:rgba(20,20,20,.92);
+        border:1px solid rgba(212,175,55,.45);
+        color:#fff;
+      ">
+        <h2 style="margin-top:0">بوابة اعتماد إنشاء المشروع</h2>
+
+        <div style="display:grid;gap:10px">
+          <div>المتطلبات: <strong>${statusText(state.requirements)}</strong></div>
+          <div>تصميم الشاشات: <strong>${statusText(state.screens)}</strong></div>
+          <div>موافقة الإنشاء: <strong>${statusText(state.build)}</strong></div>
+          <div>التوليد: <strong>${ready ? "✓ مسموح بعد الاعتماد" : "🔒 مقفول"}</strong></div>
+          <div>التنفيذ: <strong>لم يتم التنفيذ</strong></div>
+        </div>
+
+        <div style="
+          margin-top:18px;
+          padding:14px;
+          border-radius:12px;
+          background:${ready ? "rgba(0,120,60,.25)" : "rgba(120,80,0,.25)"};
+        ">
+          ${ready
+            ? "تم استيفاء بوابة الموافقات. التوليد أصبح مسموحًا."
+            : "لا يمكن إنشاء ملفات المشروع قبل اكتمال جميع الموافقات."}
+        </div>
+
+        <button
+          id="abqaryno-build-confirm-v2"
+          type="button"
+          style="margin-top:18px"
+          ${ready ? "" : "disabled"}
+        >
+          ${ready ? "بدء إنشاء المشروع" : "الإنشاء مقفول حاليًا"}
+        </button>
+      </section>
+    `;
+
+    const button = document.getElementById("abqaryno-build-confirm-v2");
+
+    if (button && ready) {
+      button.addEventListener("click", function () {
+        window.dispatchEvent(new CustomEvent("abqaryno:build-approved"));
+      });
+    }
+  }
+
+  window.AbqarynoBuildGateV2 = {
+    getState: function () {
+      return Object.assign({}, state);
+    },
+
+    setApproval: function (name, value) {
+      if (!(name in state)) return false;
+      state[name] = value ? "APPROVED" : "REJECTED";
+      render();
+      return true;
+    },
+
+    reset: function () {
+      state.requirements = "PENDING";
+      state.screens = "PENDING";
+      state.build = "PENDING";
+      state.generation = "LOCKED";
+      state.execution = "NOT_RUN";
+      render();
+    }
+  };
+
+  render();
+})();
+</script>
+
+
+<section id="abqaryno-final-build-approval-v2"
+style="
+margin:24px 0;
+padding:24px;
+border-radius:18px;
+background:rgba(20,20,20,.96);
+border:1px solid rgba(212,175,55,.55);
+color:#fff;
+">
+
+<h2>الموافقة النهائية على إنشاء المشروع</h2>
+
+<div id="abqaryno-build-checks-v2"
+style="display:grid;gap:9px;margin:18px 0">
+</div>
+
+<div id="abqaryno-build-message-v2"
+style="
+padding:15px;
+border-radius:12px;
+background:rgba(120,80,0,.25);
+">
+جارٍ التحقق من الموافقات...
+</div>
+
+<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:18px">
+
+<button
+id="abqaryno-build-yes-v2"
+type="button"
+disabled
+>
+نعم — أوافق على إنشاء المشروع
+</button>
+
+<button
+id="abqaryno-build-no-v2"
+type="button"
+>
+لا — إيقاف الإنشاء
+</button>
+
+</div>
+
+</section>
+
+<script>
+(function () {
+  "use strict";
+
+  const requirementsKey =
+    "abqaryno_requirements_approval_v2";
+
+  const screensKey =
+    "abqaryno_screen_variant_v2";
+
+  const buildKey =
+    "abqaryno_build_approval_v2";
+
+  function isRequirementsApproved() {
+    return localStorage.getItem(requirementsKey) === "approved";
+  }
+
+  function isScreensApproved() {
+    return !!localStorage.getItem(screensKey);
+  }
+
+  function isBuildApproved() {
+    return localStorage.getItem(buildKey) === "approved";
+  }
+
+  function render() {
+    const requirements = isRequirementsApproved();
+    const screens = isScreensApproved();
+    const build = isBuildApproved();
+
+    const allBeforeBuild =
+      requirements && screens;
+
+    const generationAllowed =
+      requirements && screens && build;
+
+    const checks =
+      document.getElementById("abqaryno-build-checks-v2");
+
+    const message =
+      document.getElementById("abqaryno-build-message-v2");
+
+    const yes =
+      document.getElementById("abqaryno-build-yes-v2");
+
+    if (!checks || !message || !yes) return;
+
+    checks.innerHTML = `
+      <div>${requirements ? "✓" : "🔒"}
+        اعتماد المتطلبات
+      </div>
+
+      <div>${screens ? "✓" : "🔒"}
+        اختيار تصميم الشاشات
+      </div>
+
+      <div>${build ? "✓" : "⏳"}
+        موافقة إنشاء المشروع
+      </div>
+    `;
+
+    yes.disabled = !allBeforeBuild;
+
+    if (generationAllowed) {
+      message.textContent =
+        "✓ اكتملت الموافقات الثلاث. التوليد أصبح مسموحًا.";
+      message.style.background =
+        "rgba(0,120,60,.25)";
+    } else if (!allBeforeBuild) {
+      message.textContent =
+        "🔒 لا يمكن الموافقة على الإنشاء قبل اعتماد المتطلبات واختيار التصميم.";
+      message.style.background =
+        "rgba(120,80,0,.25)";
+    } else {
+      message.textContent =
+        "تم اعتماد المتطلبات والتصميم. القرار النهائي مطلوب.";
+      message.style.background =
+        "rgba(120,80,0,.25)";
+    }
+  }
+
+  document
+    .getElementById("abqaryno-build-yes-v2")
+    ?.addEventListener("click", function () {
+
+      if (!isRequirementsApproved() ||
+          !isScreensApproved()) {
+        render();
+        return;
+      }
+
+      localStorage.setItem(
+        buildKey,
+        "approved"
+      );
+
+      window.dispatchEvent(
+        new CustomEvent(
+          "abqaryno:build-approval",
+          {
+            detail: {
+              approved: true
+            }
+          }
+        )
+      );
+
+      render();
+    });
+
+  document
+    .getElementById("abqaryno-build-no-v2")
+    ?.addEventListener("click", function () {
+
+      localStorage.setItem(
+        buildKey,
+        "rejected"
+      );
+
+      window.dispatchEvent(
+        new CustomEvent(
+          "abqaryno:build-approval",
+          {
+            detail: {
+              approved: false
+            }
+          }
+        )
+      );
+
+      render();
+    });
+
+  render();
+})();
+</script>
+
 </body>
 </html>

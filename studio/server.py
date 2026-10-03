@@ -718,6 +718,10 @@ class Handler(BaseHTTPRequestHandler):
 
 
             if self.path == "/api/create":
+                project_name = str(
+                    data.get("project_name", "")
+                ).strip()
+
                 idea = str(
                     data.get("idea", "")
                 ).strip()
@@ -727,22 +731,91 @@ class Handler(BaseHTTPRequestHandler):
                     []
                 )
 
+                if not isinstance(approved, list) or not approved:
+                    raise ValueError(
+                        "يجب اختيار شاشة واحدة على الأقل قبل إنشاء البرنامج."
+                    )
+
+                validated_screens = []
+                seen_screen_ids = set()
+
+                for screen in approved:
+                    if not isinstance(screen, dict):
+                        raise ValueError(
+                            "بيانات إحدى الشاشات المعتمدة غير صحيحة."
+                        )
+
+                    screen_id = str(
+                        screen.get("id", "")
+                    ).strip()
+
+                    title = str(
+                        screen.get("title", "")
+                    ).strip()
+
+                    purpose = str(
+                        screen.get("purpose", "")
+                    ).strip()
+
+                    proposal = screen.get("proposal")
+
+                    if not screen_id or not title or not purpose:
+                        raise ValueError(
+                            "كل شاشة معتمدة يجب أن تحتوي على id واسم ووصف."
+                        )
+
+                    if screen_id in seen_screen_ids:
+                        raise ValueError(
+                            "تم تكرار الشاشة المعتمدة: "
+                            + screen_id
+                        )
+
+                    if not isinstance(proposal, dict):
+                        raise ValueError(
+                            "لم يتم اعتماد تصميم الشاشة: "
+                            + title
+                        )
+
+                    if proposal.get("approved") is not True:
+                        raise ValueError(
+                            "تصميم الشاشة غير معتمد: "
+                            + title
+                        )
+
+                    seen_screen_ids.add(screen_id)
+
+                    validated_screens.append({
+                        **screen,
+                        "id": screen_id,
+                        "title": title,
+                        "purpose": purpose,
+                        "proposal": proposal,
+                    })
+
+                approved = validated_screens
+
                 options = OptionsEngine().validate(
                     data.get("options", [])
                 )
+
+                if not project_name:
+                    raise ValueError(
+                        "اسم البرنامج مطلوب"
+                    )
+
+                if any(token in project_name for token in ("/", "\\", "..")):
+                    raise ValueError(
+                        "اسم البرنامج غير صالح"
+                    )
 
                 if not idea:
                     raise ValueError(
                         "فكرة البرنامج مطلوبة"
                     )
 
-                if not approved:
-                    raise ValueError(
-                        "يجب اعتماد شاشة واحدة على الأقل قبل الإنشاء"
-                    )
-
                 specification = json.dumps(
                     {
+                        "project_name": project_name,
                         "idea": idea,
                         "approved_screens": approved,
                         "options": options,
@@ -751,7 +824,6 @@ class Handler(BaseHTTPRequestHandler):
                     indent=2,
                 )
 
-                project_name = idea[:80]
 
                 factory = MasterAbqarynoFactory(
                     project_name,

@@ -1,6 +1,3 @@
-
-# -*- coding: utf-8 -*-
-
 from pathlib import Path
 from datetime import datetime, timezone
 from dataclasses import dataclass, asdict
@@ -8,10 +5,8 @@ import json
 import re
 import html
 
-
 def now():
     return datetime.now(timezone.utc).isoformat()
-
 
 @dataclass
 class ScreenProposal:
@@ -23,616 +18,1052 @@ class ScreenProposal:
     components: list
     approved: bool = False
 
-
 class ConversationState:
 
     def __init__(self, root):
         self.root = Path(root)
-        self.path = self.root / ".abqaryno" / "creation-state.json"
+        self.path = self.root / '.abqaryno' / 'creation-state.json'
 
     def save(self, data):
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.path.write_text(
-            json.dumps(data, ensure_ascii=False, indent=2),
-            encoding="utf-8"
-        )
+        self.path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
 
     def load(self):
         if not self.path.exists():
             return {}
-
         try:
-            return json.loads(
-                self.path.read_text(encoding="utf-8")
-            )
+            return json.loads(self.path.read_text(encoding='utf-8'))
         except Exception:
             return {}
 
-
-
-# ABQARYNO PHASE 2 REQUIREMENTS CONTRACT
-# ------------------------------------------------------------
-# Requirement lifecycle:
-# Idea -> Requirement -> Acceptance Criteria -> Approval
-# ------------------------------------------------------------
 def _abqaryno_normalize_requirements(raw, idea):
     raw = raw if isinstance(raw, dict) else {}
-
-    features = raw.get("features", [])
-    capabilities = raw.get("capabilities", [])
-    roles = raw.get("roles", [])
-    app_types = raw.get("app_types", [])
-
+    features = raw.get('features', [])
+    capabilities = raw.get('capabilities', [])
+    roles = raw.get('roles', [])
+    app_types = raw.get('app_types', [])
     if not isinstance(features, list):
         features = [features] if features else []
-
     if not isinstance(capabilities, list):
         capabilities = [capabilities] if capabilities else []
-
     if not isinstance(roles, list):
         roles = [roles] if roles else []
-
     if not isinstance(app_types, list):
         app_types = [app_types] if app_types else []
-
     requirements = []
-
     source_items = []
-
     for item in features:
-        source_items.append(("FUNCTIONAL", item))
-
+        source_items.append(('FUNCTIONAL', item))
     for item in capabilities:
-        source_items.append(("CAPABILITY", item))
-
+        source_items.append(('CAPABILITY', item))
     for index, (category, item) in enumerate(source_items, start=1):
         text = str(item).strip()
-
         if not text:
             continue
-
-        requirements.append({
-            "requirement_id": f"REQ-{index:04d}",
-            "text": text,
-            "source": "idea_analysis",
-            "category": category,
-            "priority": "HIGH",
-            "acceptance_criteria": [
-                f"يجب أن تكون الوظيفة الخاصة بـ: {text} محددة وقابلة للاختبار."
-            ],
-            "approval": "PENDING"
-        })
-
-    return {
-        "idea": str(idea).strip(),
-        "requirements": requirements,
-        "features": features,
-        "capabilities": capabilities,
-        "roles": roles,
-        "app_types": app_types,
-        "approval": {
-            "status": "PENDING",
-            "approved_count": 0,
-            "rejected_count": 0,
-            "pending_count": len(requirements)
-        },
-        "phase": "PHASE_2",
-        "contract_version": 2
-    }
+        requirements.append({'requirement_id': f'REQ-{index:04d}', 'text': text, 'source': 'idea_analysis', 'category': category, 'priority': 'HIGH', 'acceptance_criteria': [f'يجب أن تكون الوظيفة الخاصة بـ: {text} محددة وقابلة للاختبار.'], 'approval': 'PENDING'})
+    return {'idea': str(idea).strip(), 'requirements': requirements, 'features': features, 'capabilities': capabilities, 'roles': roles, 'app_types': app_types, 'approval': {'status': 'PENDING', 'approved_count': 0, 'rejected_count': 0, 'pending_count': len(requirements)}, 'phase': 'PHASE_2', 'contract_version': 2}
 
 def _abqaryno_validate_requirements(data):
     if not isinstance(data, dict):
-        return False, ["requirements_not_dict"]
-
+        return (False, ['requirements_not_dict'])
     errors = []
-
-    if not str(data.get("idea", "")).strip():
-        errors.append("idea_missing")
-
-    requirements = data.get("requirements", [])
-
+    if not str(data.get('idea', '')).strip():
+        errors.append('idea_missing')
+    requirements = data.get('requirements', [])
     if not isinstance(requirements, list):
-        errors.append("requirements_not_list")
-        return False, errors
-
+        errors.append('requirements_not_list')
+        return (False, errors)
     ids = set()
-
     for item in requirements:
         if not isinstance(item, dict):
-            errors.append("requirement_not_object")
+            errors.append('requirement_not_object')
             continue
-
-        rid = str(item.get("requirement_id", "")).strip()
-        text = str(item.get("text", "")).strip()
-        criteria = item.get("acceptance_criteria", [])
-        approval = item.get("approval")
-
+        rid = str(item.get('requirement_id', '')).strip()
+        text = str(item.get('text', '')).strip()
+        criteria = item.get('acceptance_criteria', [])
+        approval = item.get('approval')
         if not rid:
-            errors.append("requirement_id_missing")
+            errors.append('requirement_id_missing')
         elif rid in ids:
-            errors.append(f"duplicate_requirement_id:{rid}")
+            errors.append(f'duplicate_requirement_id:{rid}')
         ids.add(rid)
-
         if not text:
-            errors.append(f"text_missing:{rid}")
-
+            errors.append(f'text_missing:{rid}')
         if not isinstance(criteria, list) or not criteria:
-            errors.append(f"acceptance_criteria_missing:{rid}")
-
-        if approval not in {
-            "PENDING",
-            "APPROVED",
-            "REJECTED",
-            "EDIT_REQUIRED"
-        }:
-            errors.append(f"invalid_approval:{rid}")
-
-    return not errors, errors
-
+            errors.append(f'acceptance_criteria_missing:{rid}')
+        if approval not in {'PENDING', 'APPROVED', 'REJECTED', 'EDIT_REQUIRED'}:
+            errors.append(f'invalid_approval:{rid}')
+    return (not errors, errors)
 
 class RequirementsEngine:
 
     def analyze(self, idea):
+        """
+        تحليل دلالي أولي لفكرة المستخدم.
 
+        القاعدة الأساسية:
+        الشاشة = وحدة تجربة مستقلة اختارها المستخدم.
+        الوظيفة = قدرة داخل الشاشة وليست شاشة مستقلة تلقائياً.
+        """
         idea = idea.strip()
-
-        screens = [
-            {
-                "id": "home",
-                "title": "الشاشة الرئيسية",
-                "purpose": "الشاشة الرئيسية والتنقل بين وظائف البرنامج"
-            }
-        ]
-
         text = idea.lower()
+        # تحليل القدرات أولاً؛ الشاشات تُقترح من طبيعة الفكرة نفسها.
+        capability_engine = CapabilityEngine()
+        capability_data = capability_engine.analyze(idea)
+        capabilities = set(capability_data.get('capabilities', []))
+        domains = set(capability_data.get('app_types', []))
+        roles = capability_data.get('roles', ['user'])
 
-        chat_features = []
+        screens = [{
+            'id': 'home',
+            'title': 'الشاشة الرئيسية',
+            'purpose': 'البوابة الرئيسية للبرنامج والتنقل بين الوظائف الأساسية',
+            'selection_required': True,
+            'source': 'analysis',
+            'features': ['عرض الوظائف الأساسية والتنقل بينها']
+        }]
 
-        if any(x in text for x in [
-            "شات", "دردشة", "محادثة", "رسائل", "chat", "message", "messages"
-        ]):
-            screens.append({
-                "id": "chat",
-                "title": "غرفة الشات",
-                "purpose": "إرسال واستقبال الرسائل وإدارة المحادثة"
-            })
-            chat_features.append("إرسال واستقبال الرسائل")
+        # اقتراح الشاشات يُستنتج من المجال والقدرات والأدوار،
+        # وليس من أسماء شاشات محفوظة لفكرة برنامج بعينها.
+        selected_ids = set()
 
-        if any(x in text for x in [
-            "كاميرا", "camera", "فيديو", "video"
-        ]):
-            screens.append({
-                "id": "camera",
-                "title": "الكاميرا والفيديو",
-                "purpose": "تشغيل الكاميرا ومعاينة وإرسال الفيديو"
-            })
-            chat_features.append("الكاميرا والفيديو")
+        domain = next(iter(capability_data.get('app_types', [])), 'general')
 
-        if any(x in text for x in [
-            "مايك", "ميكروفون", "microphone", "mic", "صوت", "audio"
-        ]):
-            screens.append({
-                "id": "microphone",
-                "title": "المايك والصوت",
-                "purpose": "تشغيل الميكروفون وإرسال الصوت"
-            })
-            chat_features.append("المايك والصوت")
+        domain_screen_rules = {
+            'legal': [
+                ('service_selection', 'الخدمات والاستشارات',
+                 'اختيار نوع الخدمة وبدء التجربة المناسبة'),
+                ('consultations', 'الاستشارات',
+                 'إدارة الاستشارات والمحادثات القانونية'),
+                ('cases', 'القضايا والسجلات',
+                 'إدارة القضايا والسجلات القانونية'),
+            ],
+            'education': [
+                ('students', 'الطلاب',
+                 'إدارة بيانات الطلاب والسجلات التعليمية'),
+                ('teachers', 'المدرسون',
+                 'إدارة بيانات المدرسين والمدرسات'),
+                ('classes', 'الفصول',
+                 'إدارة الفصول والمجموعات الدراسية'),
+                ('attendance', 'الحضور والغياب',
+                 'تسجيل ومتابعة حضور الطلاب وغيابهم'),
+                ('grades', 'الدرجات والتقييم',
+                 'إدارة درجات الطلاب ونتائجهم'),
+                ('courses', 'الدورات والمحتوى',
+                 'إدارة الدورات والمحتوى التعليمي'),
+            ],
+            'commerce': [
+                ('products', 'المنتجات',
+                 'إدارة المنتجات والعناصر المعروضة'),
+            ],
+            'booking': [
+                ('sessions', 'المواعيد والحجوزات',
+                 'إدارة المواعيد والجلسات والحجوزات'),
+            ],
+            'finance': [
+                ('finance_records', 'السجلات المالية',
+                 'إدارة البيانات والحركات المالية'),
+            ],
+            'crm': [
+                ('clients', 'المستخدمون والعملاء',
+                 'إدارة بيانات العملاء والمستفيدين'),
+            ],
+            'project_management': [
+                ('projects', 'المشروعات والمهام',
+                 'إدارة المشروعات والمهام المرتبطة بها'),
+            ],
+            'support': [
+                ('support', 'طلبات الدعم',
+                 'إدارة طلبات الدعم والتواصل مع المستخدمين'),
+            ],
+            'logistics': [
+                ('orders', 'الطلبات والتوصيل',
+                 'إدارة الطلبات وعمليات التوصيل'),
+            ],
+        }
 
-        if any(x in text for x in [
-            "إرفاق", "مرفق", "مرفقات", "ملف", "ملفات",
-            "attachment", "attachments", "file", "files"
-        ]):
-            screens.append({
-                "id": "attachments",
-                "title": "المرفقات",
-                "purpose": "اختيار وإرسال الملفات والمرفقات داخل المحادثة"
-            })
-            chat_features.append("إرفاق وإرسال الملفات")
+        for sid, title, purpose in domain_screen_rules.get(domain, []):
+            selected_ids.add(sid)
 
-        if any(x in text for x in [
-            "to", "إلى", "المستلم", "مستلم"
-        ]):
-            chat_features.append("To — تحديد المستلم")
+        # القدرات تُستخدم لإضافة تجربة شاشة مستقلة فقط عندما تكون
+        # التجربة نفسها واضحة، وليس لمجرد وجود وظيفة داخل شاشة أخرى.
+        if 'scheduling' in capabilities:
+            selected_ids.add('sessions')
 
-        if any(x in text for x in [
-            "fetch", "جلب", "استدعاء البيانات"
-        ]):
-            chat_features.append("Fetch — جلب البيانات")
+        if 'reports' in capabilities and (
+            'dashboard' in capabilities or 'admin' in roles
+        ):
+            selected_ids.add('reports')
 
-        if any(x in text for x in [
-            "محام", "قانون", "قض", "مكتب"
-        ]):
-            screens.extend([
-                {
-                    "id": "cases",
-                    "title": "القضايا",
-                    "purpose": "إدارة القضايا ومتابعة حالتها"
-                },
-                {
-                    "id": "clients",
-                    "title": "الموكلون",
-                    "purpose": "إدارة بيانات الموكلين"
-                },
-                {
-                    "id": "sessions",
-                    "title": "الجلسات",
-                    "purpose": "متابعة الجلسات والمواعيد"
-                },
-                {
-                    "id": "documents",
-                    "title": "المستندات",
-                    "purpose": "إدارة مستندات القضايا"
-                }
-            ])
+        if 'users' in capabilities and any(
+            role in roles for role in ('admin', 'owner', 'staff', 'employee')
+        ):
+            selected_ids.add('users')
 
-        elif any(x in text for x in [
-            "متجر", "بيع", "منتج"
-        ]):
-            screens.extend([
-                {
-                    "id": "products",
-                    "title": "المنتجات",
-                    "purpose": "عرض وإدارة المنتجات"
-                },
-                {
-                    "id": "orders",
-                    "title": "الطلبات",
-                    "purpose": "متابعة الطلبات"
-                }
-            ])
+        # المحادثة والصوت والفيديو والملفات تبقى وظائف داخل التجارب
+        # المناسبة، ولا تتحول تلقائيًا إلى شاشات مستقلة.
+        if 'chat' in capabilities and domain not in {'legal', 'support'}:
+            if 'support' in roles:
+                selected_ids.add('support')
 
-        elif any(x in text for x in [
-            "تعليم", "مدرس", "طلاب", "دورة"
-        ]):
-            screens.extend([
-                {
-                    "id": "courses",
-                    "title": "الدورات",
-                    "purpose": "إدارة الدورات"
-                },
-                {
-                    "id": "students",
-                    "title": "الطلاب",
-                    "purpose": "إدارة الطلاب"
-                }
-            ])
+        if 'dashboard' in capabilities:
+            selected_ids.add('dashboard')
 
-        features = [
-            "تسجيل المستخدم",
-            "حفظ البيانات",
-            "البحث"
+        # قواعد صريحة من المستخدم تظل لها الأولوية عندما يطلب شاشة بعينها.
+        explicit_screen_rules = [
+            ('service_selection', ['شاشة اختيار الخدمة', 'اختيار الخدمة']),
+            ('client_dashboard', ['لوحة العميل']),
+            ('management_dashboard', ['لوحة المحامي والإدارة', 'لوحة المحامي', 'لوحة الإدارة']),
         ]
 
-        features.extend(chat_features)
+        for screen_id, phrases in explicit_screen_rules:
+            if any(phrase.lower() in text for phrase in phrases):
+                selected_ids.add(screen_id)
+
+        # شاشة رئيسية واحدة فقط كبوابة عامة.
+        screens = [{
+            'id': 'home',
+            'title': 'الشاشة الرئيسية',
+            'purpose': 'البوابة الرئيسية للبرنامج والتنقل بين الوظائف الأساسية',
+            'selection_required': True,
+            'source': 'analysis',
+            'features': ['عرض الوظائف الأساسية والتنقل بينها']
+        }]
+
+        generated_specs = {
+            'service_selection': (
+                'اختيار الخدمة',
+                'اختيار الخدمة أو العملية التي يريد المستخدم تنفيذها',
+            ),
+            'consultations': (
+                'الاستشارات',
+                'إدارة الاستشارات والمحادثات المرتبطة بها',
+            ),
+            'cases': (
+                'القضايا والسجلات',
+                'إدارة القضايا والسجلات الأساسية',
+            ),
+            'students': (
+                'الطلاب',
+                'إدارة بيانات الطلاب والسجلات التعليمية',
+            ),
+            'teachers': (
+                'المدرسون',
+                'إدارة بيانات المدرسين والمدرسات',
+            ),
+            'classes': (
+                'الفصول',
+                'إدارة الفصول والمجموعات الدراسية',
+            ),
+            'attendance': (
+                'الحضور والغياب',
+                'تسجيل ومتابعة حضور الطلاب وغيابهم',
+            ),
+            'grades': (
+                'الدرجات والتقييم',
+                'إدارة درجات الطلاب ونتائجهم',
+            ),
+            'courses': (
+                'الدورات والمحتوى',
+                'إدارة الدورات والمحتوى التعليمي',
+            ),
+            'products': (
+                'المنتجات',
+                'إدارة المنتجات والعناصر المعروضة',
+            ),
+            'sessions': (
+                'المواعيد والجلسات',
+                'إدارة المواعيد والجلسات والحجوزات',
+            ),
+            'finance_records': (
+                'السجلات المالية',
+                'إدارة البيانات والحركات المالية',
+            ),
+            'clients': (
+                'المستخدمون والعملاء',
+                'إدارة بيانات العملاء والمستفيدين',
+            ),
+            'projects': (
+                'المشروعات والمهام',
+                'إدارة المشروعات والمهام',
+            ),
+            'support': (
+                'طلبات الدعم',
+                'إدارة طلبات الدعم والتواصل مع المستخدمين',
+            ),
+            'orders': (
+                'الطلبات والتوصيل',
+                'إدارة الطلبات وعمليات التوصيل',
+            ),
+            'reports': (
+                'التقارير',
+                'عرض وإنشاء التقارير والنتائج',
+            ),
+            'users': (
+                'المستخدمون',
+                'إدارة المستخدمين والحسابات والصلاحيات',
+            ),
+            'dashboard': (
+                'لوحة التحكم',
+                'عرض ملخص البيانات والإحصائيات وأهم العمليات',
+            ),
+            'client_dashboard': (
+                'لوحة العميل',
+                'عرض بيانات المستخدم وخدماته وعملياته الأساسية',
+            ),
+            'management_dashboard': (
+                'لوحة الإدارة',
+                'إدارة العمليات والمستخدمين والبيانات الرئيسية',
+            ),
+        }
+
+        for screen_id in selected_ids:
+            spec = generated_specs.get(screen_id)
+            if not spec:
+                continue
+            title, purpose = spec
+            screens.append({
+                'id': screen_id,
+                'title': title,
+                'purpose': purpose,
+                'selection_required': True,
+                'source': 'analysis',
+                'features': [purpose]
+            })
+
+        features = []
+        feature_labels = {
+            'auth': 'تسجيل الدخول والحسابات',
+            'users': 'إدارة المستخدمين',
+            'roles': 'الأدوار والصلاحيات',
+            'database': 'قاعدة البيانات وحفظ السجلات',
+            'crud': 'إدارة السجلات',
+            'chat': 'المحادثات والرسائل',
+            'files': 'الملفات والمرفقات',
+            'camera': 'الكاميرا والفيديو',
+            'microphone': 'الصوت والتسجيل',
+            'webrtc': 'الاتصال المباشر',
+            'notifications': 'الإشعارات',
+            'reports': 'التقارير',
+            'export': 'التصدير',
+            'print': 'الطباعة',
+            'scheduling': 'المواعيد والحجوزات',
+            'payments': 'المدفوعات والفواتير',
+            'location': 'الموقع والخرائط',
+            'settings': 'الإعدادات',
+            'audit': 'سجل العمليات',
+            'translation': 'الترجمة',
+            'document_processing': 'معالجة المستندات',
+            'ocr': 'التعرف على النصوص من الصور والمستندات',
+            'speech_to_text': 'تحويل الصوت إلى نص',
+            'text_to_speech': 'تحويل النص إلى صوت',
+        }
+        for capability in capability_data.get('capabilities', []):
+            label = feature_labels.get(capability)
+            if label:
+                features.append(label)
+
+        # الوظائف المذكورة صراحةً في الفكرة تُحفظ كخصائص داخل الشاشات،
+        # وليست شاشات مستقلة.
+        explicit_features = {
+            'إرفاق': 'إرفاق الملفات',
+            'مرفق': 'إرفاق الملفات',
+            'فيديو': 'الفيديو',
+            'صوت': 'الصوت والتسجيل',
+            'نسخ': 'النسخ',
+            'طباعة': 'الطباعة',
+            'تصدير': 'التصدير',
+        }
+        for token, label in explicit_features.items():
+            if token in text:
+                features.append(label)
+
+        features = list(dict.fromkeys(features))
+
+        screen_selection = {
+            'mode': 'USER_SELECTS',
+            'selection_required': True,
+            'user_may_reject': True,
+            'only_selected_screens_enter_plan': True,
+            'only_approved_designs_are_generated': True
+        }
 
         capability_engine = CapabilityEngine()
         capability_data = capability_engine.analyze(idea)
+        features = list(dict.fromkeys(features))
 
-        return {
-            "idea": idea,
-            "created_at": now(),
-            "screens": screens,
-            "features": features,
-            "app_types": capability_data["app_types"],
-            "roles": capability_data["roles"],
-            "capabilities": capability_data["capabilities"],
-            "capability_labels": capability_data["capability_labels"]
+        # عقود API مشتقة من الشاشات والوظائف التي طلبها المستخدم.
+        # لا نضيف API لمجرد وجود capability عامة؛ كل عقد هنا مرتبط
+        # بوظيفة فعلية يحتاجها البرنامج الناتج.
+        screen_ids = {
+            str(screen.get('id', '')).strip().lower()
+            for screen in screens
+            if isinstance(screen, dict)
+        }
+        capability_set = set(capability_data.get('capabilities', []))
+
+        api = [
+            {
+                'method': 'GET',
+                'path': '/api/health',
+                'purpose': 'فحص جاهزية البرنامج وواجهة API',
+            }
+        ]
+
+        if 'users' in capability_set or 'auth' in capability_set:
+            api.append({
+                'method': 'POST',
+                'path': '/api/users',
+                'purpose': 'إنشاء مستخدم مرتبط بالاستشارة',
+            })
+
+        consultation_screens = {
+            'free_consultation',
+            'private_consultation',
         }
 
+        if screen_ids & consultation_screens:
+            api.extend([
+                {
+                    'method': 'GET',
+                    'path': '/api/consultations',
+                    'purpose': 'عرض الاستشارات الخاصة بالمستخدم',
+                },
+                {
+                    'method': 'POST',
+                    'path': '/api/consultations',
+                    'purpose': 'فتح استشارة جديدة وإنشاء محادثتها',
+                },
+                {
+                    'method': 'GET',
+                    'path': '/api/conversations',
+                    'purpose': 'استرجاع محادثة الاستشارة',
+                },
+            ])
+
+        if 'chat' in capability_set or any(
+            screen_id in screen_ids
+            for screen_id in consultation_screens
+        ):
+            api.extend([
+                {
+                    'method': 'GET',
+                    'path': '/api/messages',
+                    'purpose': 'استرجاع رسائل المحادثة',
+                },
+                {
+                    'method': 'POST',
+                    'path': '/api/messages',
+                    'purpose': 'إرسال رسالة داخل المحادثة',
+                },
+            ])
+
+        if 'files' in capability_set or any(
+            token in ' '.join(features)
+            for token in ('ملف', 'مرفق', 'إرفاق')
+        ):
+            api.extend([
+                {
+                    'method': 'GET',
+                    'path': '/api/documents',
+                    'purpose': 'عرض الملفات المرفقة بالمحادثة',
+                },
+                {
+                    'method': 'POST',
+                    'path': '/api/documents',
+                    'purpose': 'رفع ملف وربطه بالمحادثة',
+                },
+            ])
+
+        # منع التكرار مع الحفاظ على ترتيب العقود.
+        unique_api = []
+        seen_api = set()
+        for contract in api:
+            key = (
+                contract.get('method'),
+                contract.get('path'),
+            )
+            if key not in seen_api:
+                seen_api.add(key)
+                unique_api.append(contract)
+
+        return {
+            'idea': idea,
+            'created_at': now(),
+            'screens': screens,
+            'features': features,
+            'screen_selection': screen_selection,
+            'app_types': capability_data['app_types'],
+            'roles': capability_data['roles'],
+            'capabilities': capability_data['capabilities'],
+            'capability_labels': capability_data['capability_labels'],
+            'api': unique_api,
+        }
 
 class CapabilityEngine:
     """
     محرك عام لفهم قدرات البرنامج المطلوبة من وصف المستخدم.
     لا يغيّر واجهة عبقرينو؛ يضيف فقط بيانات منظمة للمولد.
     """
-
-    CAPABILITIES = {
-        "auth": "تسجيل الدخول والحسابات",
-        "users": "إدارة المستخدمين",
-        "roles": "الأدوار والصلاحيات",
-        "database": "قاعدة البيانات وحفظ السجلات",
-        "crud": "الإضافة والتعديل والحذف والعرض",
-        "search": "البحث والتصفية",
-        "dashboard": "لوحة التحكم والإحصائيات",
-        "chat": "المحادثات والرسائل",
-        "files": "الملفات والمرفقات",
-        "camera": "الكاميرا والفيديو",
-        "microphone": "الميكروفون والصوت",
-        "webrtc": "الاتصال المباشر WebRTC",
-        "notifications": "الإشعارات والتنبيهات",
-        "reports": "التقارير",
-        "export": "التصدير",
-        "print": "الطباعة",
-        "scheduling": "المواعيد والحجوزات",
-        "payments": "المدفوعات والفواتير",
-        "location": "الموقع والخرائط",
-        "settings": "الإعدادات",
-        "audit": "سجل العمليات",
-        "translation": "ترجمة المستندات والنصوص بين اللغات",
-        "document_processing": "معالجة المستندات واستخراج النصوص",
-        "ocr": "التعرف الضوئي على النصوص من الصور والمستندات الممسوحة",
-        "speech_to_text": "تحويل الصوت إلى نص",
-        "text_to_speech": "تحويل النص إلى صوت",
-    }
-
-    ROLE_WORDS = {
-        "admin": ["مدير", "مشرف", "ادمن", "admin", "administrator"],
-        "owner": ["صاحب الشركة", "صاحب المشروع", "مالك", "owner"],
-        "employee": ["موظف", "عامل", "employee", "staff"],
-        "lawyer": ["محامي", "محامية", "lawyer"],
-        "client": ["موكل", "موكلة"],
-        "student": ["طالب", "طالبة", "student"],
-        "teacher": ["مدرس", "مدرسة", "معلم", "معلمة", "teacher"],
-        "customer": ["زبون", "مشتري", "customer"],
-        "doctor": ["طبيب", "طبيبة", "doctor"],
-        "patient": ["مريض", "مريضة", "patient"],
-        "driver": ["سائق", "driver"],
-        "support": ["دعم", "موظف دعم", "support"],
-    }
-
-    DOMAIN_RULES = [
-        ("legal", ["محام", "قانون", "قضية", "محكمة", "مكتب محاماة"]),
-        ("commerce", ["متجر", "بيع", "مبيعات", "منتج", "مخزن", "مخزون"]),
-        ("education", ["تعليم", "مدرس", "طلاب", "دورة", "مدرسة", "جامعة"]),
-        ("media", ["بث", "بث مباشر", "لايف", "stream", "live"]),
-        ("booking", ["حجز", "حجوزات", "موعد", "مواعيد", "reservation", "booking"]),
-        ("finance", ["مصروف", "مصروفات", "حسابات", "فاتورة", "فواتير", "مالية"]),
-        ("crm", ["عملاء", "موكلين", "crm", "علاقات العملاء"]),
-        ("project_management", ["مشروع", "مهام", "فريق", "إدارة مشاريع"]),
-        ("support", ["دعم فني", "تذاكر", "helpdesk", "support"]),
-        ("logistics", ["توصيل", "شحن", "مندوب", "سائق", "طلبات"]),
-    ]
+    CAPABILITIES = {'auth': 'تسجيل الدخول والحسابات', 'users': 'إدارة المستخدمين', 'roles': 'الأدوار والصلاحيات', 'database': 'قاعدة البيانات وحفظ السجلات', 'crud': 'الإضافة والتعديل والحذف والعرض', 'search': 'البحث والتصفية', 'dashboard': 'لوحة التحكم والإحصائيات', 'chat': 'المحادثات والرسائل', 'files': 'الملفات والمرفقات', 'camera': 'الكاميرا والفيديو', 'microphone': 'الميكروفون والصوت', 'webrtc': 'الاتصال المباشر WebRTC', 'notifications': 'الإشعارات والتنبيهات', 'reports': 'التقارير', 'export': 'التصدير', 'print': 'الطباعة', 'scheduling': 'المواعيد والحجوزات', 'payments': 'المدفوعات والفواتير', 'location': 'الموقع والخرائط', 'settings': 'الإعدادات', 'audit': 'سجل العمليات', 'translation': 'ترجمة المستندات والنصوص بين اللغات', 'document_processing': 'معالجة المستندات واستخراج النصوص', 'ocr': 'التعرف الضوئي على النصوص من الصور والمستندات الممسوحة', 'speech_to_text': 'تحويل الصوت إلى نص', 'text_to_speech': 'تحويل النص إلى صوت'}
+    ROLE_WORDS = {'admin': ['مدير', 'مشرف', 'ادمن', 'admin', 'administrator'], 'owner': ['صاحب الشركة', 'صاحب المشروع', 'مالك', 'owner'], 'employee': ['موظف', 'عامل', 'employee', 'staff'], 'lawyer': ['محامي', 'محامية', 'lawyer'], 'client': ['موكل', 'موكلة'], 'student': ['طالب', 'طالبة', 'student'], 'teacher': ['مدرس', 'مدرسة', 'معلم', 'معلمة', 'teacher'], 'customer': ['زبون', 'مشتري', 'customer'], 'doctor': ['طبيب', 'طبيبة', 'doctor'], 'patient': ['مريض', 'مريضة', 'patient'], 'driver': ['سائق', 'driver'], 'support': ['دعم', 'موظف دعم', 'support']}
+    DOMAIN_RULES = [('legal', ['محام', 'قانون', 'قضية', 'محكمة', 'مكتب محاماة']), ('commerce', ['متجر', 'بيع', 'مبيعات', 'منتج', 'مخزن', 'مخزون']), ('education', ['تعليم', 'مدرس', 'طلاب', 'دورة', 'مدرسة', 'جامعة']), ('media', ['بث', 'بث مباشر', 'لايف', 'stream', 'live']), ('booking', ['حجز', 'حجوزات', 'موعد', 'مواعيد', 'reservation', 'booking']), ('finance', ['مصروف', 'مصروفات', 'حسابات', 'فاتورة', 'فواتير', 'مالية']), ('crm', ['عملاء', 'موكلين', 'crm', 'علاقات العملاء']), ('project_management', ['مشروع', 'مهام', 'فريق', 'إدارة مشاريع']), ('support', ['دعم فني', 'تذاكر', 'helpdesk', 'support']), ('logistics', ['توصيل', 'شحن', 'مندوب', 'سائق', 'طلبات'])]
 
     @staticmethod
     def _has(text, words):
         for word in words:
             word = word.lower()
-
-            if re.search(r"[a-z]", word):
-                if re.search(r"(?<![a-z0-9_])" + re.escape(word) + r"(?![a-z0-9_])", text):
+            if re.search('[a-z]', word):
+                if re.search('(?<![a-z0-9_])' + re.escape(word) + '(?![a-z0-9_])', text):
                     return True
             elif word in text:
                 return True
-
         return False
 
     def analyze(self, idea):
         text = idea.strip().lower()
-
-        capabilities = {"database", "crud", "settings"}
+        capabilities = {'database', 'crud', 'settings'}
         roles = []
         domains = []
-
         for role, words in self.ROLE_WORDS.items():
             if self._has(text, words):
                 roles.append(role)
+        consultant_words = ['مستشار', 'المستشار', 'استشاري', 'الاستشاري', 'consultant', 'advisor']
+        if self._has(text, consultant_words):
+            roles.append('consultant')
+        if 'consultant' in roles and 'user' not in roles:
+            roles.insert(0, 'user')
+        # اكتشاف مجال البرنامج يجب أن يعتمد على هوية الفكرة،
+        # وليس على كلمة عابرة داخل قائمة متطلبات طويلة.
+        domain_priority = [
+            ('legal', ['محام', 'قانون', 'قضية', 'محكمة', 'مكتب محاماة', 'استشارة قانونية', 'استشارات قانونية']),
+            ('commerce', ['متجر إلكتروني', 'متجر', 'بيع المنتجات', 'إدارة المنتجات']),
+            ('education', [
+                'منصة تعليمية', 'برنامج تعليمي', 'مدرسة إلكترونية',
+                'منصة دورات', 'إدارة الطلاب والمدرسين',
+                'إدارة مدرسة', 'برنامج إدارة مدرسة', 'مدرسة',
+                'الطلاب والمدرسين'
+            ]),
+            ('media', ['منصة بث', 'بث مباشر', 'منصة إعلامية', 'streaming platform']),
+            ('booking', ['منصة حجز', 'نظام حجوزات', 'إدارة الحجوزات']),
+            ('finance', ['نظام مالي', 'برنامج محاسبي', 'إدارة مالية']),
+            ('crm', ['نظام إدارة علاقات العملاء', 'منصة crm']),
+            ('project_management', ['إدارة مشاريع', 'نظام إدارة المشاريع', 'منصة إدارة المشاريع']),
+            ('support', ['نظام دعم فني', 'منصة دعم فني', 'helpdesk']),
+            ('logistics', ['نظام توصيل', 'إدارة الشحن', 'منصة لوجستية']),
+        ]
 
-        for domain, words in self.DOMAIN_RULES:
+        for domain, words in domain_priority:
             if self._has(text, words):
                 domains.append(domain)
-
-        rules = {
-            "auth": [
-                "تسجيل دخول", "تسجيل الدخول", "حساب", "حسابات",
-                "login", "signin", "sign in", "تسجيل المستخدم"
-            ],
-            "users": ["مستخدم", "مستخدمين", "users", "user"],
-            "roles": ["صلاحيات", "دور", "أدوار", "role", "roles", "مشرف", "مدير"],
-            "chat": ["شات", "دردشة", "محادثة", "رسائل", "chat", "message", "messages"],
-            "files": ["ملف", "ملفات", "مرفق", "مرفقات", "إرفاق", "attachment", "attachments", "file", "files"],
-            "camera": ["كاميرا", "camera", "فيديو", "video"],
-            "microphone": ["مايك", "ميكروفون", "microphone", "mic", "صوت", "audio", "تسجيل صوت"],
-            "webrtc": ["webrtc", "مكالمة فيديو", "اتصال فيديو", "اتصال مباشر", "مكالمة صوتية"],
-            "notifications": ["إشعار", "إشعارات", "تنبيه", "تنبيهات", "notification", "notifications"],
-            "search": ["بحث", "ابحث", "تصفية", "فلترة", "search", "filter"],
-            "dashboard": ["لوحة تحكم", "إحصائيات", "dashboard", "statistics", "stats"],
-            "reports": ["تقرير", "تقارير", "report", "reports"],
-            "export": ["تصدير", "excel", "csv", "pdf", "export"],
-            "print": ["طباعة", "اطبع", "print"],
-            "scheduling": ["حجز", "حجوزات", "موعد", "مواعيد", "جدول", "calendar", "booking"],
-            "payments": ["دفع", "مدفوعات", "فاتورة", "فواتير", "سداد", "payment", "payments", "invoice"],
-            "location": ["موقع", "خريطة", "خرائط", "موقع جغرافي", "map", "maps", "location", "gps"],
-            "audit": ["سجل العمليات", "سجل النشاط", "audit", "activity log", "تتبع العمليات"],
-            "translation": [
-                "ترجمة", "ترجم", "مترجم", "translation",
-                "translate", "translations", "multilingual"
-            ],
-            "document_processing": [
-                "مستند", "مستندات", "وثيقة", "وثائق",
-                "pdf", "word", "docx", "txt", "html",
-                "document", "documents"
-            ],
-            "ocr": [
-                "ocr", "مسح ضوئي", "صورة مستند",
-                "صور ممسوحة", "مستند ممسوح", "مستندات ممسوحة",
-                "استخراج النص من الصورة", "scanned", "scan"
-            ],
-            "speech_to_text": [
-                "تحويل الصوت إلى نص", "تفريغ صوتي",
-                "speech to text", "speech-to-text",
-                "transcription", "audio transcription"
-            ],
-            "text_to_speech": [
-                "نطق", "قراءة صوتية", "تحويل النص لصوت",
-                "تحويل النص إلى صوت", "text to speech", "tts"
-            ],
-        }
-
+        rules = {'auth': ['تسجيل دخول', 'تسجيل الدخول', 'حساب', 'حسابات', 'login', 'signin', 'sign in', 'تسجيل المستخدم'], 'users': ['مستخدم', 'مستخدمين', 'users', 'user'], 'roles': ['صلاحيات', 'دور', 'أدوار', 'role', 'roles', 'مشرف', 'مدير'], 'chat': ['شات', 'دردشة', 'محادثة', 'رسائل', 'chat', 'message', 'messages'], 'files': ['ملف', 'ملفات', 'مرفق', 'مرفقات', 'إرفاق', 'attachment', 'attachments', 'file', 'files'], 'camera': ['كاميرا', 'camera', 'فيديو', 'video'], 'microphone': ['مايك', 'ميكروفون', 'microphone', 'mic', 'صوت', 'audio', 'تسجيل صوت'], 'webrtc': ['webrtc', 'مكالمة فيديو', 'اتصال فيديو', 'اتصال مباشر', 'مكالمة صوتية'], 'notifications': ['إشعار', 'إشعارات', 'تنبيه', 'تنبيهات', 'notification', 'notifications'], 'search': ['بحث', 'ابحث', 'تصفية', 'فلترة', 'search', 'filter'], 'dashboard': ['لوحة تحكم', 'إحصائيات', 'dashboard', 'statistics', 'stats'], 'reports': ['تقرير', 'تقارير', 'report', 'reports'], 'export': ['تصدير', 'excel', 'csv', 'pdf', 'export'], 'print': ['طباعة', 'اطبع', 'print'], 'scheduling': ['حجز', 'حجوزات', 'موعد', 'مواعيد', 'جدول', 'calendar', 'booking'], 'payments': ['دفع', 'مدفوعات', 'فاتورة', 'فواتير', 'سداد', 'payment', 'payments', 'invoice'], 'location': ['موقع', 'خريطة', 'خرائط', 'موقع جغرافي', 'map', 'maps', 'location', 'gps'], 'audit': ['سجل العمليات', 'سجل النشاط', 'audit', 'activity log', 'تتبع العمليات'], 'translation': ['ترجمة', 'ترجم', 'مترجم', 'translation', 'translate', 'translations', 'multilingual'], 'document_processing': ['مستند', 'مستندات', 'وثيقة', 'وثائق', 'pdf', 'word', 'docx', 'txt', 'html', 'document', 'documents'], 'ocr': ['ocr', 'مسح ضوئي', 'صورة مستند', 'صور ممسوحة', 'مستند ممسوح', 'مستندات ممسوحة', 'استخراج النص من الصورة', 'scanned', 'scan'], 'speech_to_text': ['تحويل الصوت إلى نص', 'تفريغ صوتي', 'speech to text', 'speech-to-text', 'transcription', 'audio transcription'], 'text_to_speech': ['نطق', 'قراءة صوتية', 'تحويل النص لصوت', 'تحويل النص إلى صوت', 'text to speech', 'tts']}
         for capability, words in rules.items():
             if self._has(text, words):
                 capabilities.add(capability)
-
-        # بعض القدرات الأساسية تُستنتج من طبيعة النظام.
         if roles:
-            capabilities.update({"auth", "users", "roles"})
-
-        if any(x in domains for x in ["commerce", "finance", "crm", "legal", "project_management", "logistics"]):
-            capabilities.update({"search", "reports"})
-
-        if "booking" in domains:
-            capabilities.update({"scheduling", "notifications"})
-
-        if "media" in domains:
-            capabilities.update({"camera", "microphone", "webrtc"})
-
-        if "chat" in capabilities:
-            capabilities.add("notifications")
-
-        if "payments" in capabilities:
-            capabilities.update({"audit", "reports"})
-
-        return {
-            "app_types": domains or ["general"],
-            "roles": roles or ["user"],
-            "capabilities": sorted(capabilities),
-            "capability_labels": {
-                key: self.CAPABILITIES[key]
-                for key in sorted(capabilities)
-                if key in self.CAPABILITIES
-            }
-        }
-
+            capabilities.update({'auth', 'users', 'roles'})
+        if any((x in domains for x in ['commerce', 'finance', 'crm', 'legal', 'project_management', 'logistics'])):
+            capabilities.update({'search', 'reports'})
+        if 'booking' in domains:
+            capabilities.update({'scheduling', 'notifications'})
+        if 'media' in domains:
+            capabilities.update({'camera', 'microphone', 'webrtc'})
+        if 'chat' in capabilities:
+            capabilities.add('notifications')
+        if 'payments' in capabilities:
+            capabilities.update({'audit', 'reports'})
+        return {'app_types': domains or ['general'], 'roles': roles or ['user'], 'capabilities': sorted(capabilities), 'capability_labels': {key: self.CAPABILITIES[key] for key in sorted(capabilities) if key in self.CAPABILITIES}}
 
 class ScreenIntelligenceEngine:
-
     SCREEN_RULES = {
-        "home": {
-            "layout": "لوحة تحكم",
-            "components": ["العنوان", "ملخص البرنامج", "بطاقات الوظائف", "شريط التنقل"],
-            "fields": [],
-            "actions": ["فتح الوظيفة", "الانتقال للإعدادات"],
+        'home': {
+            'layout': 'بوابة الاستشارات',
+            'components': [
+                'عنوان البرنامج',
+                'رسالة ترحيبية',
+                'بطاقة الاستشارة المجانية',
+                'بطاقة الاستشارة الخاصة',
+                'شريط التنقل'
+            ],
+            'fields': [],
+            'actions': [
+                'فتح الاستشارة المجانية',
+                'فتح الاستشارة الخاصة'
+            ]
         },
-        "chat": {
-            "layout": "محادثة",
-            "components": ["قائمة المحادثات", "منطقة الرسائل", "حقل كتابة", "زر إرسال"],
-            "fields": ["الرسالة"],
-            "actions": ["إرسال رسالة", "إرفاق ملف", "فتح الكاميرا", "تسجيل صوت"],
+        'consultation_choice': {
+            'layout': 'اختيار نوع الاستشارة',
+            'components': [
+                'عنوان الشاشة',
+                'رسالة توضيحية',
+                'بطاقة الاستشارة المجانية',
+                'بطاقة الاستشارة الخاصة'
+            ],
+            'fields': [],
+            'actions': [
+                {
+                    'id': 'open_free_consultation',
+                    'label': 'الاستشارة المجانية',
+                    'method': 'GET'
+                },
+                {
+                    'id': 'open_private_consultation',
+                    'label': 'الاستشارة الخاصة',
+                    'method': 'GET'
+                }
+            ]
         },
-        "camera": {
-            "layout": "وسائط",
-            "components": ["معاينة الكاميرا", "أزرار التحكم", "معاينة الوسائط"],
-            "fields": [],
-            "actions": ["تشغيل الكاميرا", "إيقاف الكاميرا", "التقاط", "إرسال"],
+        'free_consultation': {
+            'layout': 'محادثة استشارية',
+            'components': [
+                'عنوان الاستشارة',
+                'منطقة الرسائل',
+                'حقل كتابة الرسالة',
+                'زر إرسال',
+                'حالة الرسالة'
+            ],
+            'fields': ['الرسالة'],
+            'actions': [
+                'إرسال رسالة',
+                'استقبال الرسائل',
+                'عرض الرسائل',
+                'نسخ رد المستشار',
+                'طباعة رد المستشار',
+                'تصدير رد المستشار'
+            ]
         },
-        "microphone": {
-            "layout": "وسائط",
-            "components": ["مؤشر التسجيل", "أزرار التحكم", "مشغل الصوت"],
-            "fields": [],
-            "actions": ["بدء التسجيل", "إيقاف التسجيل", "تشغيل", "إرسال"],
+        'private_consultation': {
+            'layout': 'محادثة خاصة مع المستشار',
+            'components': [
+                'بيانات المستشار',
+                'منطقة الرسائل',
+                'حقل كتابة الرسالة',
+                'زر إرسال',
+                'شريط أدوات المرفقات',
+                'اختيار مستند',
+                'اختيار ملف',
+                'اختيار فيديو',
+                'اختيار ملف صوتي',
+                'قائمة الملفات المرفقة'
+            ],
+            'fields': ['الرسالة', 'الملف'],
+            'actions': [
+                'إرسال رسالة',
+                'استقبال الرسائل',
+                'إرفاق مستند',
+                'إرفاق ملف',
+                'إرفاق فيديو',
+                'إرفاق ملف صوتي',
+                'نسخ رد المستشار',
+                'طباعة رد المستشار',
+                'تصدير رد المستشار'
+            ]
         },
-        "attachments": {
-            "layout": "قائمة ملفات",
-            "components": ["اختيار الملفات", "قائمة المرفقات", "حالة الرفع"],
-            "fields": ["الملف"],
-            "actions": ["اختيار ملف", "رفع", "حذف", "فتح"],
+        'chat': {
+            'layout': 'محادثة',
+            'components': [
+                'قائمة المحادثات',
+                'منطقة الرسائل',
+                'حقل كتابة',
+                'زر إرسال'
+            ],
+            'fields': ['الرسالة'],
+            'actions': [
+                'إرسال رسالة',
+                'إرفاق ملف',
+                'فتح الكاميرا',
+                'تسجيل صوت'
+            ]
         },
-        "cases": {
-            "layout": "إدارة سجلات",
-            "components": ["شريط بحث", "قائمة القضايا", "بيانات القضية", "حالة القضية"],
-            "fields": ["رقم القضية", "المحكمة", "الدائرة", "الحالة", "ملاحظات"],
-            "actions": ["إضافة", "تعديل", "عرض", "حذف", "بحث"],
+        'camera': {
+            'layout': 'وسائط',
+            'components': [
+                'معاينة الكاميرا',
+                'أزرار التحكم',
+                'معاينة الوسائط'
+            ],
+            'fields': [],
+            'actions': [
+                'تشغيل الكاميرا',
+                'إيقاف الكاميرا',
+                'التقاط',
+                'إرسال'
+            ]
         },
-        "clients": {
-            "layout": "إدارة سجلات",
-            "components": ["شريط بحث", "قائمة الموكلين", "بطاقة الموكل"],
-            "fields": ["الاسم", "رقم الهاتف", "البريد", "الحالة"],
-            "actions": ["إضافة", "تعديل", "عرض", "حذف", "بحث"],
+        'microphone': {
+            'layout': 'وسائط',
+            'components': [
+                'مؤشر التسجيل',
+                'أزرار التحكم',
+                'مشغل الصوت'
+            ],
+            'fields': [],
+            'actions': [
+                'بدء التسجيل',
+                'إيقاف التسجيل',
+                'تشغيل',
+                'إرسال'
+            ]
         },
-        "sessions": {
-            "layout": "جدول مواعيد",
-            "components": ["التقويم", "قائمة المواعيد", "تفاصيل الموعد"],
-            "fields": ["التاريخ", "الوقت", "الموضوع", "الحالة"],
-            "actions": ["حجز", "تعديل", "إلغاء", "فتح"],
+        'attachments': {
+            'layout': 'قائمة ملفات',
+            'components': [
+                'اختيار الملفات',
+                'قائمة المرفقات',
+                'حالة الرفع'
+            ],
+            'fields': ['الملف'],
+            'actions': [
+                'اختيار ملف',
+                'رفع',
+                'حذف',
+                'فتح'
+            ]
         },
-        "documents": {
-            "layout": "مكتبة ملفات",
-            "components": ["شريط بحث", "قائمة المستندات", "رفع ملف", "تفاصيل المستند"],
-            "fields": ["اسم المستند", "نوع الملف", "الوصف"],
-            "actions": ["رفع", "فتح", "تحميل", "حذف", "بحث"],
+        'cases': {
+            'layout': 'إدارة سجلات',
+            'components': [
+                'شريط بحث',
+                'قائمة القضايا',
+                'بيانات القضية',
+                'حالة القضية'
+            ],
+            'fields': [
+                'رقم القضية',
+                'المحكمة',
+                'الدائرة',
+                'الحالة',
+                'ملاحظات'
+            ],
+            'actions': [
+                'إضافة',
+                'تعديل',
+                'عرض',
+                'حذف',
+                'بحث'
+            ]
         },
-        "products": {
-            "layout": "كتالوج",
-            "components": ["بحث", "بطاقات المنتجات", "تفاصيل المنتج"],
-            "fields": ["اسم المنتج", "السعر", "الكمية", "الوصف"],
-            "actions": ["إضافة", "تعديل", "عرض", "حذف", "بحث"],
+        'clients': {
+            'layout': 'إدارة سجلات',
+            'components': [
+                'شريط بحث',
+                'قائمة الموكلين',
+                'بطاقة الموكل'
+            ],
+            'fields': [
+                'الاسم',
+                'رقم الهاتف',
+                'البريد',
+                'الحالة'
+            ],
+            'actions': [
+                'إضافة',
+                'تعديل',
+                'عرض',
+                'حذف',
+                'بحث'
+            ]
         },
-        "students": {
-            "layout": "إدارة سجلات",
-            "components": ["بحث", "قائمة الطلاب", "بطاقة الطالب"],
-            "fields": ["الاسم", "الصف", "رقم الطالب", "الحالة"],
-            "actions": ["إضافة", "تعديل", "عرض", "حذف", "بحث"],
+        'sessions': {
+            'layout': 'جدول مواعيد',
+            'components': [
+                'التقويم',
+                'قائمة المواعيد',
+                'تفاصيل الموعد'
+            ],
+            'fields': [
+                'التاريخ',
+                'الوقت',
+                'الموضوع',
+                'الحالة'
+            ],
+            'actions': [
+                'حجز',
+                'تعديل',
+                'إلغاء',
+                'فتح'
+            ]
         },
-        "courses": {
-            "layout": "كتالوج تعليمي",
-            "components": ["قائمة الدورات", "تفاصيل الدورة", "بحث"],
-            "fields": ["اسم الدورة", "الوصف", "المدرس", "الحالة"],
-            "actions": ["إضافة", "تعديل", "عرض", "بحث"],
+        'documents': {
+            'layout': 'مكتبة ملفات',
+            'components': [
+                'شريط بحث',
+                'قائمة المستندات',
+                'رفع ملف',
+                'تفاصيل المستند'
+            ],
+            'fields': [
+                'اسم المستند',
+                'نوع الملف',
+                'الوصف'
+            ],
+            'actions': [
+                'رفع',
+                'فتح',
+                'تحميل',
+                'حذف',
+                'بحث'
+            ]
         },
+        'products': {
+            'layout': 'كتالوج',
+            'components': [
+                'بحث',
+                'بطاقات المنتجات',
+                'تفاصيل المنتج'
+            ],
+            'fields': [
+                'اسم المنتج',
+                'السعر',
+                'الكمية',
+                'الوصف'
+            ],
+            'actions': [
+                'إضافة',
+                'تعديل',
+                'عرض',
+                'حذف',
+                'بحث'
+            ]
+        },
+        'students': {
+            'layout': 'إدارة سجلات',
+            'components': [
+                'بحث',
+                'قائمة الطلاب',
+                'بطاقة الطالب'
+            ],
+            'fields': [
+                'الاسم',
+                'الصف',
+                'رقم الطالب',
+                'الحالة'
+            ],
+            'actions': [
+                'إضافة',
+                'تعديل',
+                'عرض',
+                'حذف',
+                'بحث'
+            ]
+        },
+        'courses': {
+            'layout': 'كتالوج تعليمي',
+            'components': [
+                'قائمة الدورات',
+                'تفاصيل الدورة',
+                'بحث'
+            ],
+            'fields': [
+                'اسم الدورة',
+                'الوصف',
+                'المدرس',
+                'الحالة'
+            ],
+            'actions': [
+                'إضافة',
+                'تعديل',
+                'عرض',
+                'بحث'
+            ]
+        }
     }
 
     def analyze(self, screen, requirements=None):
         requirements = requirements or {}
 
-        screen_id = screen.get("id", "screen")
-        base = self.SCREEN_RULES.get(
-            screen_id,
-            {
-                "layout": "واجهة قياسية متجاوبة",
-                "components": ["العنوان", "المحتوى", "الإجراءات"],
-                "fields": [],
-                "actions": ["عرض", "إضافة", "تعديل"],
-            }
-        )
+        screen_id = screen.get('id', 'screen')
+        title = str(screen.get('title', 'شاشة جديدة')).strip()
+        purpose = str(screen.get('purpose', 'واجهة البرنامج')).strip()
+        features = screen.get('features', [])
+        if not isinstance(features, list):
+            features = [str(features)]
+        semantic_text = ' '.join(
+            [title, purpose] + [str(item) for item in features]
+        ).lower()
 
-        capabilities = set(requirements.get("capabilities", []))
-        roles = list(requirements.get("roles", ["user"]))
+        capabilities = set(requirements.get('capabilities', []))
+        roles = list(requirements.get('roles', ['user']))
 
-        if screen_id == "home":
-            needed = {"dashboard"}
-        elif screen_id in {"chat", "camera", "microphone", "attachments"}:
-            needed = {screen_id}
+        # نوع الشاشة يُستنتج من معناها ووظائفها، وليس من معرف ثابت.
+        if any(word in semantic_text for word in (
+            'محادثة', 'رسائل', 'رسالة', 'دردشة', 'chat',
+            'استشارة', 'تواصل'
+        )):
+            screen_kind = 'conversation'
+        elif any(word in semantic_text for word in (
+            'موعد', 'مواعيد', 'حجز', 'جلسة', 'تقويم', 'calendar'
+        )):
+            screen_kind = 'scheduling'
+        elif any(word in semantic_text for word in (
+            'ملف', 'ملفات', 'مرفق', 'مرفقات', 'مستند',
+            'مستندات', 'وثيقة', 'رفع', 'تحميل'
+        )):
+            screen_kind = 'files'
+        elif any(word in semantic_text for word in (
+            'لوحة تحكم', 'إحصائيات', 'ملخص', 'dashboard'
+        )):
+            screen_kind = 'dashboard'
+        elif any(word in semantic_text for word in (
+            'منتج', 'منتجات', 'دورة', 'دورات', 'كتالوج'
+        )):
+            screen_kind = 'catalog'
+        elif any(word in semantic_text for word in (
+            'قائمة', 'سجلات', 'إدارة', 'مستخدمين', 'موكلين',
+            'عملاء', 'قضايا', 'بحث'
+        )):
+            screen_kind = 'records'
+        elif any(word in semantic_text for word in (
+            'كاميرا', 'فيديو', 'صوت', 'ميكروفون', 'وسائط'
+        )):
+            screen_kind = 'media'
+        elif any(word in semantic_text for word in (
+            'تسجيل', 'إنشاء', 'إضافة', 'تعديل', 'نموذج', 'بيانات'
+        )):
+            screen_kind = 'form'
+        elif any(word in semantic_text for word in (
+            'رئيسية', 'الرئيسية', 'ترحيب', 'بوابة', 'home', 'welcome'
+        )):
+            screen_kind = 'home'
         else:
-            needed = {"database", "crud"}
+            screen_kind = 'general'
 
-        if "search" in capabilities and screen_id not in {"camera", "microphone"}:
-            if "بحث" not in base["actions"]:
-                base = dict(base)
-                base["actions"] = list(base["actions"]) + ["بحث"]
-
-        if "files" in capabilities and screen_id in {"chat", "cases", "documents"}:
-            if "إرفاق ملف" not in base["actions"] and "رفع" not in base["actions"]:
-                base = dict(base)
-                base["actions"] = list(base["actions"]) + ["إرفاق ملف"]
-
-        screen_capabilities = sorted(
-            needed.intersection(capabilities)
-            or needed
-        )
-
-        if screen_id == "home" and "dashboard" not in capabilities:
-            screen_capabilities = ["database"]
-
-        navigation = {
-            "from": ["home"] if screen_id != "home" else [],
-            "to": []
+        templates = {
+            'home': {
+                'layout': 'واجهة رئيسية',
+                'components': ['عنوان البرنامج', 'رسالة ترحيبية', 'الوظائف الأساسية', 'شريط التنقل'],
+                'fields': [],
+                'actions': ['عرض الوظائف الأساسية', 'الانتقال إلى الوظيفة المختارة']
+            },
+            'conversation': {
+                'layout': 'واجهة محادثة',
+                'components': ['عنوان الشاشة', 'منطقة الرسائل', 'حقل كتابة الرسالة', 'زر إرسال'],
+                'fields': ['الرسالة'],
+                'actions': ['إرسال رسالة', 'استقبال الرسائل', 'عرض الرسائل']
+            },
+            'scheduling': {
+                'layout': 'واجهة المواعيد',
+                'components': ['التقويم', 'قائمة المواعيد', 'تفاصيل الموعد', 'إجراء رئيسي'],
+                'fields': ['التاريخ', 'الوقت', 'الموضوع', 'الحالة'],
+                'actions': ['إضافة موعد', 'تعديل الموعد', 'إلغاء الموعد', 'فتح الموعد']
+            },
+            'files': {
+                'layout': 'واجهة الملفات',
+                'components': ['قائمة الملفات', 'اختيار ملف', 'تفاصيل الملف', 'حالة الرفع'],
+                'fields': ['الملف'],
+                'actions': ['اختيار ملف', 'رفع', 'فتح', 'تحميل']
+            },
+            'dashboard': {
+                'layout': 'لوحة تحكم',
+                'components': ['العنوان', 'ملخص البيانات', 'بطاقات المعلومات', 'الإجراءات الرئيسية'],
+                'fields': [],
+                'actions': ['عرض الملخص', 'فتح الوظيفة المختارة']
+            },
+            'records': {
+                'layout': 'واجهة إدارة سجلات',
+                'components': ['شريط البحث', 'قائمة السجلات', 'تفاصيل السجل', 'الإجراءات'],
+                'fields': ['بيانات السجل'],
+                'actions': ['إضافة', 'تعديل', 'عرض', 'حذف', 'بحث']
+            },
+            'catalog': {
+                'layout': 'واجهة كتالوج',
+                'components': ['البحث', 'قائمة العناصر', 'بطاقات العناصر', 'تفاصيل العنصر'],
+                'fields': ['بيانات العنصر'],
+                'actions': ['عرض', 'بحث', 'فتح التفاصيل']
+            },
+            'media': {
+                'layout': 'واجهة الوسائط',
+                'components': ['معاينة الوسائط', 'أزرار التحكم', 'حالة الوسائط'],
+                'fields': [],
+                'actions': ['تشغيل', 'إيقاف', 'إرسال']
+            },
+            'form': {
+                'layout': 'واجهة نموذج',
+                'components': ['عنوان الشاشة', 'حقول البيانات', 'الإجراءات'],
+                'fields': ['بيانات الشاشة'],
+                'actions': ['حفظ', 'إلغاء']
+            },
+            'general': {
+                'layout': 'واجهة قياسية متجاوبة',
+                'components': ['العنوان', 'المحتوى', 'الإجراءات'],
+                'fields': [],
+                'actions': ['عرض', 'تنفيذ الإجراء الرئيسي']
+            }
         }
 
-        if screen_id != "home":
-            navigation["to"].append("home")
+        base = templates[screen_kind]
+
+        # الوظائف الإضافية تُضاف داخل الشاشة المناسبة ولا تنشئ شاشة جديدة.
+        actions = list(base['actions'])
+        components = list(base['components'])
+
+        if 'files' in capabilities and screen_kind == 'conversation':
+            components.append('شريط المرفقات')
+            actions.append('إرفاق ملف')
+
+        if 'camera' in capabilities and screen_kind == 'conversation':
+            actions.append('فتح الكاميرا')
+
+        if 'microphone' in capabilities and screen_kind == 'conversation':
+            actions.append('تسجيل صوت')
+
+        if 'print' in capabilities:
+            actions.append('طباعة')
+
+        if 'export' in capabilities:
+            actions.append('تصدير')
+
+        # التنقل يُستنتج من الشاشات التي حللها عبقرينو، وليس من أسماء قانونية ثابتة.
+        all_screens = requirements.get('screens', [])
+        screen_ids = [
+            item.get('id') for item in all_screens
+            if isinstance(item, dict) and item.get('id')
+        ]
+        home_id = next(
+            (sid for sid in screen_ids if sid == 'home'),
+            None
+        )
+
+        if home_id and screen_id != home_id:
+            navigation = {'from': [home_id], 'to': []}
+        elif home_id and screen_id == home_id:
+            navigation = {
+                'from': [],
+                'to': [sid for sid in screen_ids if sid != screen_id]
+            }
+        else:
+            navigation = {'from': [], 'to': []}
+
+        needed_by_kind = {
+            'home': {'database'},
+            'conversation': {'database', 'chat'},
+            'scheduling': {'database', 'scheduling'},
+            'files': {'database', 'files'},
+            'dashboard': {'database'},
+            'records': {'database', 'crud'},
+            'catalog': {'database', 'crud'},
+            'media': {'database'},
+            'form': {'database'},
+            'general': {'database'}
+        }
+
+        needed = needed_by_kind[screen_kind]
+        screen_capabilities = sorted(
+            needed.intersection(capabilities) or needed
+        )
 
         return {
-            "screen_id": screen_id,
-            "title": screen.get("title", "شاشة جديدة"),
-            "purpose": screen.get("purpose", "واجهة البرنامج"),
-            "layout": base["layout"],
-            "components": list(base["components"]),
-            "fields": list(base["fields"]),
-            "actions": list(base["actions"]),
-            "roles": roles,
-            "capabilities": screen_capabilities,
-            "navigation": navigation,
+            'screen_id': screen_id,
+            'title': title,
+            'purpose': purpose,
+            'layout': base['layout'],
+            'components': list(dict.fromkeys(components)),
+            'fields': list(base['fields']),
+            'actions': list(dict.fromkeys(actions)),
+            'roles': roles,
+            'capabilities': screen_capabilities,
+            'navigation': navigation,
         }
-
 
 class ScreenProposalEngine:
 
@@ -641,62 +1072,19 @@ class ScreenProposalEngine:
         self.intelligence = ScreenIntelligenceEngine()
 
     def proposals(self, screen, offset=0):
-
-        intelligent = self.intelligence.analyze(
-            screen,
-            self.requirements
-        )
-
-        layouts = [
-            ("بطاقات", ["العنوان", "بطاقات الوظائف", "شريط التنقل"]),
-            ("لوحة تحكم", ["العنوان", "إحصائيات", "أزرار رئيسية", "قائمة"]),
-            ("قائمة مركزة", ["العنوان", "قائمة الوظائف", "زر إجراء رئيسي"]),
-            ("واجهة جانبية", ["قائمة جانبية", "منطقة محتوى", "زر رئيسي"]),
-            ("واجهة كبيرة", ["عنوان كبير", "إجراءات رئيسية", "محتوى"]),
-            ("واجهة مختصرة", ["عنوان", "أزرار كبيرة", "معلومات مختصرة"]),
-        ]
-
+        intelligent = self.intelligence.analyze(screen, self.requirements)
+        layouts = [('بطاقات', ['العنوان', 'بطاقات الوظائف', 'شريط التنقل']), ('لوحة تحكم', ['العنوان', 'إحصائيات', 'أزرار رئيسية', 'قائمة']), ('قائمة مركزة', ['العنوان', 'قائمة الوظائف', 'زر إجراء رئيسي']), ('واجهة جانبية', ['قائمة جانبية', 'منطقة محتوى', 'زر رئيسي']), ('واجهة كبيرة', ['عنوان كبير', 'إجراءات رئيسية', 'محتوى']), ('واجهة مختصرة', ['عنوان', 'أزرار كبيرة', 'معلومات مختصرة'])]
         result = []
-
         for i in range(3):
             index = (offset + i) % len(layouts)
-
             fallback_layout, fallback_components = layouts[index]
-
-            layout = (
-                intelligent["layout"]
-                if i == 0
-                else fallback_layout
-            )
-
-            components = (
-                intelligent["components"]
-                if i == 0
-                else fallback_components
-            )
-
-            proposal = ScreenProposal(
-                screen_id=screen["id"],
-                title=screen["title"],
-                purpose=screen["purpose"],
-                variant=i + 1,
-                layout=layout,
-                components=components
-            )
-
+            layout = intelligent['layout'] if i == 0 else fallback_layout
+            components = intelligent['components'] if i == 0 else fallback_components
+            proposal = ScreenProposal(screen_id=screen['id'], title=screen['title'], purpose=screen['purpose'], variant=i + 1, layout=layout, components=components)
             data = asdict(proposal)
-            data.update({
-                "fields": intelligent["fields"],
-                "actions": intelligent["actions"],
-                "roles": intelligent["roles"],
-                "capabilities": intelligent["capabilities"],
-                "navigation": intelligent["navigation"],
-            })
-
+            data.update({'fields': intelligent['fields'], 'actions': intelligent['actions'], 'roles': intelligent['roles'], 'capabilities': intelligent['capabilities'], 'navigation': intelligent['navigation']})
             result.append(data)
-
         return result
-
 
 class ScreenApprovalWizard:
 
@@ -704,417 +1092,145 @@ class ScreenApprovalWizard:
         self.engine = ScreenProposalEngine()
 
     def display(self, proposal):
-
-        print("\n" + "─" * 60)
-
-        print(
-            f"التصميم رقم {proposal.variant}"
-        )
-
-        print(
-            f"الشاشة: {proposal.title}"
-        )
-
-        print(
-            f"الغرض: {proposal.purpose}"
-        )
-
-        print(
-            f"النمط: {proposal.layout}"
-        )
-
-        print(
-            "العناصر: " +
-            " • ".join(proposal.components)
-        )
-
-        print("─" * 60)
+        print('\n' + '─' * 60)
+        print(f'التصميم رقم {proposal.variant}')
+        print(f'الشاشة: {proposal.title}')
+        print(f'الغرض: {proposal.purpose}')
+        print(f'النمط: {proposal.layout}')
+        print('العناصر: ' + ' • '.join(proposal.components))
+        print('─' * 60)
 
     def choose(self, screen):
-
         offset = 0
-
         while True:
-
-            proposals = self.engine.proposals(
-                screen,
-                offset
-            )
-
-            print(
-                "\n╔══════════════════════════════════════╗"
-            )
-
-            print(
-                f"  اقتراحات شاشة: {screen['title']}"
-            )
-
-            print(
-                "╚══════════════════════════════════════╝"
-            )
-
+            proposals = self.engine.proposals(screen, offset)
+            print('\n╔══════════════════════════════════════╗')
+            print(f"  اقتراحات شاشة: {screen['title']}")
+            print('╚══════════════════════════════════════╝')
             for proposal in proposals:
                 self.display(proposal)
-
-            print("""
-1 - اختيار التصميم الأول
-2 - اختيار التصميم الثاني
-3 - اختيار التصميم الثالث
-4 - عرض تصميمات أخرى
-5 - تعديل الشاشة
-6 - رفض الشاشة
-""")
-
-            choice = input("اختيارك: ").strip()
-
-            if choice in ("1", "2", "3"):
-
-                selected = proposals[
-                    int(choice) - 1
-                ]
-
+            print('\n1 - اختيار التصميم الأول\n2 - اختيار التصميم الثاني\n3 - اختيار التصميم الثالث\n4 - عرض تصميمات أخرى\n5 - تعديل الشاشة\n6 - رفض الشاشة\n')
+            choice = input('اختيارك: ').strip()
+            if choice in ('1', '2', '3'):
+                selected = proposals[int(choice) - 1]
                 selected.approved = True
-
                 return asdict(selected)
-
-            if choice == "4":
-
+            if choice == '4':
                 offset += 3
-
                 continue
-
-            if choice == "5":
-
-                change = input(
-                    "ما التعديل المطلوب؟ "
-                ).strip()
-
+            if choice == '5':
+                change = input('ما التعديل المطلوب؟ ').strip()
                 if change:
-
                     screen = dict(screen)
-
-                    screen["purpose"] += (
-                        " — تعديل المستخدم: "
-                        + change
-                    )
-
+                    screen['purpose'] += ' — تعديل المستخدم: ' + change
                 continue
-
-            if choice == "6":
-
+            if choice == '6':
                 return None
-
-            print("[-] اختيار غير صحيح.")
-
-
+            print('[-] اختيار غير صحيح.')
 
 class DatabaseEngine:
-
-    TABLE_RULES = {
-        "users": {
-            "columns": [
-                ("id", "INTEGER PRIMARY KEY AUTOINCREMENT"),
-                ("name", "TEXT NOT NULL"),
-                ("email", "TEXT"),
-                ("phone", "TEXT"),
-                ("password_hash", "TEXT"),
-                ("created_at", "TEXT NOT NULL")
-            ]
-        },
-        "roles": {
-            "columns": [
-                ("id", "INTEGER PRIMARY KEY AUTOINCREMENT"),
-                ("name", "TEXT NOT NULL UNIQUE")
-            ]
-        },
-        "user_roles": {
-            "columns": [
-                ("user_id", "INTEGER NOT NULL"),
-                ("role_id", "INTEGER NOT NULL")
-            ]
-        },
-        "clients": {
-            "columns": [
-                ("id", "INTEGER PRIMARY KEY AUTOINCREMENT"),
-                ("name", "TEXT NOT NULL"),
-                ("phone", "TEXT"),
-                ("email", "TEXT"),
-                ("status", "TEXT"),
-                ("created_at", "TEXT NOT NULL")
-            ]
-        },
-        "lawyers": {
-            "columns": [
-                ("id", "INTEGER PRIMARY KEY AUTOINCREMENT"),
-                ("name", "TEXT NOT NULL"),
-                ("phone", "TEXT"),
-                ("email", "TEXT"),
-                ("created_at", "TEXT NOT NULL")
-            ]
-        },
-        "cases": {
-            "columns": [
-                ("id", "INTEGER PRIMARY KEY AUTOINCREMENT"),
-                ("case_number", "TEXT"),
-                ("court", "TEXT"),
-                ("chamber", "TEXT"),
-                ("status", "TEXT"),
-                ("notes", "TEXT"),
-                ("client_id", "INTEGER"),
-                ("lawyer_id", "INTEGER"),
-                ("created_at", "TEXT NOT NULL")
-            ]
-        },
-        "appointments": {
-            "columns": [
-                ("id", "INTEGER PRIMARY KEY AUTOINCREMENT"),
-                ("title", "TEXT NOT NULL"),
-                ("appointment_date", "TEXT NOT NULL"),
-                ("status", "TEXT"),
-                ("user_id", "INTEGER"),
-                ("created_at", "TEXT NOT NULL")
-            ]
-        },
-        "documents": {
-            "columns": [
-                ("id", "INTEGER PRIMARY KEY AUTOINCREMENT"),
-                ("name", "TEXT NOT NULL"),
-                ("file_path", "TEXT NOT NULL"),
-                ("mime_type", "TEXT"),
-                ("case_id", "INTEGER"),
-                ("uploaded_by", "INTEGER"),
-                ("created_at", "TEXT NOT NULL")
-            ]
-        },
-        "messages": {
-            "columns": [
-                ("id", "INTEGER PRIMARY KEY AUTOINCREMENT"),
-                ("sender_id", "INTEGER"),
-                ("receiver_id", "INTEGER"),
-                ("message", "TEXT"),
-                ("created_at", "TEXT NOT NULL")
-            ]
-        },
-        "translations": {
-            "columns": [
-                ("id", "INTEGER PRIMARY KEY AUTOINCREMENT"),
-                ("document_id", "INTEGER"),
-                ("source_text", "TEXT"),
-                ("source_language", "TEXT"),
-                ("target_language", "TEXT"),
-                ("translated_text", "TEXT"),
-                ("created_at", "TEXT NOT NULL")
-            ]
-        },
-        "document_text": {
-            "columns": [
-                ("id", "INTEGER PRIMARY KEY AUTOINCREMENT"),
-                ("document_id", "INTEGER NOT NULL"),
-                ("extracted_text", "TEXT"),
-                ("extraction_method", "TEXT"),
-                ("detected_language", "TEXT"),
-                ("created_at", "TEXT NOT NULL")
-            ]
-        },
-        "audio_transcriptions": {
-            "columns": [
-                ("id", "INTEGER PRIMARY KEY AUTOINCREMENT"),
-                ("file_path", "TEXT"),
-                ("transcription_text", "TEXT"),
-                ("detected_language", "TEXT"),
-                ("created_at", "TEXT NOT NULL")
-            ]
-        },
-        "audio_outputs": {
-            "columns": [
-                ("id", "INTEGER PRIMARY KEY AUTOINCREMENT"),
-                ("source_text", "TEXT"),
-                ("language", "TEXT"),
-                ("audio_path", "TEXT"),
-                ("created_at", "TEXT NOT NULL")
-            ]
-        },
-        "notifications": {
-            "columns": [
-                ("id", "INTEGER PRIMARY KEY AUTOINCREMENT"),
-                ("user_id", "INTEGER"),
-                ("title", "TEXT NOT NULL"),
-                ("message", "TEXT"),
-                ("is_read", "INTEGER NOT NULL DEFAULT 0"),
-                ("created_at", "TEXT NOT NULL")
-            ]
-        },
-        "products": {
-            "columns": [
-                ("id", "INTEGER PRIMARY KEY AUTOINCREMENT"),
-                ("name", "TEXT NOT NULL"),
-                ("price", "REAL NOT NULL DEFAULT 0"),
-                ("quantity", "INTEGER NOT NULL DEFAULT 0"),
-                ("description", "TEXT"),
-                ("created_at", "TEXT NOT NULL")
-            ]
-        },
-        "orders": {
-            "columns": [
-                ("id", "INTEGER PRIMARY KEY AUTOINCREMENT"),
-                ("user_id", "INTEGER"),
-                ("total", "REAL NOT NULL DEFAULT 0"),
-                ("status", "TEXT"),
-                ("created_at", "TEXT NOT NULL")
-            ]
-        },
-        "courses": {
-            "columns": [
-                ("id", "INTEGER PRIMARY KEY AUTOINCREMENT"),
-                ("name", "TEXT NOT NULL"),
-                ("description", "TEXT"),
-                ("teacher_id", "INTEGER"),
-                ("status", "TEXT"),
-                ("created_at", "TEXT NOT NULL")
-            ]
-        },
-        "students": {
-            "columns": [
-                ("id", "INTEGER PRIMARY KEY AUTOINCREMENT"),
-                ("name", "TEXT NOT NULL"),
-                ("student_number", "TEXT"),
-                ("class_name", "TEXT"),
-                ("status", "TEXT"),
-                ("created_at", "TEXT NOT NULL")
-            ]
-        },
-        "reports": {
-            "columns": [
-                ("id", "INTEGER PRIMARY KEY AUTOINCREMENT"),
-                ("title", "TEXT NOT NULL"),
-                ("report_type", "TEXT"),
-                ("created_at", "TEXT NOT NULL")
-            ]
-        },
-        "audit_logs": {
-            "columns": [
-                ("id", "INTEGER PRIMARY KEY AUTOINCREMENT"),
-                ("user_id", "INTEGER"),
-                ("action", "TEXT NOT NULL"),
-                ("target", "TEXT"),
-                ("created_at", "TEXT NOT NULL")
-            ]
-        }
-    }
-
-    DOMAIN_TABLES = {
-        "legal": ["clients", "lawyers", "cases", "documents"],
-        "commerce": ["products", "orders"],
-        "education": ["courses", "students"],
-        "crm": ["clients"],
-        "booking": ["appointments"],
-        "finance": ["orders", "reports"],
-        "project_management": ["reports"],
-        "support": ["tickets"],
-        "logistics": ["orders"],
-    }
-
-    CAPABILITY_TABLES = {
-        "translation": ["translations"],
-        "document_processing": ["documents"],
-        "ocr": ["document_text"],
-        "speech_to_text": ["audio_transcriptions"],
-        "text_to_speech": ["audio_outputs"],
-        "auth": ["users", "roles", "user_roles"],
-        "users": ["users"],
-        "roles": ["roles", "user_roles"],
-        "chat": ["messages"],
-        "files": ["documents"],
-        "notifications": ["notifications"],
-        "reports": ["reports"],
-        "audit": ["audit_logs"],
-        "scheduling": ["appointments"],
-    }
+    TABLE_RULES = {'users': {'columns': [('id', 'INTEGER PRIMARY KEY AUTOINCREMENT'), ('name', 'TEXT NOT NULL'), ('email', 'TEXT'), ('phone', 'TEXT'), ('password_hash', 'TEXT'), ('created_at', 'TEXT NOT NULL')]}, 'roles': {'columns': [('id', 'INTEGER PRIMARY KEY AUTOINCREMENT'), ('name', 'TEXT NOT NULL UNIQUE')]}, 'permissions': {'columns': [('id', 'INTEGER PRIMARY KEY AUTOINCREMENT'), ('name', 'TEXT NOT NULL UNIQUE'), ('description', 'TEXT')]}, 'user_roles': {'columns': [('user_id', 'INTEGER NOT NULL'), ('role_id', 'INTEGER NOT NULL')]}, 'clients': {'columns': [('id', 'INTEGER PRIMARY KEY AUTOINCREMENT'), ('name', 'TEXT NOT NULL'), ('phone', 'TEXT'), ('email', 'TEXT'), ('status', 'TEXT'), ('created_at', 'TEXT NOT NULL')]}, 'lawyers': {'columns': [('id', 'INTEGER PRIMARY KEY AUTOINCREMENT'), ('name', 'TEXT NOT NULL'), ('phone', 'TEXT'), ('email', 'TEXT'), ('created_at', 'TEXT NOT NULL')]}, 'cases': {'columns': [('id', 'INTEGER PRIMARY KEY AUTOINCREMENT'), ('case_number', 'TEXT'), ('court', 'TEXT'), ('chamber', 'TEXT'), ('status', 'TEXT'), ('notes', 'TEXT'), ('client_id', 'INTEGER'), ('lawyer_id', 'INTEGER'), ('created_at', 'TEXT NOT NULL')]}, 'case_notes': {'columns': [('id', 'INTEGER PRIMARY KEY AUTOINCREMENT'), ('case_id', 'INTEGER NOT NULL'), ('user_id', 'INTEGER'), ('note', 'TEXT NOT NULL'), ('created_at', 'TEXT NOT NULL')]}, 'appointments': {'columns': [('id', 'INTEGER PRIMARY KEY AUTOINCREMENT'), ('title', 'TEXT NOT NULL'), ('appointment_date', 'TEXT NOT NULL'), ('status', 'TEXT'), ('user_id', 'INTEGER'), ('created_at', 'TEXT NOT NULL')]}, 'consultations': {'columns': [('id', 'INTEGER PRIMARY KEY AUTOINCREMENT'), ('user_id', 'INTEGER NOT NULL'), ('consultant_id', 'INTEGER'), ('type', 'TEXT NOT NULL'), ('status', 'TEXT'), ('subject', 'TEXT'), ('created_at', 'TEXT NOT NULL')]}, 'documents': {'columns': [('id', 'INTEGER PRIMARY KEY AUTOINCREMENT'), ('conversation_id', 'INTEGER NOT NULL'), ('uploaded_by', 'INTEGER NOT NULL'), ('name', 'TEXT NOT NULL'), ('file_path', 'TEXT NOT NULL'), ('mime_type', 'TEXT'), ('created_at', 'TEXT NOT NULL')]}, 'messages': {'columns': [('id', 'INTEGER PRIMARY KEY AUTOINCREMENT'), ('conversation_id', 'INTEGER NOT NULL'), ('sender_id', 'INTEGER NOT NULL'), ('message', 'TEXT'), ('created_at', 'TEXT NOT NULL')]}, 'conversations': {'columns': [('id', 'INTEGER PRIMARY KEY AUTOINCREMENT'), ('consultation_id', 'INTEGER NOT NULL'), ('title', 'TEXT'), ('created_at', 'TEXT NOT NULL')]}, 'conversation_members': {'columns': [('conversation_id', 'INTEGER NOT NULL'), ('user_id', 'INTEGER NOT NULL'), ('joined_at', 'TEXT NOT NULL')]}, 'translations': {'columns': [('id', 'INTEGER PRIMARY KEY AUTOINCREMENT'), ('document_id', 'INTEGER'), ('source_text', 'TEXT'), ('source_language', 'TEXT'), ('target_language', 'TEXT'), ('translated_text', 'TEXT'), ('created_at', 'TEXT NOT NULL')]}, 'document_text': {'columns': [('id', 'INTEGER PRIMARY KEY AUTOINCREMENT'), ('document_id', 'INTEGER NOT NULL'), ('extracted_text', 'TEXT'), ('extraction_method', 'TEXT'), ('detected_language', 'TEXT'), ('created_at', 'TEXT NOT NULL')]}, 'audio_transcriptions': {'columns': [('id', 'INTEGER PRIMARY KEY AUTOINCREMENT'), ('file_path', 'TEXT'), ('transcription_text', 'TEXT'), ('detected_language', 'TEXT'), ('created_at', 'TEXT NOT NULL')]}, 'audio_outputs': {'columns': [('id', 'INTEGER PRIMARY KEY AUTOINCREMENT'), ('source_text', 'TEXT'), ('language', 'TEXT'), ('audio_path', 'TEXT'), ('created_at', 'TEXT NOT NULL')]}, 'notifications': {'columns': [('id', 'INTEGER PRIMARY KEY AUTOINCREMENT'), ('user_id', 'INTEGER'), ('title', 'TEXT NOT NULL'), ('message', 'TEXT'), ('is_read', 'INTEGER NOT NULL DEFAULT 0'), ('created_at', 'TEXT NOT NULL')]}, 'products': {'columns': [('id', 'INTEGER PRIMARY KEY AUTOINCREMENT'), ('name', 'TEXT NOT NULL'), ('price', 'REAL NOT NULL DEFAULT 0'), ('quantity', 'INTEGER NOT NULL DEFAULT 0'), ('description', 'TEXT'), ('created_at', 'TEXT NOT NULL')]}, 'orders': {'columns': [('id', 'INTEGER PRIMARY KEY AUTOINCREMENT'), ('user_id', 'INTEGER'), ('total', 'REAL NOT NULL DEFAULT 0'), ('status', 'TEXT'), ('created_at', 'TEXT NOT NULL')]}, 'courses': {'columns': [('id', 'INTEGER PRIMARY KEY AUTOINCREMENT'), ('name', 'TEXT NOT NULL'), ('description', 'TEXT'), ('teacher_id', 'INTEGER'), ('status', 'TEXT'), ('created_at', 'TEXT NOT NULL')]}, 'students': {'columns': [('id', 'INTEGER PRIMARY KEY AUTOINCREMENT'), ('name', 'TEXT NOT NULL'), ('student_number', 'TEXT'), ('class_name', 'TEXT'), ('status', 'TEXT'), ('created_at', 'TEXT NOT NULL')]}, 'reports': {'columns': [('id', 'INTEGER PRIMARY KEY AUTOINCREMENT'), ('title', 'TEXT NOT NULL'), ('report_type', 'TEXT'), ('created_at', 'TEXT NOT NULL')]}, 'audit_logs': {'columns': [('id', 'INTEGER PRIMARY KEY AUTOINCREMENT'), ('user_id', 'INTEGER'), ('action', 'TEXT NOT NULL'), ('target', 'TEXT'), ('created_at', 'TEXT NOT NULL')]}}
+    DOMAIN_TABLES = {'legal': ['clients', 'lawyers', 'cases', 'documents'], 'commerce': ['products', 'orders'], 'education': ['courses', 'students'], 'crm': ['clients'], 'booking': ['appointments'], 'finance': ['orders', 'reports'], 'project_management': ['reports'], 'support': ['tickets'], 'logistics': ['orders']}
+    CAPABILITY_TABLES = {'translation': ['translations'], 'document_processing': ['documents'], 'ocr': ['document_text'], 'speech_to_text': ['audio_transcriptions'], 'text_to_speech': ['audio_outputs'], 'auth': ['users', 'roles', 'user_roles'], 'users': ['users'], 'roles': ['roles', 'user_roles'], 'chat': ['messages'], 'files': ['documents'], 'notifications': ['notifications'], 'reports': ['reports'], 'audit': ['audit_logs'], 'scheduling': ['appointments']}
 
     def analyze(self, requirements):
-        tables = {"users"}
+        tables = {'users'}
 
-        for domain in requirements.get("app_types", []):
-            tables.update(self.DOMAIN_TABLES.get(domain, []))
+        # المصدر الأساسي للجداول هو الكيانات الصريحة.
+        # إذا لم تكن موجودة، نستنتج الكيانات من الشاشات والخصائص
+        # التي حللها عبقرينو من فكرة المستخدم.
+        entities = requirements.get('entities', [])
+        if not isinstance(entities, list):
+            entities = []
 
-        for capability in requirements.get("capabilities", []):
-            tables.update(self.CAPABILITY_TABLES.get(capability, []))
+        if not entities:
+            screens = requirements.get('screens', [])
+            if not isinstance(screens, list):
+                screens = []
 
-        roles = requirements.get("roles", [])
+            screen_ids = {
+                str(screen.get('id', '')).strip()
+                for screen in screens
+                if isinstance(screen, dict)
+            }
 
+            features = requirements.get('features', [])
+            if not isinstance(features, list):
+                features = []
+
+            feature_text = ' '.join(
+                str(item).strip()
+                for item in features
+            )
+
+            if {'free_consultation', 'private_consultation'} & screen_ids:
+                entities.append('consultations')
+
+            if (
+                'محادثة' in feature_text
+                or 'رسائل' in feature_text
+                or 'إرسال واستقبال' in feature_text
+                or 'الرسائل' in feature_text
+            ):
+                entities.extend([
+                    'conversations',
+                    'messages',
+                ])
+
+            if (
+                'ملف' in feature_text
+                or 'مستند' in feature_text
+                or 'مرفق' in feature_text
+                or 'إرفاق' in feature_text
+                or 'فيديو' in feature_text
+                or 'صوت' in feature_text
+            ):
+                entities.append('documents')
+
+        for entity in entities:
+            if entity in self.TABLE_RULES:
+                tables.add(entity)
+
+        # ربط المحادثات بالاستشارات عند وجودها.
+        if 'consultations' in tables:
+            tables.add('conversations')
+
+        if 'conversations' in tables:
+            tables.add('messages')
+
+        roles = requirements.get('roles', [])
         if roles:
-            tables.update({"roles", "user_roles"})
-
-        # العلاقات المشتركة المطلوبة عند وجودها
-        if "cases" in tables:
-            tables.update({"clients", "lawyers"})
-
-        if "documents" in tables and "cases" in tables:
-            tables.add("documents")
-
-        # خدمات المستندات والترجمة والصوت
-        if "translation" in requirements.get("capabilities", []):
-            tables.add("translations")
-
-        if "document_processing" in requirements.get("capabilities", []):
-            tables.add("documents")
-
-        if "ocr" in requirements.get("capabilities", []):
-            tables.add("document_text")
-
-        if "speech_to_text" in requirements.get("capabilities", []):
-            tables.add("audio_transcriptions")
-
-        if "text_to_speech" in requirements.get("capabilities", []):
-            tables.add("audio_outputs")
-
-        return sorted(
-            table for table in tables
-            if table in self.TABLE_RULES
-        )
+            tables.update({'roles', 'user_roles'})
+        if 'cases' in tables:
+            tables.update({'clients', 'lawyers'})
+        if 'documents' in tables and 'cases' in tables:
+            tables.add('documents')
+        if 'translation' in requirements.get('capabilities', []):
+            tables.add('translations')
+        if 'document_processing' in requirements.get('capabilities', []):
+            tables.add('documents')
+        if 'ocr' in requirements.get('capabilities', []):
+            tables.add('document_text')
+        if 'speech_to_text' in requirements.get('capabilities', []):
+            tables.add('audio_transcriptions')
+        if 'text_to_speech' in requirements.get('capabilities', []):
+            tables.add('audio_outputs')
+        return sorted((table for table in tables if table in self.TABLE_RULES))
 
     def schema(self, requirements):
         tables = self.analyze(requirements)
-        statements = [
-            "PRAGMA foreign_keys = ON;"
-        ]
-
+        statements = ['PRAGMA foreign_keys = ON;']
         for table in tables:
-            columns = self.TABLE_RULES[table]["columns"]
-            column_sql = ",\n    ".join(
-                f"{name} {definition}"
-                for name, definition in columns
-            )
-
-            statements.append(
-                f"CREATE TABLE IF NOT EXISTS {table} (\n"
-                f"    {column_sql}\n"
-                f");"
-            )
-
-        if "user_roles" in tables:
-            statements.append(
-                "CREATE UNIQUE INDEX IF NOT EXISTS "
-                "idx_user_roles_unique "
-                "ON user_roles(user_id, role_id);"
-            )
-
-        if "cases" in tables:
-            statements.extend([
-                "CREATE INDEX IF NOT EXISTS idx_cases_client "
-                "ON cases(client_id);",
-                "CREATE INDEX IF NOT EXISTS idx_cases_lawyer "
-                "ON cases(lawyer_id);"
-            ])
-
-        if "messages" in tables:
-            statements.append(
-                "CREATE INDEX IF NOT EXISTS idx_messages_users "
-                "ON messages(sender_id, receiver_id);"
-            )
-
-        return "\n\n".join(statements) + "\n"
-
+            columns = self.TABLE_RULES[table]['columns']
+            column_sql = ',\n    '.join((f'{name} {definition}' for name, definition in columns))
+            statements.append(f'CREATE TABLE IF NOT EXISTS {table} (\n    {column_sql}\n);')
+        if 'user_roles' in tables:
+            statements.append('CREATE UNIQUE INDEX IF NOT EXISTS idx_user_roles_unique ON user_roles(user_id, role_id);')
+        if 'cases' in tables:
+            statements.extend(['CREATE INDEX IF NOT EXISTS idx_cases_client ON cases(client_id);', 'CREATE INDEX IF NOT EXISTS idx_cases_lawyer ON cases(lawyer_id);'])
+        if 'messages' in tables:
+            statements.append('CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages(conversation_id, sender_id);')
+        return '\n\n'.join(statements) + '\n'
 
 class ProjectGenerator:
 
@@ -1125,2471 +1241,195 @@ class ProjectGenerator:
     def create_zip(project_path, output_dir=None):
         import shutil
         from pathlib import Path
-
         project_path = Path(project_path).resolve()
-
         if not project_path.exists() or not project_path.is_dir():
-            raise FileNotFoundError(
-                f"المشروع غير موجود: {project_path}"
-            )
-
-        output_dir = (
-            Path(output_dir).resolve()
-            if output_dir
-            else project_path.parent.resolve()
-        )
+            raise FileNotFoundError(f'المشروع غير موجود: {project_path}')
+        output_dir = Path(output_dir).resolve() if output_dir else project_path.parent.resolve()
         output_dir.mkdir(parents=True, exist_ok=True)
-
         archive_base = output_dir / project_path.name
-
-        # حذف ZIP سابق لنفس المشروع حتى يكون التسليم الحالي واضحًا.
-        old_zip = archive_base.with_suffix(".zip")
+        old_zip = archive_base.with_suffix('.zip')
         if old_zip.exists():
             old_zip.unlink()
-
-        archive = shutil.make_archive(
-            str(archive_base),
-            "zip",
-            root_dir=project_path.parent,
-            base_dir=project_path.name,
-        )
-
+        archive = shutil.make_archive(str(archive_base), 'zip', root_dir=project_path.parent, base_dir=project_path.name)
         return str(Path(archive).resolve())
-
 
     @staticmethod
     def safe_name(text):
+        text = re.sub('[^\\w\\u0600-\\u06FF -]+', '', text, flags=re.UNICODE)
+        text = re.sub('\\s+', '-', text.strip())
+        return text[:80] or 'abqaryno-project'
 
-        text = re.sub(
-            r"[^\w\u0600-\u06FF -]+",
-            "",
-            text,
-            flags=re.UNICODE
-        )
-
-        text = re.sub(
-            r"\s+",
-            "-",
-            text.strip()
-        )
-
-        return text[:80] or "abqaryno-project"
-
-    def generate(
-        self,
-        idea,
-        requirements,
-        approved_screens,
-        options=None
-    ):
-
-        # فصل اسم البرنامج عن وثيقة المواصفات إذا كانت الوثيقة أُرسلت كاملة داخل idea.
-        raw_idea = str(idea or "").strip()
+    def generate(self, idea, requirements, approved_screens, options=None):
+        raw_idea = str(idea or '').strip()
         display_idea = raw_idea
-
-        # إذا احتوت الفكرة على وثيقة تنفيذية، نستخدم عنوان المشروع فقط في واجهة البرنامج.
-        document_marker = "وثيقة تنفيذية"
+        document_marker = 'وثيقة تنفيذية'
         if document_marker in display_idea:
             display_idea = display_idea.split(document_marker, 1)[0].strip()
-
-        # إزالة الشرطات/الفواصل الزائدة من نهاية عنوان المشروع.
-        display_idea = display_idea.rstrip(" -—:|")
+        display_idea = display_idea.rstrip(' -—:|')
         if not display_idea:
-            display_idea = "مشروع عبقرينو"
-
+            display_idea = 'مشروع عبقرينو'
         name = self.safe_name(display_idea)
-
         options = options or []
-
         target = self.root / name
-
-        public = target / "public"
-
-        public.mkdir(
-            parents=True,
-            exist_ok=True
-        )
-
-        # إنشاء البنية الأساسية للمشروع الناتج
-        project_dirs = [
-            target / "server",
-            target / "routes",
-            target / "services",
-            target / "database",
-            target / "uploads",
-            public / "css",
-            public / "js",
-        ]
-
+        public = target / 'public'
+        public.mkdir(parents=True, exist_ok=True)
+        project_dirs = [target / 'server', target / 'routes', target / 'services', target / 'database', target / 'uploads', public / 'css', public / 'js']
         for directory in project_dirs:
-            directory.mkdir(
-                parents=True,
-                exist_ok=True
-            )
-
+            directory.mkdir(parents=True, exist_ok=True)
         cards = []
-
         for screen in approved_screens:
-
-            cards.append(
-                f"""
-<section class="screen">
-<h2>{html.escape(screen["title"])}</h2>
-<p>{html.escape(screen["purpose"])}</p>
-<strong>
-التصميم: {html.escape(screen.get("layout", "واجهة قياسية متجاوبة"))}
-</strong>
-</section>
-"""
-            )
-
-        page = f"""<!doctype html>
-<html lang="ar" dir="rtl">
-
-<head>
-
-<meta charset="utf-8">
-
-<meta name="viewport"
-content="width=device-width,initial-scale=1">
-
-<title>{html.escape(display_idea)}</title>
-
-<style>
-
-body {{
-    margin: 0;
-    background: #101010;
-    color: #f5d76e;
-    font-family: Tahoma, Arial;
-}}
-
-header {{
-    padding: 30px;
-    text-align: center;
-    border-bottom: 1px solid #66551c;
-}}
-
-main {{
-    max-width: 1100px;
-    margin: auto;
-    padding: 25px;
-    display: grid;
-    grid-template-columns:
-        repeat(auto-fit,minmax(260px,1fr));
-    gap: 20px;
-}}
-
-.screen {{
-    background: #1d1d1d;
-    border: 1px solid #806b24;
-    border-radius: 18px;
-    padding: 25px;
-}}
-
-</style>
-
-<link rel="stylesheet" href="/css/style.css">\n</head>
-
-<body>
-
-<header>
-
-<div class="brand-logo-wrap">
-    <button
-        id="logo-button"
-        class="logo-button"
-        type="button"
-        title="تغيير اللوجو"
-        aria-label="تغيير اللوجو"
-    >
-        <span id="logo-placeholder" class="logo-placeholder">👤</span>
-        <img id="app-logo" class="logo-image" alt="لوجو البرنامج">
-    </button>
-
-    <input
-        id="logo-input"
-        type="file"
-        accept="image/*"
-        hidden
-    >
-
-    <div class="logo-actions">
-        <button id="logo-change" type="button">تغيير اللوجو</button>
-        <button id="logo-remove" type="button">حذف اللوجو</button>
-    </div>
-</div>
-
-<h1>{html.escape(display_idea)}</h1>
-
-<p>
-تم تصميم المشروع واعتماد شاشاته بواسطة عبقرينو
-</p>
-
-</header>
-
-<main>
-
-{''.join(cards)}
-
-</main>
-
-</body>
-
-</html>
-"""
-
-        # واجهة تشغيل الوظائف المعتمدة
-        tools_ui = """
-<section id="abqaryno-tools" class="tools-panel">
-
-    <div class="tool-card" id="chat-tool">
-        <h2>💬 المحادثة</h2>
-        <div id="chat-messages" class="chat-messages"></div>
-        <div class="chat-input-row">
-            <input id="chat-input" type="text" placeholder="اكتب رسالتك...">
-            <button id="chat-send">إرسال</button>
-        </div>
-    </div>
-
-    <div class="tool-card" id="camera-tool">
-        <h2>📷 الكاميرا</h2>
-        <video id="camera-preview" autoplay playsinline muted></video>
-        <div class="tool-actions">
-            <button id="camera-start">تشغيل الكاميرا</button>
-            <button id="camera-stop">إيقاف الكاميرا</button>
-        </div>
-    </div>
-
-    <div class="tool-card" id="microphone-tool">
-        <h2>🎙️ المايك والتسجيل</h2>
-        <div class="tool-actions">
-            <button id="mic-start">تشغيل المايك</button>
-            <button id="mic-record">بدء التسجيل</button>
-            <button id="mic-stop">إيقاف التسجيل</button>
-        </div>
-        <audio id="recorded-audio" controls hidden></audio>
-    </div>
-
-    <div class="tool-card" id="attachments-tool">
-        <h2>📎 المرفقات</h2>
-        <input id="attachment-input" type="file" multiple>
-        <div id="attachment-list"></div>
-    </div>
-
-</section>
-"""
-
-        page = page.replace(
-            "</main>",
-            tools_ui + "\n</main>",
-            1
-        )
-
-        # تشغيل الوظائف التفاعلية
-        interactive_script = """
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-
-    // لوجو البرنامج: اختيار وتغيير وحذف وحفظ محلي
-    const logoButton = document.getElementById("logo-button");
-    const logoInput = document.getElementById("logo-input");
-    const logoImage = document.getElementById("app-logo");
-    const logoPlaceholder = document.getElementById("logo-placeholder");
-    const logoChange = document.getElementById("logo-change");
-    const logoRemove = document.getElementById("logo-remove");
-    const logoStorageKey = "abqarynoLogo";
-
-    function renderLogo(value) {
-        if (value) {
-            logoImage.src = value;
-            logoImage.style.display = "block";
-            logoPlaceholder.style.display = "none";
-        } else {
-            logoImage.removeAttribute("src");
-            logoImage.style.display = "none";
-            logoPlaceholder.style.display = "inline";
-        }
-    }
-
-    function openLogoPicker() {
-        if (logoInput) {
-            logoInput.click();
-        }
-    }
-
-    renderLogo(localStorage.getItem(logoStorageKey));
-
-    if (logoButton) {
-        logoButton.addEventListener("click", openLogoPicker);
-    }
-
-    if (logoChange) {
-        logoChange.addEventListener("click", openLogoPicker);
-    }
-
-    if (logoInput) {
-        logoInput.addEventListener("change", event => {
-            const file = event.target.files && event.target.files[0];
-
-            if (!file) return;
-
-            if (!file.type.startsWith("image/")) {
-                alert("من فضلك اختر صورة فقط.");
-                return;
-            }
-
-            const reader = new FileReader();
-
-            reader.onload = () => {
-                const value = reader.result;
-                localStorage.setItem(logoStorageKey, value);
-                renderLogo(value);
-            };
-
-            reader.readAsDataURL(file);
-        });
-    }
-
-    if (logoRemove) {
-        logoRemove.addEventListener("click", () => {
-            localStorage.removeItem(logoStorageKey);
-            renderLogo(null);
-
-            if (logoInput) {
-                logoInput.value = "";
-            }
-        });
-    }
-
-    const chatInput = document.getElementById("chat-input");
-    const chatSend = document.getElementById("chat-send");
-    const chatMessages = document.getElementById("chat-messages");
-
-    if (window.abqarynoChat && chatInput && chatSend) {
-        chatSend.addEventListener("click", () => {
-            const item = window.abqarynoChat.send(chatInput.value);
-
-            if (!item) return;
-
-            const message = document.createElement("div");
-            message.className = "chat-message";
-            message.textContent = item.text;
-
-            chatMessages.appendChild(message);
-            chatInput.value = "";
-            chatInput.focus();
-        });
-
-        chatInput.addEventListener("keydown", event => {
-            if (event.key === "Enter") {
-                chatSend.click();
-            }
-        });
-    }
-
-    const video = document.getElementById("camera-preview");
-    const cameraStart = document.getElementById("camera-start");
-    const cameraStop = document.getElementById("camera-stop");
-
-    const camera = window.AbqarynoCamera
-        ? new window.AbqarynoCamera()
-        : null;
-
-    if (camera && cameraStart) {
-        cameraStart.addEventListener("click", async () => {
-            try {
-                await camera.start(video);
-            } catch (error) {
-                alert("تعذر تشغيل الكاميرا: " + error.message);
-            }
-        });
-    }
-
-    if (camera && cameraStop) {
-        cameraStop.addEventListener("click", () => camera.stop());
-    }
-
-    const micStart = document.getElementById("mic-start");
-    const micRecord = document.getElementById("mic-record");
-    const micStop = document.getElementById("mic-stop");
-    const recordedAudio = document.getElementById("recorded-audio");
-
-    const microphone = window.AbqarynoMicrophone
-        ? new window.AbqarynoMicrophone()
-        : null;
-
-    if (microphone && micStart) {
-        micStart.addEventListener("click", async () => {
-            try {
-                await microphone.start();
-            } catch (error) {
-                alert("تعذر تشغيل المايك: " + error.message);
-            }
-        });
-    }
-
-    if (microphone && micRecord) {
-        micRecord.addEventListener("click", () => {
-            try {
-                microphone.record();
-            } catch (error) {
-                alert(error.message);
-            }
-        });
-    }
-
-    if (microphone && micStop) {
-        micStop.addEventListener("click", async () => {
-            const blob = await microphone.stopRecording();
-
-            if (!blob || !recordedAudio) return;
-
-            recordedAudio.src = URL.createObjectURL(blob);
-            recordedAudio.hidden = false;
-        });
-    }
-
-    const attachmentInput =
-        document.getElementById("attachment-input");
-
-    const attachmentList =
-        document.getElementById("attachment-list");
-
-    if (window.abqarynoAttachments && attachmentInput) {
-        attachmentInput.addEventListener("change", event => {
-
-            const files =
-                window.abqarynoAttachments.add(
-                    event.target.files
-                );
-
-            attachmentList.innerHTML = "";
-
-            files.forEach(file => {
-                const item = document.createElement("div");
-
-                item.className = "attachment-item";
-                item.textContent =
-                    file.name +
-                    " (" +
-                    Math.round(file.size / 1024) +
-                    " KB)";
-
-                attachmentList.appendChild(item);
-            });
-        });
-    }
-});
-</script>
-"""
-
-        # المساعد الذكي السياقي للبرنامج الناتج
-        assistant_ui = """
-<style>
-#abqaryno-assistant .assistant-action-confirmation {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
-    margin: 10px 0;
-    padding: 10px;
-    border: 1px solid rgba(255, 193, 7, 0.35);
-    border-radius: 10px;
-}
-
-#abqaryno-assistant .assistant-action-confirmation button {
-    border: 0;
-    border-radius: 8px;
-    padding: 8px 14px;
-    cursor: pointer;
-    font: inherit;
-}
-
-#abqaryno-assistant .assistant-action-confirmation button:first-child {
-    background: #198754;
-    color: #fff;
-}
-
-#abqaryno-assistant .assistant-action-confirmation button:nth-child(2) {
-    background: #6c757d;
-    color: #fff;
-}
-
-#abqaryno-assistant .assistant-action-confirmation button:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-}
-
-#abqaryno-assistant .assistant-action-status {
-    font-size: 0.9em;
-    opacity: 0.8;
-}
-</style>
-
-<section id="abqaryno-assistant" class="assistant-panel">
-    <div class="assistant-header">
-        <div>
-            <h2>🧠 المساعد الذكي</h2>
-            <p id="assistant-context-label">
-                يفهم البرنامج والشاشة الحالية ويساعدك أثناء الاستخدام.
-            </p>
-        </div>
-        <button
-            id="assistant-clear"
-            type="button"
-            aria-label="مسح محادثة المساعد"
-        >
-            مسح
-        </button>
-    </div>
-
-    <div
-        id="assistant-messages"
-        class="assistant-messages"
-        aria-live="polite"
-    ></div>
-
-    <div class="assistant-input-row">
-        <input
-            id="assistant-input"
-            type="text"
-            placeholder="اسأل المساعد عن البرنامج أو الشاشة الحالية..."
-            autocomplete="off"
-        >
-        <button id="assistant-send" type="button">
-            إرسال
-        </button>
-    </div>
-
-    <div class="assistant-suggestions">
-        <button type="button" data-assistant-question="ماذا يمكنني أن أفعل هنا؟">
-            ماذا أفعل هنا؟
-        </button>
-        <button type="button" data-assistant-question="ما الشاشات الموجودة في البرنامج؟">
-            الشاشات
-        </button>
-        <button type="button" data-assistant-question="ما الوظائف المتاحة؟">
-            الوظائف
-        </button>
-    </div>
-</section>
-
-<script src="/js/assistant.js"></script>
-"""
-
-        page = page.replace(
-            "</main>",
-            assistant_ui + "\n</main>",
-            1
-        )
-
-        page = page.replace(
-            "</body>",
-            interactive_script + "\n</body>",
-            1
-        )
-
-        (public / "index.html").write_text(
-            page,
-            encoding="utf-8"
-        )
-
-        assistant_context = {
-            "idea": idea,
-            "screens": approved_screens,
-            "roles": requirements.get("roles", []),
-            "capabilities": requirements.get("capabilities", []),
-            "capability_labels": requirements.get(
-                "capability_labels",
-                {}
-            ),
-            "app_types": requirements.get("app_types", []),
-            "options": options
-        }
-
-        (public / "assistant-context.json").write_text(
-            json.dumps(
-                assistant_context,
-                ensure_ascii=False,
-                indent=2
-            ),
-            encoding="utf-8"
-        )
-
-        assistant_js = r"""
-(() => {
-    "use strict";
-
-    const state = {
-        context: null,
-        messages: []
-    };
-
-    const $ = id => document.getElementById(id);
-
-    function addMessage(text, type) {
-        const container = $("assistant-messages");
-        if (!container) return;
-
-        const item = document.createElement("div");
-        item.className = "assistant-message " + type;
-        item.textContent = text;
-        container.appendChild(item);
-
-        container.scrollTop = container.scrollHeight;
-        state.messages.push({text, type});
-    }
-
-    function capabilityLabel(key) {
-        const labels =
-            state.context &&
-            state.context.capability_labels;
-
-        return (labels && labels[key]) || key;
-    }
-
-    function currentScreen() {
-        const screens =
-            state.context && state.context.screens;
-
-        if (!Array.isArray(screens) || !screens.length) {
-            return null;
-        }
-
-        const visible = Array.from(
-            document.querySelectorAll(".screen")
-        );
-
-        if (visible.length) {
-            const index = Math.min(
-                Math.max(
-                    window.scrollY > 20 ? 1 : 0,
-                    0
-                ),
-                screens.length - 1
-            );
-
-            return screens[index] || screens[0];
-        }
-
-        return screens[0];
-    }
-
-    function answer(question) {
-        const q = String(question || "").trim().toLowerCase();
-
-        if (!state.context) {
-            return "المساعد ما زال يحمّل معلومات البرنامج. حاول مرة أخرى.";
-        }
-
-        const screen = currentScreen();
-        const screens = Array.isArray(state.context.screens)
-            ? state.context.screens
-            : [];
-
-        const capabilities = Array.isArray(state.context.capabilities)
-            ? state.context.capabilities
-            : [];
-
-        if (
-            q.includes("ماذا") &&
-            (q.includes("أفعل") || q.includes("هنا"))
-        ) {
-            if (screen) {
-                return (
-                    "أنت الآن في شاشة " +
-                    (screen.title || "الحالية") +
-                    ". " +
-                    (screen.purpose || "يمكنك استخدام الوظائف المتاحة في هذه الشاشة.") +
-                    (
-                        Array.isArray(screen.actions) &&
-                        screen.actions.length
-                            ? " الإجراءات المتاحة: " +
-                              screen.actions.join("، ") +
-                              "."
-                            : ""
-                    )
-                );
-            }
-
-            return "يمكنك استخدام الشاشات والوظائف التي أنشأها البرنامج حسب صلاحياتك.";
-        }
-
-        if (
-            q.includes("الشاشات") ||
-            q.includes("شاشة") ||
-            q.includes("الصفحات")
-        ) {
-            if (!screens.length) {
-                return "لم يتم اعتماد شاشات إضافية لهذا البرنامج.";
-            }
-
-            return (
-                "الشاشات المعتمدة: " +
-                screens
-                    .map(item => item.title || item.id)
-                    .filter(Boolean)
-                    .join("، ") +
-                "."
-            );
-        }
-
-        if (
-            q.includes("الوظائف") ||
-            q.includes("القدرات") ||
-            q.includes("ماذا يمكن")
-        ) {
-            if (!capabilities.length) {
-                return "لم يتم تسجيل قدرات إضافية لهذا البرنامج.";
-            }
-
-            return (
-                "الوظائف المتاحة تشمل: " +
-                capabilities
-                    .map(capabilityLabel)
-                    .join("، ") +
-                "."
-            );
-        }
-
-        if (
-            q.includes("ترجم") ||
-            q.includes("ترجمة")
-        ) {
-            if (capabilities.includes("translation")) {
-                return "البرنامج يدعم الترجمة. استخدم وظيفة المستندات أو الترجمة المتاحة في الشاشة المناسبة.";
-            }
-
-            return "ميزة الترجمة غير مفعلة في هذا البرنامج.";
-        }
-
-        if (
-            q.includes("مستند") ||
-            q.includes("pdf") ||
-            q.includes("word")
-        ) {
-            if (
-                capabilities.includes("document_processing") ||
-                capabilities.includes("files")
-            ) {
-                return "البرنامج يحتوي على قدرات للتعامل مع المستندات والملفات. يمكنك اختيار الملف من وظيفة المرفقات أو المستندات.";
-            }
-
-            return "لا توجد قدرة مستندات مسجلة لهذا البرنامج.";
-        }
-
-        if (
-            q.includes("صوت") ||
-            q.includes("تسجيل")
-        ) {
-            if (
-                capabilities.includes("microphone") ||
-                capabilities.includes("speech_to_text") ||
-                capabilities.includes("text_to_speech")
-            ) {
-                return "البرنامج يحتوي على وظائف صوتية مفعلة، ويمكن استخدامها حسب الأدوات الموجودة في الشاشة.";
-            }
-
-            return "الوظائف الصوتية غير مفعلة في هذا البرنامج.";
-        }
-
-        if (
-            q.includes("من أنت") ||
-            q.includes("المساعد")
-        ) {
-            return "أنا المساعد الذكي المدمج في هذا البرنامج. أقرأ سياق البرنامج والشاشات والقدرات لمساعدتك أثناء الاستخدام.";
-        }
-
-        return (
-            "أفهم سؤالك. أستطيع مساعدتك في التنقل وفهم الشاشات والوظائف والمستندات والقدرات المتاحة. " +
-            "جرّب السؤال عن الشاشة الحالية أو الوظائف المتاحة."
-        );
-    }
-
-    async function send(question) {
-        const input = $("assistant-input");
-        const value = String(
-            question !== undefined
-                ? question
-                : input && input.value
-        ).trim();
-
-        if (!value) return;
-
-        addMessage(value, "user");
-
-        if (input) {
-            input.value = "";
-        }
-
-        try {
-            const screen = currentScreen() || {};
-
-            const response = await fetch("/api/assistant", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    prompt: value,
-                    idea: state.context && state.context.idea
-                        ? state.context.idea
-                        : "",
-                    requirements: state.context || {},
-                    screen: screen,
-                    user: {}
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error("تعذر الاتصال بالمساعد الذكي");
-            }
-
-            const result = await response.json();
-
-            if (!result.ok) {
-                throw new Error(
-                    result.error || "تعذر معالجة طلب المساعد"
-                );
-            }
-
-            addMessage(
-                result.answer || "تم تحليل طلبك.",
-                "assistant"
-            );
-
-            if (Array.isArray(result.actions) && result.actions.length) {
-                result.actions.forEach(action => {
-                    const needsConfirmation =
-                        Boolean(action.requires_confirmation);
-
-                    const suffix = needsConfirmation
-                        ? " — يحتاج إلى تأكيدك قبل التنفيذ."
-                        : "";
-
-                    addMessage(
-                        "اقتراح: " +
-                        (action.title || action.action_id || "إجراء") +
-                        suffix,
-                        "assistant"
-                    );
-
-                    if (needsConfirmation) {
-                        addConfirmationControls(action);
-                    }
-                });
-            }
-        } catch (error) {
-            addMessage(
-                "تعذر الاتصال بالمساعد الذكي حاليًا. " +
-                "جرّب مرة أخرى.",
-                "assistant"
-            );
-        }
-    }
-
-    function addConfirmationControls(action) {
-        const container = $("assistant-messages");
-        if (!container) return;
-
-        const wrapper = document.createElement("div");
-        wrapper.className = "assistant-action-confirmation";
-
-        const confirmButton = document.createElement("button");
-        confirmButton.type = "button";
-        confirmButton.textContent = "تأكيد التنفيذ";
-
-        const cancelButton = document.createElement("button");
-        cancelButton.type = "button";
-        cancelButton.textContent = "إلغاء";
-
-        const status = document.createElement("span");
-        status.className = "assistant-action-status";
-        status.textContent = "بانتظار تأكيدك";
-
-        const setDisabled = () => {
-            confirmButton.disabled = true;
-            cancelButton.disabled = true;
-        };
-
-        const confirm = async confirmed => {
-            setDisabled();
-            status.textContent = "جارٍ معالجة التأكيد...";
-
-            try {
-                const response = await fetch(
-                    "/api/assistant/confirm",
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            confirmed,
-                            action: {
-                                action_id: action.action_id || "",
-                                title: action.title || "",
-                                description: action.description || "",
-                                requires_confirmation:
-                                    Boolean(action.requires_confirmation),
-                                status: action.status || "proposed"
-                            }
-                        })
-                    }
-                );
-
-                if (!response.ok) {
-                    throw new Error("تعذر إرسال التأكيد");
-                }
-
-                const result = await response.json();
-
-                if (!result.ok) {
-                    throw new Error(
-                        result.error || "تعذر معالجة التأكيد"
-                    );
-                }
-
-                const finalStatus =
-                    result.action && result.action.status
-                        ? result.action.status
-                        : (confirmed ? "approved" : "cancelled");
-
-                status.textContent =
-                    finalStatus === "approved"
-                        ? "تم تأكيد الإجراء."
-                        : "تم إلغاء الإجراء.";
-
-                if (finalStatus === "approved") {
-                    addMessage(
-                        "تم اعتماد الإجراء بعد تأكيدك.",
-                        "assistant"
-                    );
-                } else {
-                    addMessage(
-                        "تم إلغاء الإجراء.",
-                        "assistant"
-                    );
-                }
-            } catch (error) {
-                confirmButton.disabled = false;
-                cancelButton.disabled = false;
-                status.textContent =
-                    "تعذر معالجة التأكيد. حاول مرة أخرى.";
-            }
-        };
-
-        confirmButton.addEventListener(
-            "click",
-            () => confirm(true)
-        );
-
-        cancelButton.addEventListener(
-            "click",
-            () => confirm(false)
-        );
-
-        wrapper.appendChild(confirmButton);
-        wrapper.appendChild(cancelButton);
-        wrapper.appendChild(status);
-
-        container.appendChild(wrapper);
-        container.scrollTop = container.scrollHeight;
-    }
-
-    function clearMessages() {
-        const container = $("assistant-messages");
-        if (container) {
-            container.innerHTML = "";
-        }
-
-        state.messages = [];
-
-        addMessage(
-            "مرحبًا. أنا المساعد الذكي للبرنامج. كيف أساعدك؟",
-            "assistant"
-        );
-    }
-
-    async function initialize() {
-        try {
-            const response = await fetch(
-                "/assistant-context.json",
-                {cache: "no-store"}
-            );
-
-            if (!response.ok) {
-                throw new Error("تعذر تحميل سياق البرنامج");
-            }
-
-            state.context = await response.json();
-
-            const label = $("assistant-context-label");
-
-            if (label && state.context.idea) {
-                label.textContent =
-                    "المساعد يفهم برنامج: " +
-                    state.context.idea;
-            }
-
-            addMessage(
-                "مرحبًا. أنا المساعد الذكي للبرنامج. اسألني عن الشاشة الحالية أو الوظائف المتاحة.",
-                "assistant"
-            );
-        } catch (error) {
-            addMessage(
-                "تعذر تحميل سياق البرنامج حاليًا.",
-                "assistant"
-            );
-        }
-
-        const input = $("assistant-input");
-        const sendButton = $("assistant-send");
-        const clearButton = $("assistant-clear");
-
-        if (sendButton) {
-            sendButton.addEventListener(
-                "click",
-                () => send()
-            );
-        }
-
-        if (input) {
-            input.addEventListener(
-                "keydown",
-                event => {
-                    if (event.key === "Enter") {
-                        event.preventDefault();
-                        send();
-                    }
-                }
-            );
-        }
-
-        if (clearButton) {
-            clearButton.addEventListener(
-                "click",
-                clearMessages
-            );
-        }
-
-        document
-            .querySelectorAll("[data-assistant-question]")
-            .forEach(button => {
-                button.addEventListener(
-                    "click",
-                    () => send(
-                        button.getAttribute(
-                            "data-assistant-question"
-                        )
-                    )
-                );
-            });
-    }
-
-    if (document.readyState === "loading") {
-        document.addEventListener(
-            "DOMContentLoaded",
-            initialize,
-            {once: true}
-        );
-    } else {
-        initialize();
-    }
-})();
-"""
-
-        (public / "js" / "assistant.js").write_text(
-            assistant_js,
-            encoding="utf-8"
-        )
-
-        # ------------------------------------------------------------------
-        # ABQARYNO TRACEABILITY FOUNDATION
-        # Requirement -> Screen -> Contract -> Implementation -> Test -> Result
-        # ------------------------------------------------------------------
+            cards.append(f"""\n<section class="screen">\n<h2>{html.escape(screen['title'])}</h2>\n<p>{html.escape(screen['purpose'])}</p>\n<strong>\nالتصميم: {html.escape(screen.get('layout', 'واجهة قياسية متجاوبة'))}\n</strong>\n</section>\n""")
+        page = f"""<!doctype html>\n<html lang="ar" dir="rtl">\n\n<head>\n\n<meta charset="utf-8">\n\n<meta name="viewport"\ncontent="width=device-width,initial-scale=1">\n\n<title>{html.escape(display_idea)}</title>\n\n<style>\n\nbody {{\n    margin: 0;\n    background: #101010;\n    color: #f5d76e;\n    font-family: Tahoma, Arial;\n}}\n\nheader {{\n    padding: 30px;\n    text-align: center;\n    border-bottom: 1px solid #66551c;\n}}\n\nmain {{\n    max-width: 1100px;\n    margin: auto;\n    padding: 25px;\n    display: grid;\n    grid-template-columns:\n        repeat(auto-fit,minmax(260px,1fr));\n    gap: 20px;\n}}\n\n.screen {{\n    background: #1d1d1d;\n    border: 1px solid #806b24;\n    border-radius: 18px;\n    padding: 25px;\n}}\n\n</style>\n\n<link rel="stylesheet" href="/css/style.css">\n</head>\n\n<body>\n\n<header>\n\n<div class="brand-logo-wrap">\n    <button\n        id="logo-button"\n        class="logo-button"\n        type="button"\n        title="تغيير اللوجو"\n        aria-label="تغيير اللوجو"\n    >\n        <span id="logo-placeholder" class="logo-placeholder">👤</span>\n        <img id="app-logo" class="logo-image" alt="لوجو البرنامج">\n    </button>\n\n    <input\n        id="logo-input"\n        type="file"\n        accept="image/*"\n        hidden\n    >\n\n    <div class="logo-actions">\n        <button id="logo-change" type="button">تغيير اللوجو</button>\n        <button id="logo-remove" type="button">حذف اللوجو</button>\n    </div>\n</div>\n\n<h1>{html.escape(display_idea)}</h1>\n\n<p>\nتم تصميم المشروع واعتماد شاشاته بواسطة عبقرينو\n</p>\n\n</header>\n\n<main>\n\n{''.join(cards)}\n\n</main>\n\n</body>\n\n</html>\n"""
+        tools_ui = '\n<section id="abqaryno-tools" class="tools-panel">\n\n    <div class="tool-card" id="chat-tool">\n        <h2>💬 المحادثة</h2>\n        <div id="chat-messages" class="chat-messages"></div>\n        <div class="chat-input-row">\n            <input id="chat-input" type="text" placeholder="اكتب رسالتك...">\n            <button id="chat-send">إرسال</button>\n        </div>\n    </div>\n\n    <div class="tool-card" id="camera-tool">\n        <h2>📷 الكاميرا</h2>\n        <video id="camera-preview" autoplay playsinline muted></video>\n        <div class="tool-actions">\n            <button id="camera-start">تشغيل الكاميرا</button>\n            <button id="camera-stop">إيقاف الكاميرا</button>\n        </div>\n    </div>\n\n    <div class="tool-card" id="microphone-tool">\n        <h2>🎙️ المايك والتسجيل</h2>\n        <div class="tool-actions">\n            <button id="mic-start">تشغيل المايك</button>\n            <button id="mic-record">بدء التسجيل</button>\n            <button id="mic-stop">إيقاف التسجيل</button>\n        </div>\n        <audio id="recorded-audio" controls hidden></audio>\n    </div>\n\n    <div class="tool-card" id="attachments-tool">\n        <h2>📎 المرفقات</h2>\n        <input id="attachment-input" type="file" multiple>\n        <div id="attachment-list"></div>\n    </div>\n\n</section>\n'
+        page = page.replace('</main>', tools_ui + '\n</main>', 1)
+        interactive_script = '\n<script>\ndocument.addEventListener("DOMContentLoaded", () => {\n\n    // لوجو البرنامج: اختيار وتغيير وحذف وحفظ محلي\n    const logoButton = document.getElementById("logo-button");\n    const logoInput = document.getElementById("logo-input");\n    const logoImage = document.getElementById("app-logo");\n    const logoPlaceholder = document.getElementById("logo-placeholder");\n    const logoChange = document.getElementById("logo-change");\n    const logoRemove = document.getElementById("logo-remove");\n    const logoStorageKey = "abqarynoLogo";\n\n    function renderLogo(value) {\n        if (value) {\n            logoImage.src = value;\n            logoImage.style.display = "block";\n            logoPlaceholder.style.display = "none";\n        } else {\n            logoImage.removeAttribute("src");\n            logoImage.style.display = "none";\n            logoPlaceholder.style.display = "inline";\n        }\n    }\n\n    function openLogoPicker() {\n        if (logoInput) {\n            logoInput.click();\n        }\n    }\n\n    renderLogo(localStorage.getItem(logoStorageKey));\n\n    if (logoButton) {\n        logoButton.addEventListener("click", openLogoPicker);\n    }\n\n    if (logoChange) {\n        logoChange.addEventListener("click", openLogoPicker);\n    }\n\n    if (logoInput) {\n        logoInput.addEventListener("change", event => {\n            const file = event.target.files && event.target.files[0];\n\n            if (!file) return;\n\n            if (!file.type.startsWith("image/")) {\n                alert("من فضلك اختر صورة فقط.");\n                return;\n            }\n\n            const reader = new FileReader();\n\n            reader.onload = () => {\n                const value = reader.result;\n                localStorage.setItem(logoStorageKey, value);\n                renderLogo(value);\n            };\n\n            reader.readAsDataURL(file);\n        });\n    }\n\n    if (logoRemove) {\n        logoRemove.addEventListener("click", () => {\n            localStorage.removeItem(logoStorageKey);\n            renderLogo(null);\n\n            if (logoInput) {\n                logoInput.value = "";\n            }\n        });\n    }\n\n    const chatInput = document.getElementById("chat-input");\n    const chatSend = document.getElementById("chat-send");\n    const chatMessages = document.getElementById("chat-messages");\n\n    if (window.abqarynoChat && chatInput && chatSend) {\n        chatSend.addEventListener("click", () => {\n            const item = window.abqarynoChat.send(chatInput.value);\n\n            if (!item) return;\n\n            const message = document.createElement("div");\n            message.className = "chat-message";\n            message.textContent = item.text;\n\n            chatMessages.appendChild(message);\n            chatInput.value = "";\n            chatInput.focus();\n        });\n\n        chatInput.addEventListener("keydown", event => {\n            if (event.key === "Enter") {\n                chatSend.click();\n            }\n        });\n    }\n\n    const video = document.getElementById("camera-preview");\n    const cameraStart = document.getElementById("camera-start");\n    const cameraStop = document.getElementById("camera-stop");\n\n    const camera = window.AbqarynoCamera\n        ? new window.AbqarynoCamera()\n        : null;\n\n    if (camera && cameraStart) {\n        cameraStart.addEventListener("click", async () => {\n            try {\n                await camera.start(video);\n            } catch (error) {\n                alert("تعذر تشغيل الكاميرا: " + error.message);\n            }\n        });\n    }\n\n    if (camera && cameraStop) {\n        cameraStop.addEventListener("click", () => camera.stop());\n    }\n\n    const micStart = document.getElementById("mic-start");\n    const micRecord = document.getElementById("mic-record");\n    const micStop = document.getElementById("mic-stop");\n    const recordedAudio = document.getElementById("recorded-audio");\n\n    const microphone = window.AbqarynoMicrophone\n        ? new window.AbqarynoMicrophone()\n        : null;\n\n    if (microphone && micStart) {\n        micStart.addEventListener("click", async () => {\n            try {\n                await microphone.start();\n            } catch (error) {\n                alert("تعذر تشغيل المايك: " + error.message);\n            }\n        });\n    }\n\n    if (microphone && micRecord) {\n        micRecord.addEventListener("click", () => {\n            try {\n                microphone.record();\n            } catch (error) {\n                alert(error.message);\n            }\n        });\n    }\n\n    if (microphone && micStop) {\n        micStop.addEventListener("click", async () => {\n            const blob = await microphone.stopRecording();\n\n            if (!blob || !recordedAudio) return;\n\n            recordedAudio.src = URL.createObjectURL(blob);\n            recordedAudio.hidden = false;\n        });\n    }\n\n    const attachmentInput =\n        document.getElementById("attachment-input");\n\n    const attachmentList =\n        document.getElementById("attachment-list");\n\n    if (window.abqarynoAttachments && attachmentInput) {\n        attachmentInput.addEventListener("change", event => {\n\n            const files =\n                window.abqarynoAttachments.add(\n                    event.target.files\n                );\n\n            attachmentList.innerHTML = "";\n\n            files.forEach(file => {\n                const item = document.createElement("div");\n\n                item.className = "attachment-item";\n                item.textContent =\n                    file.name +\n                    " (" +\n                    Math.round(file.size / 1024) +\n                    " KB)";\n\n                attachmentList.appendChild(item);\n            });\n        });\n    }\n});\n</script>\n'
+        assistant_ui = '\n<style>\n#abqaryno-assistant .assistant-action-confirmation {\n    display: flex;\n    flex-wrap: wrap;\n    align-items: center;\n    gap: 8px;\n    margin: 10px 0;\n    padding: 10px;\n    border: 1px solid rgba(255, 193, 7, 0.35);\n    border-radius: 10px;\n}\n\n#abqaryno-assistant .assistant-action-confirmation button {\n    border: 0;\n    border-radius: 8px;\n    padding: 8px 14px;\n    cursor: pointer;\n    font: inherit;\n}\n\n#abqaryno-assistant .assistant-action-confirmation button:first-child {\n    background: #198754;\n    color: #fff;\n}\n\n#abqaryno-assistant .assistant-action-confirmation button:nth-child(2) {\n    background: #6c757d;\n    color: #fff;\n}\n\n#abqaryno-assistant .assistant-action-confirmation button:disabled {\n    opacity: 0.55;\n    cursor: not-allowed;\n}\n\n#abqaryno-assistant .assistant-action-status {\n    font-size: 0.9em;\n    opacity: 0.8;\n}\n</style>\n\n<section id="abqaryno-assistant" class="assistant-panel">\n    <div class="assistant-header">\n        <div>\n            <h2>🧠 المساعد الذكي</h2>\n            <p id="assistant-context-label">\n                يفهم البرنامج والشاشة الحالية ويساعدك أثناء الاستخدام.\n            </p>\n        </div>\n        <button\n            id="assistant-clear"\n            type="button"\n            aria-label="مسح محادثة المساعد"\n        >\n            مسح\n        </button>\n    </div>\n\n    <div\n        id="assistant-messages"\n        class="assistant-messages"\n        aria-live="polite"\n    ></div>\n\n    <div class="assistant-input-row">\n        <input\n            id="assistant-input"\n            type="text"\n            placeholder="اسأل المساعد عن البرنامج أو الشاشة الحالية..."\n            autocomplete="off"\n        >\n        <button id="assistant-send" type="button">\n            إرسال\n        </button>\n    </div>\n\n    <div class="assistant-suggestions">\n        <button type="button" data-assistant-question="ماذا يمكنني أن أفعل هنا؟">\n            ماذا أفعل هنا؟\n        </button>\n        <button type="button" data-assistant-question="ما الشاشات الموجودة في البرنامج؟">\n            الشاشات\n        </button>\n        <button type="button" data-assistant-question="ما الوظائف المتاحة؟">\n            الوظائف\n        </button>\n    </div>\n</section>\n\n<script src="/js/assistant.js"></script>\n'
+        page = page.replace('</main>', assistant_ui + '\n</main>', 1)
+        page = page.replace('</body>', interactive_script + '\n</body>', 1)
+        (public / 'index.html').write_text(page, encoding='utf-8')
+        assistant_context = {'idea': idea, 'screens': approved_screens, 'roles': requirements.get('roles', []), 'capabilities': requirements.get('capabilities', []), 'capability_labels': requirements.get('capability_labels', {}), 'app_types': requirements.get('app_types', []), 'options': options}
+        (public / 'assistant-context.json').write_text(json.dumps(assistant_context, ensure_ascii=False, indent=2), encoding='utf-8')
+        assistant_js = '\n(() => {\n    "use strict";\n\n    const state = {\n        context: null,\n        messages: []\n    };\n\n    const $ = id => document.getElementById(id);\n\n    function addMessage(text, type) {\n        const container = $("assistant-messages");\n        if (!container) return;\n\n        const item = document.createElement("div");\n        item.className = "assistant-message " + type;\n        item.textContent = text;\n        container.appendChild(item);\n\n        container.scrollTop = container.scrollHeight;\n        state.messages.push({text, type});\n    }\n\n    function capabilityLabel(key) {\n        const labels =\n            state.context &&\n            state.context.capability_labels;\n\n        return (labels && labels[key]) || key;\n    }\n\n    function currentScreen() {\n        const screens =\n            state.context && state.context.screens;\n\n        if (!Array.isArray(screens) || !screens.length) {\n            return null;\n        }\n\n        const visible = Array.from(\n            document.querySelectorAll(".screen")\n        );\n\n        if (visible.length) {\n            const index = Math.min(\n                Math.max(\n                    window.scrollY > 20 ? 1 : 0,\n                    0\n                ),\n                screens.length - 1\n            );\n\n            return screens[index] || screens[0];\n        }\n\n        return screens[0];\n    }\n\n    function answer(question) {\n        const q = String(question || "").trim().toLowerCase();\n\n        if (!state.context) {\n            return "المساعد ما زال يحمّل معلومات البرنامج. حاول مرة أخرى.";\n        }\n\n        const screen = currentScreen();\n        const screens = Array.isArray(state.context.screens)\n            ? state.context.screens\n            : [];\n\n        const capabilities = Array.isArray(state.context.capabilities)\n            ? state.context.capabilities\n            : [];\n\n        if (\n            q.includes("ماذا") &&\n            (q.includes("أفعل") || q.includes("هنا"))\n        ) {\n            if (screen) {\n                return (\n                    "أنت الآن في شاشة " +\n                    (screen.title || "الحالية") +\n                    ". " +\n                    (screen.purpose || "يمكنك استخدام الوظائف المتاحة في هذه الشاشة.") +\n                    (\n                        Array.isArray(screen.actions) &&\n                        screen.actions.length\n                            ? " الإجراءات المتاحة: " +\n                              screen.actions.join("، ") +\n                              "."\n                            : ""\n                    )\n                );\n            }\n\n            return "يمكنك استخدام الشاشات والوظائف التي أنشأها البرنامج حسب صلاحياتك.";\n        }\n\n        if (\n            q.includes("الشاشات") ||\n            q.includes("شاشة") ||\n            q.includes("الصفحات")\n        ) {\n            if (!screens.length) {\n                return "لم يتم اعتماد شاشات إضافية لهذا البرنامج.";\n            }\n\n            return (\n                "الشاشات المعتمدة: " +\n                screens\n                    .map(item => item.title || item.id)\n                    .filter(Boolean)\n                    .join("، ") +\n                "."\n            );\n        }\n\n        if (\n            q.includes("الوظائف") ||\n            q.includes("القدرات") ||\n            q.includes("ماذا يمكن")\n        ) {\n            if (!capabilities.length) {\n                return "لم يتم تسجيل قدرات إضافية لهذا البرنامج.";\n            }\n\n            return (\n                "الوظائف المتاحة تشمل: " +\n                capabilities\n                    .map(capabilityLabel)\n                    .join("، ") +\n                "."\n            );\n        }\n\n        if (\n            q.includes("ترجم") ||\n            q.includes("ترجمة")\n        ) {\n            if (capabilities.includes("translation")) {\n                return "البرنامج يدعم الترجمة. استخدم وظيفة المستندات أو الترجمة المتاحة في الشاشة المناسبة.";\n            }\n\n            return "ميزة الترجمة غير مفعلة في هذا البرنامج.";\n        }\n\n        if (\n            q.includes("مستند") ||\n            q.includes("pdf") ||\n            q.includes("word")\n        ) {\n            if (\n                capabilities.includes("document_processing") ||\n                capabilities.includes("files")\n            ) {\n                return "البرنامج يحتوي على قدرات للتعامل مع المستندات والملفات. يمكنك اختيار الملف من وظيفة المرفقات أو المستندات.";\n            }\n\n            return "لا توجد قدرة مستندات مسجلة لهذا البرنامج.";\n        }\n\n        if (\n            q.includes("صوت") ||\n            q.includes("تسجيل")\n        ) {\n            if (\n                capabilities.includes("microphone") ||\n                capabilities.includes("speech_to_text") ||\n                capabilities.includes("text_to_speech")\n            ) {\n                return "البرنامج يحتوي على وظائف صوتية مفعلة، ويمكن استخدامها حسب الأدوات الموجودة في الشاشة.";\n            }\n\n            return "الوظائف الصوتية غير مفعلة في هذا البرنامج.";\n        }\n\n        if (\n            q.includes("من أنت") ||\n            q.includes("المساعد")\n        ) {\n            return "أنا المساعد الذكي المدمج في هذا البرنامج. أقرأ سياق البرنامج والشاشات والقدرات لمساعدتك أثناء الاستخدام.";\n        }\n\n        return (\n            "أفهم سؤالك. أستطيع مساعدتك في التنقل وفهم الشاشات والوظائف والمستندات والقدرات المتاحة. " +\n            "جرّب السؤال عن الشاشة الحالية أو الوظائف المتاحة."\n        );\n    }\n\n    async function send(question) {\n        const input = $("assistant-input");\n        const value = String(\n            question !== undefined\n                ? question\n                : input && input.value\n        ).trim();\n\n        if (!value) return;\n\n        addMessage(value, "user");\n\n        if (input) {\n            input.value = "";\n        }\n\n        try {\n            const screen = currentScreen() || {};\n\n            const response = await fetch("/api/assistant", {\n                method: "POST",\n                headers: {\n                    "Content-Type": "application/json"\n                },\n                body: JSON.stringify({\n                    prompt: value,\n                    idea: state.context && state.context.idea\n                        ? state.context.idea\n                        : "",\n                    requirements: state.context || {},\n                    screen: screen,\n                    user: {}\n                })\n            });\n\n            if (!response.ok) {\n                throw new Error("تعذر الاتصال بالمساعد الذكي");\n            }\n\n            const result = await response.json();\n\n            if (!result.ok) {\n                throw new Error(\n                    result.error || "تعذر معالجة طلب المساعد"\n                );\n            }\n\n            addMessage(\n                result.answer || "تم تحليل طلبك.",\n                "assistant"\n            );\n\n            if (Array.isArray(result.actions) && result.actions.length) {\n                result.actions.forEach(action => {\n                    const needsConfirmation =\n                        Boolean(action.requires_confirmation);\n\n                    const suffix = needsConfirmation\n                        ? " — يحتاج إلى تأكيدك قبل التنفيذ."\n                        : "";\n\n                    addMessage(\n                        "اقتراح: " +\n                        (action.title || action.action_id || "إجراء") +\n                        suffix,\n                        "assistant"\n                    );\n\n                    if (needsConfirmation) {\n                        addConfirmationControls(action);\n                    }\n                });\n            }\n        } catch (error) {\n            addMessage(\n                "تعذر الاتصال بالمساعد الذكي حاليًا. " +\n                "جرّب مرة أخرى.",\n                "assistant"\n            );\n        }\n    }\n\n    function addConfirmationControls(action) {\n        const container = $("assistant-messages");\n        if (!container) return;\n\n        const wrapper = document.createElement("div");\n        wrapper.className = "assistant-action-confirmation";\n\n        const confirmButton = document.createElement("button");\n        confirmButton.type = "button";\n        confirmButton.textContent = "تأكيد التنفيذ";\n\n        const cancelButton = document.createElement("button");\n        cancelButton.type = "button";\n        cancelButton.textContent = "إلغاء";\n\n        const status = document.createElement("span");\n        status.className = "assistant-action-status";\n        status.textContent = "بانتظار تأكيدك";\n\n        const setDisabled = () => {\n            confirmButton.disabled = true;\n            cancelButton.disabled = true;\n        };\n\n        const confirm = async confirmed => {\n            setDisabled();\n            status.textContent = "جارٍ معالجة التأكيد...";\n\n            try {\n                const response = await fetch(\n                    "/api/assistant/confirm",\n                    {\n                        method: "POST",\n                        headers: {\n                            "Content-Type": "application/json"\n                        },\n                        body: JSON.stringify({\n                            confirmed,\n                            action: {\n                                action_id: action.action_id || "",\n                                title: action.title || "",\n                                description: action.description || "",\n                                requires_confirmation:\n                                    Boolean(action.requires_confirmation),\n                                status: action.status || "proposed"\n                            }\n                        })\n                    }\n                );\n\n                if (!response.ok) {\n                    throw new Error("تعذر إرسال التأكيد");\n                }\n\n                const result = await response.json();\n\n                if (!result.ok) {\n                    throw new Error(\n                        result.error || "تعذر معالجة التأكيد"\n                    );\n                }\n\n                const finalStatus =\n                    result.action && result.action.status\n                        ? result.action.status\n                        : (confirmed ? "approved" : "cancelled");\n\n                status.textContent =\n                    finalStatus === "approved"\n                        ? "تم تأكيد الإجراء."\n                        : "تم إلغاء الإجراء.";\n\n                if (finalStatus === "approved") {\n                    addMessage(\n                        "تم اعتماد الإجراء بعد تأكيدك.",\n                        "assistant"\n                    );\n                } else {\n                    addMessage(\n                        "تم إلغاء الإجراء.",\n                        "assistant"\n                    );\n                }\n            } catch (error) {\n                confirmButton.disabled = false;\n                cancelButton.disabled = false;\n                status.textContent =\n                    "تعذر معالجة التأكيد. حاول مرة أخرى.";\n            }\n        };\n\n        confirmButton.addEventListener(\n            "click",\n            () => confirm(true)\n        );\n\n        cancelButton.addEventListener(\n            "click",\n            () => confirm(false)\n        );\n\n        wrapper.appendChild(confirmButton);\n        wrapper.appendChild(cancelButton);\n        wrapper.appendChild(status);\n\n        container.appendChild(wrapper);\n        container.scrollTop = container.scrollHeight;\n    }\n\n    function clearMessages() {\n        const container = $("assistant-messages");\n        if (container) {\n            container.innerHTML = "";\n        }\n\n        state.messages = [];\n\n        addMessage(\n            "مرحبًا. أنا المساعد الذكي للبرنامج. كيف أساعدك؟",\n            "assistant"\n        );\n    }\n\n    async function initialize() {\n        try {\n            const response = await fetch(\n                "/assistant-context.json",\n                {cache: "no-store"}\n            );\n\n            if (!response.ok) {\n                throw new Error("تعذر تحميل سياق البرنامج");\n            }\n\n            state.context = await response.json();\n\n            const label = $("assistant-context-label");\n\n            if (label && state.context.idea) {\n                label.textContent =\n                    "المساعد يفهم برنامج: " +\n                    state.context.idea;\n            }\n\n            addMessage(\n                "مرحبًا. أنا المساعد الذكي للبرنامج. اسألني عن الشاشة الحالية أو الوظائف المتاحة.",\n                "assistant"\n            );\n        } catch (error) {\n            addMessage(\n                "تعذر تحميل سياق البرنامج حاليًا.",\n                "assistant"\n            );\n        }\n\n        const input = $("assistant-input");\n        const sendButton = $("assistant-send");\n        const clearButton = $("assistant-clear");\n\n        if (sendButton) {\n            sendButton.addEventListener(\n                "click",\n                () => send()\n            );\n        }\n\n        if (input) {\n            input.addEventListener(\n                "keydown",\n                event => {\n                    if (event.key === "Enter") {\n                        event.preventDefault();\n                        send();\n                    }\n                }\n            );\n        }\n\n        if (clearButton) {\n            clearButton.addEventListener(\n                "click",\n                clearMessages\n            );\n        }\n\n        document\n            .querySelectorAll("[data-assistant-question]")\n            .forEach(button => {\n                button.addEventListener(\n                    "click",\n                    () => send(\n                        button.getAttribute(\n                            "data-assistant-question"\n                        )\n                    )\n                );\n            });\n    }\n\n    if (document.readyState === "loading") {\n        document.addEventListener(\n            "DOMContentLoaded",\n            initialize,\n            {once: true}\n        );\n    } else {\n        initialize();\n    }\n})();\n'
+        (public / 'js' / 'assistant.js').write_text(assistant_js, encoding='utf-8')
         traceability = []
-
-        features = requirements.get("features", [])
-        capabilities = requirements.get("capabilities", [])
-
+        features = requirements.get('features', [])
+        capabilities = requirements.get('capabilities', [])
         for index, screen in enumerate(approved_screens, start=1):
-            screen_id = str(
-                screen.get("screen_id")
-                or screen.get("id")
-                or f"screen-{index}"
-            )
-
-            screen_title = screen.get(
-                "title",
-                f"الشاشة {index}"
-            )
-
+            screen_id = str(screen.get('screen_id') or screen.get('id') or f'screen-{index}')
+            screen_title = screen.get('title', f'الشاشة {index}')
             related_requirements = []
-
             for requirement in features:
                 requirement_text = str(requirement).strip()
                 if requirement_text:
                     related_requirements.append(requirement_text)
-
             for capability in capabilities:
                 capability_text = str(capability).strip()
                 if capability_text and capability_text not in related_requirements:
                     related_requirements.append(capability_text)
-
-            actions = screen.get("actions", [])
+            actions = screen.get('actions', [])
             if not isinstance(actions, list):
                 actions = []
-
             contracts = []
-
             if actions:
                 for action_index, action in enumerate(actions, start=1):
-                    contracts.append({
-                        "contract_id": f"{screen_id}-contract-{action_index}",
-                        "name": str(action),
-                        "status": "DEFINED"
-                    })
+                    contracts.append({'contract_id': f'{screen_id}-contract-{action_index}', 'name': str(action), 'status': 'DEFINED'})
             else:
-                contracts.append({
-                    "contract_id": f"{screen_id}-contract-1",
-                    "name": f"وظائف الشاشة: {screen_title}",
-                    "status": "DEFINED"
-                })
-
-            traceability.append({
-                "trace_id": f"TRACE-{index:04d}",
-                "requirements": related_requirements,
-                "screen": {
-                    "id": screen_id,
-                    "title": screen_title
-                },
-                "contracts": contracts,
-                "implementation": {
-                    "status": "GENERATED",
-                    "targets": [
-                        "public/index.html",
-                        "public/css/style.css",
-                        "public/js/assistant.js"
-                    ]
-                },
-                "test": {
-                    "status": "NOT_RUN",
-                    "tests": [],
-                    "result": "PENDING_GENERATED_PROJECT_VERIFICATION"
-                }
-            })
-
-        manifest = {
-            "idea": idea,
-            "created_at": now(),
-            "requirements": requirements,
-            "approved_screens": approved_screens,
-            "options": options,
-            "traceability": {
-                "version": 1,
-                "chain": [
-                    "requirement",
-                    "screen",
-                    "contract",
-                    "implementation",
-                    "test",
-                    "result"
-                ],
-                "items": traceability
-            }
-        }
-
-        (target / ".abqaryno-requirements.json").write_text(
-            json.dumps(
-                manifest,
-                ensure_ascii=False,
-                indent=2
-            ),
-            encoding="utf-8"
-        )
-
-        # ملفات البنية الأساسية للمشروع الناتج
-        (public / "css" / "style.css").write_text(
-            """
-* {
-    box-sizing: border-box;
-}
-
-:root {
-    --bg: #0b1020;
-    --panel: #121a2e;
-    --panel-2: #18233d;
-    --border: rgba(255,255,255,.10);
-    --text: #f5f7ff;
-    --muted: #aeb8d0;
-    --gold: #d9b45b;
-    --gold-2: #f0d58a;
-}
-
-body {
-    margin: 0;
-    min-height: 100vh;
-    background:
-        radial-gradient(circle at top right, rgba(217,180,91,.12), transparent 30%),
-        linear-gradient(145deg, #080c18, var(--bg));
-    color: var(--text);
-    font-family: Arial, "Noto Sans Arabic", sans-serif;
-    direction: rtl;
-}
-
-header {
-    padding: 28px 20px;
-    text-align: center;
-    border-bottom: 1px solid var(--border);
-    background: rgba(10,15,30,.88);
-}
-
-header h1 {
-    margin: 0 0 8px;
-    font-size: clamp(24px, 5vw, 38px);
-}
-
-header p {
-    margin: 0;
-    color: var(--muted);
-}
-
-.brand-logo-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 18px;
-}
-
-.logo-button {
-    width: 92px;
-    height: 92px;
-    padding: 0;
-    border: 2px solid rgba(217,180,91,.55);
-    border-radius: 50%;
-    overflow: hidden;
-    background: linear-gradient(145deg,#18233d,#0d1424);
-    color: var(--gold-2);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 12px 30px rgba(0,0,0,.28);
-}
-
-.logo-button:hover {
-    transform: scale(1.04);
-    border-color: var(--gold-2);
-}
-
-.logo-placeholder {
-    font-size: 38px;
-}
-
-.logo-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: none;
-}
-
-.logo-actions {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.logo-actions button {
-    border: 1px solid rgba(217,180,91,.35);
-    border-radius: 10px;
-    padding: 7px 12px;
-    background: rgba(217,180,91,.10);
-    color: var(--gold-2);
-    cursor: pointer;
-}
-
-.logo-actions button:hover {
-    background: rgba(217,180,91,.18);
-}
-
-@media (max-width: 600px) {
-    .logo-button {
-        width: 82px;
-        height: 82px;
-    }
-}
-
-main {
-    width: min(1100px, calc(100% - 28px));
-    margin: 28px auto 50px;
-}
-
-.screen {
-    padding: 20px;
-    margin-bottom: 16px;
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    background: rgba(18,26,46,.82);
-    box-shadow: 0 12px 35px rgba(0,0,0,.20);
-}
-
-.screen h2 {
-    margin-top: 0;
-    color: var(--gold-2);
-}
-
-.tools-panel {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 18px;
-    margin-top: 24px;
-}
-
-.tool-card {
-    padding: 20px;
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    background: linear-gradient(160deg, rgba(24,35,61,.96), rgba(15,22,40,.96));
-    box-shadow: 0 15px 40px rgba(0,0,0,.24);
-}
-
-.tool-card h2 {
-    margin: 0 0 16px;
-    color: var(--gold-2);
-    font-size: 21px;
-}
-
-.chat-messages {
-    min-height: 150px;
-    max-height: 300px;
-    overflow-y: auto;
-    padding: 12px;
-    margin-bottom: 12px;
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    background: rgba(0,0,0,.16);
-}
-
-.chat-message {
-    width: fit-content;
-    max-width: 85%;
-    margin: 7px 0;
-    padding: 10px 14px;
-    border-radius: 14px;
-    background: var(--panel-2);
-    border: 1px solid var(--border);
-    word-break: break-word;
-}
-
-.chat-input-row {
-    display: flex;
-    gap: 8px;
-}
-
-input[type="text"],
-input[type="file"] {
-    width: 100%;
-    min-height: 46px;
-    padding: 10px 13px;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    background: rgba(0,0,0,.22);
-    color: var(--text);
-    outline: none;
-}
-
-button {
-    min-height: 44px;
-    padding: 10px 16px;
-    border: 1px solid rgba(217,180,91,.45);
-    border-radius: 12px;
-    background: linear-gradient(135deg, var(--gold), var(--gold-2));
-    color: #15110a;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-button:hover {
-    filter: brightness(1.08);
-}
-
-.tool-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-#camera-preview {
-    display: block;
-    width: 100%;
-    min-height: 220px;
-    max-height: 420px;
-    margin-bottom: 14px;
-    object-fit: cover;
-    border-radius: 16px;
-    background: #050811;
-    border: 1px solid var(--border);
-}
-
-#recorded-audio {
-    width: 100%;
-    margin-top: 16px;
-}
-
-#attachment-list {
-    display: grid;
-    gap: 8px;
-    margin-top: 14px;
-}
-
-.attachment-item {
-    padding: 11px 13px;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    background: rgba(0,0,0,.16);
-    color: var(--muted);
-    word-break: break-word;
-}
-
-@media (max-width: 760px) {
-    main {
-        width: min(100% - 18px, 680px);
-    }
-
-    .tools-panel {
-        grid-template-columns: 1fr;
-    }
-
-    .chat-input-row {
-        flex-direction: column;
-    }
-
-    .chat-input-row button {
-        width: 100%;
-    }
-
-    .tool-actions button {
-        flex: 1 1 140px;
-    }
-}
-""",
-            encoding="utf-8"
-        )
-
-        # ملف مواصفات المشروع الناتج
-        (public / "project.json").write_text(
-            json.dumps(
-                {
-                    "name": name,
-                    "idea": idea,
-                    "created_at": manifest["created_at"],
-                    "features": requirements.get("features", []),
-                    "screens": approved_screens,
-                    "options": options
-                },
-                ensure_ascii=False,
-                indent=2
-            ),
-            encoding="utf-8"
-        )
-
-        # ربط واجهة المشروع بالمواصفات المعتمدة
-        (public / "js" / "app.js").write_text(
-            """const AbqarynoAPI = {
-    async request(path, options = {}) {
-        const response = await fetch(path, {
-            headers: {
-                "Content-Type": "application/json",
-                ...(options.headers || {})
-            },
-            ...options
-        });
-
-        let data = {};
-        try {
-            data = await response.json();
-        } catch (error) {
-            data = {
-                ok: false,
-                error: "استجابة API غير صالحة."
-            };
-        }
-
-        if (!response.ok) {
-            const error = new Error(
-                data.error || `HTTP ${response.status}`
-            );
-            error.status = response.status;
-            error.data = data;
-            throw error;
-        }
-
-        return data;
-    },
-
-    health() {
-        return this.request("/api/health");
-    },
-
-    search(query, items = []) {
-        return this.request("/api/search", {
-            method: "POST",
-            body: JSON.stringify({
-                query,
-                items
-            })
-        });
-    },
-
-    report(title, data = {}) {
-        return this.request("/api/advanced_reports", {
-            method: "POST",
-            body: JSON.stringify({
-                title,
-                data
-            })
-        });
-    },
-
-    ocr(data = {}) {
-        return this.request("/api/ocr", {
-            method: "POST",
-            body: JSON.stringify(data)
-        });
-    },
-
-    translation(data = {}) {
-        return this.request("/api/translation", {
-            method: "POST",
-            body: JSON.stringify(data)
-        });
-    },
-
-    voice(data = {}) {
-        return this.request("/api/voice", {
-            method: "POST",
-            body: JSON.stringify(data)
-        });
-    }
-};
-
-window.abqarynoAPI = AbqarynoAPI;
-
-function optionIds(project) {
-    return (project.options || [])
-        .map(option => {
-            if (typeof option === "string") {
-                return option;
-            }
-            return option && option.option_id;
-        })
-        .filter(Boolean);
-}
-
-function createServicePanel(project) {
-    const ids = optionIds(project);
-
-    if (!ids.length) {
-        return;
-    }
-
-    const main = document.querySelector("main");
-
-    if (!main) {
-        return;
-    }
-
-    if (document.getElementById("abqaryno-api-tools")) {
-        return;
-    }
-
-    const panel = document.createElement("section");
-    panel.id = "abqaryno-api-tools";
-    panel.className = "tools-panel";
-
-    panel.innerHTML = `
-        <div class="tool-card">
-            <h3>🔌 خدمات البرنامج</h3>
-            <p>الخدمات التي تم اختيارها أثناء إنشاء المشروع.</p>
-            <div id="abqaryno-api-status">جاري فحص الاتصال...</div>
-        </div>
-    `;
-
-    if (ids.includes("search")) {
-        const card = document.createElement("div");
-        card.className = "tool-card";
-        card.innerHTML = `
-            <h3>🔎 البحث</h3>
-            <input id="abqaryno-api-search-input"
-                   type="text"
-                   placeholder="اكتب عبارة البحث...">
-            <button id="abqaryno-api-search-button" type="button">
-                بحث
-            </button>
-            <div id="abqaryno-api-search-results"></div>
-        `;
-        panel.appendChild(card);
-    }
-
-    if (ids.includes("advanced_reports")) {
-        const card = document.createElement("div");
-        card.className = "tool-card";
-        card.innerHTML = `
-            <h3>📊 التقارير</h3>
-            <input id="abqaryno-api-report-title"
-                   type="text"
-                   placeholder="عنوان التقرير">
-            <button id="abqaryno-api-report-button" type="button">
-                إنشاء تقرير
-            </button>
-            <div id="abqaryno-api-report-result"></div>
-        `;
-        panel.appendChild(card);
-    }
-
-    for (const [id, label] of [
-        ["ocr", "📄 OCR"],
-        ["translation", "🌐 الترجمة"],
-        ["voice", "🎙️ الصوت"]
-    ]) {
-        if (!ids.includes(id)) {
-            continue;
-        }
-
-        const card = document.createElement("div");
-        card.className = "tool-card";
-        card.innerHTML = `
-            <h3>${label}</h3>
-            <p>الخدمة موجودة في المشروع، لكن محركها غير موصل بعد.</p>
-        `;
-        panel.appendChild(card);
-    }
-
-    main.appendChild(panel);
-
-    const searchButton = document.getElementById(
-        "abqaryno-api-search-button"
-    );
-
-    if (searchButton) {
-        searchButton.addEventListener("click", async () => {
-            const input = document.getElementById(
-                "abqaryno-api-search-input"
-            );
-            const output = document.getElementById(
-                "abqaryno-api-search-results"
-            );
-
-            const query = String(
-                input ? input.value : ""
-            ).trim();
-
-            if (!query) {
-                output.textContent = "اكتب عبارة البحث أولًا.";
-                return;
-            }
-
-            output.textContent = "جاري البحث...";
-
-            try {
-                const result = await AbqarynoAPI.search(
-                    query,
-                    []
-                );
-
-                output.textContent = (
-                    result.results || []
-                ).join("، ") || "لا توجد نتائج.";
-            } catch (error) {
-                output.textContent =
-                    error.data?.error ||
-                    error.message ||
-                    "تعذر تنفيذ البحث.";
-            }
-        });
-    }
-
-    const reportButton = document.getElementById(
-        "abqaryno-api-report-button"
-    );
-
-    if (reportButton) {
-        reportButton.addEventListener("click", async () => {
-            const input = document.getElementById(
-                "abqaryno-api-report-title"
-            );
-            const output = document.getElementById(
-                "abqaryno-api-report-result"
-            );
-
-            const title = String(
-                input ? input.value : ""
-            ).trim();
-
-            if (!title) {
-                output.textContent = "اكتب عنوان التقرير أولًا.";
-                return;
-            }
-
-            output.textContent = "جاري إنشاء التقرير...";
-
-            try {
-                const result = await AbqarynoAPI.report(
-                    title,
-                    {}
-                );
-
-                output.textContent =
-                    result.title || "تم إنشاء التقرير.";
-            } catch (error) {
-                output.textContent =
-                    error.data?.error ||
-                    error.message ||
-                    "تعذر إنشاء التقرير.";
-            }
-        });
-    }
-}
-
-async function loadProject() {
-    try {
-        const response = await fetch("/project.json");
-        const project = await response.json();
-
-        const container = document.querySelector("main");
-
-        if (!container) {
-            return;
-        }
-
-        container.dataset.project = project.name || "";
-
-        createServicePanel(project);
-
-        try {
-            const health = await AbqarynoAPI.health();
-            const status = document.getElementById(
-                "abqaryno-api-status"
-            );
-
-            if (status) {
-                status.textContent = health.ok
-                    ? "متصل بخدمات البرنامج."
-                    : "الخدمة غير متاحة.";
-            }
-        } catch (error) {
-            const status = document.getElementById(
-                "abqaryno-api-status"
-            );
-
-            if (status) {
-                status.textContent =
-                    "تعذر الاتصال بخدمات البرنامج.";
-            }
-        }
-
-        console.log(
-            "تم تحميل مشروع عبقرينو:",
-            project.name
-        );
-    } catch (error) {
-        console.error(
-            "تعذر تحميل مواصفات المشروع:",
-            error
-        );
-    }
-}
-
-document.addEventListener(
-    "DOMContentLoaded",
-    loadProject
-);
-""",
-            encoding="utf-8"
-        )
-
-        # ============================================================
-        # الوظائف الفعلية للمشروع الناتج
-        # ============================================================
-
-        js_dir = public / "js"
-
-        (js_dir / "chat.js").write_text(
-            """class AbqarynoChat {
-    constructor() {
-        this.messages = [];
-    }
-
-    send(message) {
-        const text = String(message || "").trim();
-
-        if (!text) {
-            return null;
-        }
-
-        const item = {
-            id: Date.now(),
-            text,
-            created_at: new Date().toISOString()
-        };
-
-        this.messages.push(item);
-
-        document.dispatchEvent(
-            new CustomEvent("abqaryno:message", {
-                detail: item
-            })
-        );
-
-        return item;
-    }
-
-    getMessages() {
-        return [...this.messages];
-    }
-}
-
-window.AbqarynoChat = AbqarynoChat;
-window.abqarynoChat = new AbqarynoChat();
-""",
-            encoding="utf-8"
-        )
-
-        (js_dir / "camera.js").write_text(
-            """class AbqarynoCamera {
-    constructor() {
-        this.stream = null;
-    }
-
-    async start(videoElement) {
-        if (!navigator.mediaDevices?.getUserMedia) {
-            throw new Error("الكاميرا غير مدعومة في هذا المتصفح");
-        }
-
-        this.stream = await navigator.mediaDevices.getUserMedia({
-            video: true,
-            audio: false
-        });
-
-        if (videoElement) {
-            videoElement.srcObject = this.stream;
-            videoElement.autoplay = true;
-            videoElement.playsInline = true;
-        }
-
-        return this.stream;
-    }
-
-    stop() {
-        if (!this.stream) {
-            return;
-        }
-
-        this.stream.getTracks().forEach(
-            track => track.stop()
-        );
-
-        this.stream = null;
-    }
-}
-
-window.AbqarynoCamera = AbqarynoCamera;
-""",
-            encoding="utf-8"
-        )
-
-        (js_dir / "microphone.js").write_text(
-            """class AbqarynoMicrophone {
-    constructor() {
-        this.stream = null;
-        this.recorder = null;
-        this.chunks = [];
-    }
-
-    async start() {
-        if (!navigator.mediaDevices?.getUserMedia) {
-            throw new Error("المايك غير مدعوم في هذا المتصفح");
-        }
-
-        this.stream = await navigator.mediaDevices.getUserMedia({
-            audio: true
-        });
-
-        return this.stream;
-    }
-
-    record() {
-        if (!this.stream) {
-            throw new Error("شغّل المايك أولًا");
-        }
-
-        this.chunks = [];
-        this.recorder = new MediaRecorder(this.stream);
-
-        this.recorder.ondataavailable = event => {
-            if (event.data.size > 0) {
-                this.chunks.push(event.data);
-            }
-        };
-
-        this.recorder.start();
-    }
-
-    stopRecording() {
-        return new Promise(resolve => {
-            if (!this.recorder) {
-                resolve(null);
-                return;
-            }
-
-            this.recorder.onstop = () => {
-                const blob = new Blob(
-                    this.chunks,
-                    { type: "audio/webm" }
-                );
-
-                resolve(blob);
-            };
-
-            this.recorder.stop();
-        });
-    }
-
-    stop() {
-        if (this.stream) {
-            this.stream.getTracks().forEach(
-                track => track.stop()
-            );
-        }
-
-        this.stream = null;
-        this.recorder = null;
-    }
-}
-
-window.AbqarynoMicrophone = AbqarynoMicrophone;
-""",
-            encoding="utf-8"
-        )
-
-        (js_dir / "attachments.js").write_text(
-            """class AbqarynoAttachments {
-    constructor() {
-        this.files = [];
-    }
-
-    add(fileList) {
-        const files = Array.from(fileList || []);
-
-        this.files.push(...files);
-
-        document.dispatchEvent(
-            new CustomEvent("abqaryno:attachments", {
-                detail: files
-            })
-        );
-
-        return files;
-    }
-
-    clear() {
-        this.files = [];
-    }
-
-    getFiles() {
-        return [...this.files];
-    }
-}
-
-window.AbqarynoAttachments = AbqarynoAttachments;
-window.abqarynoAttachments = new AbqarynoAttachments();
-""",
-            encoding="utf-8"
-        )
-
-        # ربط الوظائف المعتمدة بواجهة المشروع
-        scripts = []
-
-        feature_text = " ".join(
-            str(x)
-            for x in requirements.get("features", [])
-        )
-
-        screen_text = " ".join(
-            str(x)
-            for x in approved_screens
-        )
-
-        combined = f"{feature_text} {screen_text}"
-
-        if any(x in combined for x in ["الرسائل", "شات", "محادثة"]):
-            scripts.append("chat.js")
-
-        if any(x in combined for x in ["الكاميرا", "فيديو"]):
-            scripts.append("camera.js")
-
-        if any(x in combined for x in ["المايك", "الصوت", "تسجيل"]):
-            scripts.append("microphone.js")
-
-        if any(x in combined for x in ["الملفات", "مرفقات", "إرفاق"]):
-            scripts.append("attachments.js")
-
-        script_tags = "\n".join(
-            f'<script src="/js/{name}"></script>'
-            for name in scripts
-        )
-
-        page = page.replace(
-            "</body>",
-            f"{script_tags}\n</body>"
-        )
-
-        (public / "index.html").write_text(
-            page,
-            encoding="utf-8"
-        )
-
-        option_ids = {
-            str(option.get("option_id", "")).strip()
-            for option in options
-            if isinstance(option, dict)
-        }
-
-        option_ids = {
-            str(option.get("option_id", "")).strip()
-            for option in options
-            if isinstance(option, dict)
-        }
-
-        server_lines = [
-            "from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler",
-            "from pathlib import Path",
-            "import json",
-            "import os",
-            "import sys",
-            "",
-            "ROOT = Path(__file__).resolve().parents[1]",
-            "sys.path.insert(0, str(ROOT))",
-            "PUBLIC = ROOT / \"public\"",
-            "",
-            "class GeneratedHandler(SimpleHTTPRequestHandler):",
-            "",
-            "    def send_json(self, payload, status=200):",
-            "        body = json.dumps(payload, ensure_ascii=False).encode(\"utf-8\")",
-            "        self.send_response(status)",
-            "        self.send_header(\"Content-Type\", \"application/json; charset=utf-8\")",
-            "        self.send_header(\"Content-Length\", str(len(body)))",
-            "        self.end_headers()",
-            "        self.wfile.write(body)",
-            "",
-            "    def read_json(self):",
-            "        length = int(self.headers.get(\"Content-Length\", \"0\") or 0)",
-            "        raw = self.rfile.read(length) if length else b\"{}\"",
-            "        try:",
-            "            return json.loads(raw.decode(\"utf-8\"))",
-            "        except (json.JSONDecodeError, UnicodeDecodeError):",
-            "            return {}",
-            "",
-            "    def do_GET(self):",
-            "        if self.path == \"/api/health\":",
-            "            return self.send_json({\"ok\": True, \"service\": \"abqaryno-generated-api\"})",
-            "        return super().do_GET()",
-            "",
-            "    def do_POST(self):",
-        ]
-
-        if "search" in option_ids:
-            server_lines.extend([
-                "        if self.path == \"/api/search\":",
-                "            from services.search import SearchService",
-                "            data = self.read_json()",
-                "            result = SearchService().search(data.get(\"query\", \"\"), data.get(\"items\", []))",
-                "            return self.send_json({\"ok\": True, \"query\": result.query, \"results\": result.results})",
-            ])
-
-        if "advanced_reports" in option_ids:
-            server_lines.extend([
-                "        if self.path == \"/api/advanced_reports\":",
-                "            from services.reports import ReportsService",
-                "            data = self.read_json()",
-                "            result = ReportsService().generate(data.get(\"title\", \"تقرير\"), data.get(\"data\", {}))",
-                "            return self.send_json({\"ok\": True, \"title\": result.title, \"generated_at\": result.generated_at, \"data\": result.data})",
-            ])
-
-        if "ocr" in option_ids:
-            server_lines.extend([
-                "        if self.path == \"/api/ocr\":",
-                "            return self.send_json({\"ok\": False, \"error\": \"OCR يحتاج ملف صورة\"}, 501)",
-            ])
-
-        if "translation" in option_ids:
-            server_lines.extend([
-                "        if self.path == \"/api/translation\":",
-                "            return self.send_json({\"ok\": False, \"error\": \"محرك الترجمة غير موصل بعد\"}, 501)",
-            ])
-
-        if "voice" in option_ids:
-            server_lines.extend([
-                "        if self.path == \"/api/voice\":",
-                "            return self.send_json({\"ok\": False, \"error\": \"محرك الصوت غير موصل بعد\"}, 501)",
-            ])
-
-        server_lines.extend([
-            "        return self.send_json({",
-            "            \"ok\": False,",
-            "            \"error\": \"API not found\"",
-            "        }, 404)",
-            "",
-            "os.chdir(PUBLIC)",
-            "",
-            "server = ThreadingHTTPServer(",
-            "    (\"127.0.0.1\", 8080),",
-            "    GeneratedHandler",
-            ")",
-            "",
-            "print(\"Generated project: http://127.0.0.1:8080\")",
-            "server.serve_forever()",
-            "",
-        ])
-
-        server_template = "\n".join(server_lines)
-
-        (target / "server" / "server.py").write_text(
-            server_template,
-            encoding="utf-8"
-        )
-
-        (target / "routes" / "__init__.py").write_text(
-            "",
-            encoding="utf-8"
-        )
-
-        (target / "services" / "__init__.py").write_text(
-            "",
-            encoding="utf-8"
-        )
-
-        database_dir = target / "database"
-
-        schema_sql = '-- قاعدة بيانات المشروع التي أنشأها عبقرينو\nPRAGMA foreign_keys = ON;\n\nCREATE TABLE IF NOT EXISTS users (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    name TEXT NOT NULL,\n    email TEXT,\n    phone TEXT,\n    password_hash TEXT,\n    created_at TEXT NOT NULL\n);\n\nCREATE TABLE IF NOT EXISTS roles (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    name TEXT NOT NULL UNIQUE\n);\n\nCREATE TABLE IF NOT EXISTS user_roles (\n    user_id INTEGER NOT NULL,\n    role_id INTEGER NOT NULL\n);\n\nCREATE TABLE IF NOT EXISTS clients (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    name TEXT NOT NULL,\n    phone TEXT,\n    email TEXT,\n    status TEXT,\n    created_at TEXT NOT NULL\n);\n\nCREATE TABLE IF NOT EXISTS lawyers (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    name TEXT NOT NULL,\n    phone TEXT,\n    email TEXT,\n    created_at TEXT NOT NULL\n);\n\nCREATE TABLE IF NOT EXISTS cases (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    case_number TEXT,\n    court TEXT,\n    chamber TEXT,\n    status TEXT,\n    notes TEXT,\n    client_id INTEGER,\n    lawyer_id INTEGER,\n    created_at TEXT NOT NULL\n);\n\nCREATE TABLE IF NOT EXISTS documents (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    name TEXT NOT NULL,\n    file_path TEXT NOT NULL,\n    mime_type TEXT,\n    case_id INTEGER,\n    uploaded_by INTEGER,\n    created_at TEXT NOT NULL\n);\n\nCREATE TABLE IF NOT EXISTS translations (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    document_id INTEGER,\n    source_text TEXT,\n    source_language TEXT,\n    target_language TEXT,\n    translated_text TEXT,\n    created_at TEXT NOT NULL\n);\n\nCREATE TABLE IF NOT EXISTS document_text (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    document_id INTEGER NOT NULL,\n    extracted_text TEXT,\n    extraction_method TEXT,\n    detected_language TEXT,\n    created_at TEXT NOT NULL\n);\n\nCREATE TABLE IF NOT EXISTS audio_transcriptions (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    file_path TEXT,\n    transcription_text TEXT,\n    detected_language TEXT,\n    created_at TEXT NOT NULL\n);\n\nCREATE TABLE IF NOT EXISTS audio_outputs (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    source_text TEXT,\n    language TEXT,\n    audio_path TEXT,\n    created_at TEXT NOT NULL\n);\n\nCREATE TABLE IF NOT EXISTS messages (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    sender_id INTEGER,\n    receiver_id INTEGER,\n    message TEXT,\n    created_at TEXT NOT NULL\n);\n\nCREATE TABLE IF NOT EXISTS notifications (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    user_id INTEGER,\n    title TEXT NOT NULL,\n    message TEXT,\n    is_read INTEGER NOT NULL DEFAULT 0,\n    created_at TEXT NOT NULL\n);\n\nCREATE TABLE IF NOT EXISTS reports (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    title TEXT NOT NULL,\n    content TEXT,\n    created_at TEXT NOT NULL\n);\n\nCREATE TABLE IF NOT EXISTS audit_logs (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    user_id INTEGER,\n    action TEXT NOT NULL,\n    details TEXT,\n    created_at TEXT NOT NULL\n);\n\nCREATE TABLE IF NOT EXISTS appointments (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    title TEXT NOT NULL,\n    appointment_date TEXT NOT NULL,\n    status TEXT,\n    user_id INTEGER,\n    created_at TEXT NOT NULL\n);\n'
-
-        (database_dir / "schema.sql").write_text(
-            schema_sql,
-            encoding="utf-8"
-        )
-
+                contracts.append({'contract_id': f'{screen_id}-contract-1', 'name': f'وظائف الشاشة: {screen_title}', 'status': 'DEFINED'})
+            traceability.append({'trace_id': f'TRACE-{index:04d}', 'requirements': related_requirements, 'screen': {'id': screen_id, 'title': screen_title}, 'contracts': contracts, 'implementation': {'status': 'GENERATED', 'targets': ['public/index.html', 'public/css/style.css', 'public/js/assistant.js']}, 'test': {'status': 'NOT_RUN', 'tests': [], 'result': 'PENDING_GENERATED_PROJECT_VERIFICATION'}})
+        manifest = {'idea': idea, 'created_at': now(), 'requirements': requirements, 'approved_screens': approved_screens, 'options': options, 'traceability': {'version': 1, 'chain': ['requirement', 'screen', 'contract', 'implementation', 'test', 'result'], 'items': traceability}}
+        (target / '.abqaryno-requirements.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding='utf-8')
+        (public / 'css' / 'style.css').write_text('\n* {\n    box-sizing: border-box;\n}\n\n:root {\n    --bg: #0b1020;\n    --panel: #121a2e;\n    --panel-2: #18233d;\n    --border: rgba(255,255,255,.10);\n    --text: #f5f7ff;\n    --muted: #aeb8d0;\n    --gold: #d9b45b;\n    --gold-2: #f0d58a;\n}\n\nbody {\n    margin: 0;\n    min-height: 100vh;\n    background:\n        radial-gradient(circle at top right, rgba(217,180,91,.12), transparent 30%),\n        linear-gradient(145deg, #080c18, var(--bg));\n    color: var(--text);\n    font-family: Arial, "Noto Sans Arabic", sans-serif;\n    direction: rtl;\n}\n\nheader {\n    padding: 28px 20px;\n    text-align: center;\n    border-bottom: 1px solid var(--border);\n    background: rgba(10,15,30,.88);\n}\n\nheader h1 {\n    margin: 0 0 8px;\n    font-size: clamp(24px, 5vw, 38px);\n}\n\nheader p {\n    margin: 0;\n    color: var(--muted);\n}\n\n.brand-logo-wrap {\n    display: flex;\n    flex-direction: column;\n    align-items: center;\n    gap: 10px;\n    margin-bottom: 18px;\n}\n\n.logo-button {\n    width: 92px;\n    height: 92px;\n    padding: 0;\n    border: 2px solid rgba(217,180,91,.55);\n    border-radius: 50%;\n    overflow: hidden;\n    background: linear-gradient(145deg,#18233d,#0d1424);\n    color: var(--gold-2);\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 12px 30px rgba(0,0,0,.28);\n}\n\n.logo-button:hover {\n    transform: scale(1.04);\n    border-color: var(--gold-2);\n}\n\n.logo-placeholder {\n    font-size: 38px;\n}\n\n.logo-image {\n    width: 100%;\n    height: 100%;\n    object-fit: cover;\n    display: none;\n}\n\n.logo-actions {\n    display: flex;\n    gap: 8px;\n    flex-wrap: wrap;\n    justify-content: center;\n}\n\n.logo-actions button {\n    border: 1px solid rgba(217,180,91,.35);\n    border-radius: 10px;\n    padding: 7px 12px;\n    background: rgba(217,180,91,.10);\n    color: var(--gold-2);\n    cursor: pointer;\n}\n\n.logo-actions button:hover {\n    background: rgba(217,180,91,.18);\n}\n\n@media (max-width: 600px) {\n    .logo-button {\n        width: 82px;\n        height: 82px;\n    }\n}\n\nmain {\n    width: min(1100px, calc(100% - 28px));\n    margin: 28px auto 50px;\n}\n\n.screen {\n    padding: 20px;\n    margin-bottom: 16px;\n    border: 1px solid var(--border);\n    border-radius: 18px;\n    background: rgba(18,26,46,.82);\n    box-shadow: 0 12px 35px rgba(0,0,0,.20);\n}\n\n.screen h2 {\n    margin-top: 0;\n    color: var(--gold-2);\n}\n\n.tools-panel {\n    display: grid;\n    grid-template-columns: repeat(2, minmax(0, 1fr));\n    gap: 18px;\n    margin-top: 24px;\n}\n\n.tool-card {\n    padding: 20px;\n    border: 1px solid var(--border);\n    border-radius: 20px;\n    background: linear-gradient(160deg, rgba(24,35,61,.96), rgba(15,22,40,.96));\n    box-shadow: 0 15px 40px rgba(0,0,0,.24);\n}\n\n.tool-card h2 {\n    margin: 0 0 16px;\n    color: var(--gold-2);\n    font-size: 21px;\n}\n\n.chat-messages {\n    min-height: 150px;\n    max-height: 300px;\n    overflow-y: auto;\n    padding: 12px;\n    margin-bottom: 12px;\n    border: 1px solid var(--border);\n    border-radius: 14px;\n    background: rgba(0,0,0,.16);\n}\n\n.chat-message {\n    width: fit-content;\n    max-width: 85%;\n    margin: 7px 0;\n    padding: 10px 14px;\n    border-radius: 14px;\n    background: var(--panel-2);\n    border: 1px solid var(--border);\n    word-break: break-word;\n}\n\n.chat-input-row {\n    display: flex;\n    gap: 8px;\n}\n\ninput[type="text"],\ninput[type="file"] {\n    width: 100%;\n    min-height: 46px;\n    padding: 10px 13px;\n    border: 1px solid var(--border);\n    border-radius: 12px;\n    background: rgba(0,0,0,.22);\n    color: var(--text);\n    outline: none;\n}\n\nbutton {\n    min-height: 44px;\n    padding: 10px 16px;\n    border: 1px solid rgba(217,180,91,.45);\n    border-radius: 12px;\n    background: linear-gradient(135deg, var(--gold), var(--gold-2));\n    color: #15110a;\n    font-weight: 700;\n    cursor: pointer;\n}\n\nbutton:hover {\n    filter: brightness(1.08);\n}\n\n.tool-actions {\n    display: flex;\n    flex-wrap: wrap;\n    gap: 8px;\n}\n\n#camera-preview {\n    display: block;\n    width: 100%;\n    min-height: 220px;\n    max-height: 420px;\n    margin-bottom: 14px;\n    object-fit: cover;\n    border-radius: 16px;\n    background: #050811;\n    border: 1px solid var(--border);\n}\n\n#recorded-audio {\n    width: 100%;\n    margin-top: 16px;\n}\n\n#attachment-list {\n    display: grid;\n    gap: 8px;\n    margin-top: 14px;\n}\n\n.attachment-item {\n    padding: 11px 13px;\n    border: 1px solid var(--border);\n    border-radius: 12px;\n    background: rgba(0,0,0,.16);\n    color: var(--muted);\n    word-break: break-word;\n}\n\n@media (max-width: 760px) {\n    main {\n        width: min(100% - 18px, 680px);\n    }\n\n    .tools-panel {\n        grid-template-columns: 1fr;\n    }\n\n    .chat-input-row {\n        flex-direction: column;\n    }\n\n    .chat-input-row button {\n        width: 100%;\n    }\n\n    .tool-actions button {\n        flex: 1 1 140px;\n    }\n}\n', encoding='utf-8')
+        (public / 'project.json').write_text(json.dumps({'name': name, 'idea': idea, 'created_at': manifest['created_at'], 'features': requirements.get('features', []), 'screens': approved_screens, 'options': options}, ensure_ascii=False, indent=2), encoding='utf-8')
+        (public / 'js' / 'app.js').write_text('const AbqarynoAPI = {\n    async request(path, options = {}) {\n        const response = await fetch(path, {\n            headers: {\n                "Content-Type": "application/json",\n                ...(options.headers || {})\n            },\n            ...options\n        });\n\n        let data = {};\n        try {\n            data = await response.json();\n        } catch (error) {\n            data = {\n                ok: false,\n                error: "استجابة API غير صالحة."\n            };\n        }\n\n        if (!response.ok) {\n            const error = new Error(\n                data.error || `HTTP ${response.status}`\n            );\n            error.status = response.status;\n            error.data = data;\n            throw error;\n        }\n\n        return data;\n    },\n\n    health() {\n        return this.request("/api/health");\n    },\n\n    search(query, items = []) {\n        return this.request("/api/search", {\n            method: "POST",\n            body: JSON.stringify({\n                query,\n                items\n            })\n        });\n    },\n\n    report(title, data = {}) {\n        return this.request("/api/advanced_reports", {\n            method: "POST",\n            body: JSON.stringify({\n                title,\n                data\n            })\n        });\n    },\n\n    ocr(data = {}) {\n        return this.request("/api/ocr", {\n            method: "POST",\n            body: JSON.stringify(data)\n        });\n    },\n\n    translation(data = {}) {\n        return this.request("/api/translation", {\n            method: "POST",\n            body: JSON.stringify(data)\n        });\n    },\n\n    voice(data = {}) {\n        return this.request("/api/voice", {\n            method: "POST",\n            body: JSON.stringify(data)\n        });\n    }\n};\n\nwindow.abqarynoAPI = AbqarynoAPI;\n\nfunction optionIds(project) {\n    return (project.options || [])\n        .map(option => {\n            if (typeof option === "string") {\n                return option;\n            }\n            return option && option.option_id;\n        })\n        .filter(Boolean);\n}\n\nfunction createServicePanel(project) {\n    const ids = optionIds(project);\n\n    if (!ids.length) {\n        return;\n    }\n\n    const main = document.querySelector("main");\n\n    if (!main) {\n        return;\n    }\n\n    if (document.getElementById("abqaryno-api-tools")) {\n        return;\n    }\n\n    const panel = document.createElement("section");\n    panel.id = "abqaryno-api-tools";\n    panel.className = "tools-panel";\n\n    panel.innerHTML = `\n        <div class="tool-card">\n            <h3>🔌 خدمات البرنامج</h3>\n            <p>الخدمات التي تم اختيارها أثناء إنشاء المشروع.</p>\n            <div id="abqaryno-api-status">جاري فحص الاتصال...</div>\n        </div>\n    `;\n\n    if (ids.includes("search")) {\n        const card = document.createElement("div");\n        card.className = "tool-card";\n        card.innerHTML = `\n            <h3>🔎 البحث</h3>\n            <input id="abqaryno-api-search-input"\n                   type="text"\n                   placeholder="اكتب عبارة البحث...">\n            <button id="abqaryno-api-search-button" type="button">\n                بحث\n            </button>\n            <div id="abqaryno-api-search-results"></div>\n        `;\n        panel.appendChild(card);\n    }\n\n    if (ids.includes("advanced_reports")) {\n        const card = document.createElement("div");\n        card.className = "tool-card";\n        card.innerHTML = `\n            <h3>📊 التقارير</h3>\n            <input id="abqaryno-api-report-title"\n                   type="text"\n                   placeholder="عنوان التقرير">\n            <button id="abqaryno-api-report-button" type="button">\n                إنشاء تقرير\n            </button>\n            <div id="abqaryno-api-report-result"></div>\n        `;\n        panel.appendChild(card);\n    }\n\n    for (const [id, label] of [\n        ["ocr", "📄 OCR"],\n        ["translation", "🌐 الترجمة"],\n        ["voice", "🎙️ الصوت"]\n    ]) {\n        if (!ids.includes(id)) {\n            continue;\n        }\n\n        const card = document.createElement("div");\n        card.className = "tool-card";\n        card.innerHTML = `\n            <h3>${label}</h3>\n            <p>الخدمة موجودة في المشروع، لكن محركها غير موصل بعد.</p>\n        `;\n        panel.appendChild(card);\n    }\n\n    main.appendChild(panel);\n\n    const searchButton = document.getElementById(\n        "abqaryno-api-search-button"\n    );\n\n    if (searchButton) {\n        searchButton.addEventListener("click", async () => {\n            const input = document.getElementById(\n                "abqaryno-api-search-input"\n            );\n            const output = document.getElementById(\n                "abqaryno-api-search-results"\n            );\n\n            const query = String(\n                input ? input.value : ""\n            ).trim();\n\n            if (!query) {\n                output.textContent = "اكتب عبارة البحث أولًا.";\n                return;\n            }\n\n            output.textContent = "جاري البحث...";\n\n            try {\n                const result = await AbqarynoAPI.search(\n                    query,\n                    []\n                );\n\n                output.textContent = (\n                    result.results || []\n                ).join("، ") || "لا توجد نتائج.";\n            } catch (error) {\n                output.textContent =\n                    error.data?.error ||\n                    error.message ||\n                    "تعذر تنفيذ البحث.";\n            }\n        });\n    }\n\n    const reportButton = document.getElementById(\n        "abqaryno-api-report-button"\n    );\n\n    if (reportButton) {\n        reportButton.addEventListener("click", async () => {\n            const input = document.getElementById(\n                "abqaryno-api-report-title"\n            );\n            const output = document.getElementById(\n                "abqaryno-api-report-result"\n            );\n\n            const title = String(\n                input ? input.value : ""\n            ).trim();\n\n            if (!title) {\n                output.textContent = "اكتب عنوان التقرير أولًا.";\n                return;\n            }\n\n            output.textContent = "جاري إنشاء التقرير...";\n\n            try {\n                const result = await AbqarynoAPI.report(\n                    title,\n                    {}\n                );\n\n                output.textContent =\n                    result.title || "تم إنشاء التقرير.";\n            } catch (error) {\n                output.textContent =\n                    error.data?.error ||\n                    error.message ||\n                    "تعذر إنشاء التقرير.";\n            }\n        });\n    }\n}\n\nasync function loadProject() {\n    try {\n        const response = await fetch("/project.json");\n        const project = await response.json();\n\n        const container = document.querySelector("main");\n\n        if (!container) {\n            return;\n        }\n\n        container.dataset.project = project.name || "";\n\n        createServicePanel(project);\n\n        try {\n            const health = await AbqarynoAPI.health();\n            const status = document.getElementById(\n                "abqaryno-api-status"\n            );\n\n            if (status) {\n                status.textContent = health.ok\n                    ? "متصل بخدمات البرنامج."\n                    : "الخدمة غير متاحة.";\n            }\n        } catch (error) {\n            const status = document.getElementById(\n                "abqaryno-api-status"\n            );\n\n            if (status) {\n                status.textContent =\n                    "تعذر الاتصال بخدمات البرنامج.";\n            }\n        }\n\n        console.log(\n            "تم تحميل مشروع عبقرينو:",\n            project.name\n        );\n    } catch (error) {\n        console.error(\n            "تعذر تحميل مواصفات المشروع:",\n            error\n        );\n    }\n}\n\ndocument.addEventListener(\n    "DOMContentLoaded",\n    loadProject\n);\n', encoding='utf-8')
+        js_dir = public / 'js'
+        (js_dir / 'chat.js').write_text('class AbqarynoChat {\n    constructor() {\n        this.messages = [];\n    }\n\n    send(message) {\n        const text = String(message || "").trim();\n\n        if (!text) {\n            return null;\n        }\n\n        const item = {\n            id: Date.now(),\n            text,\n            created_at: new Date().toISOString()\n        };\n\n        this.messages.push(item);\n\n        document.dispatchEvent(\n            new CustomEvent("abqaryno:message", {\n                detail: item\n            })\n        );\n\n        return item;\n    }\n\n    getMessages() {\n        return [...this.messages];\n    }\n}\n\nwindow.AbqarynoChat = AbqarynoChat;\nwindow.abqarynoChat = new AbqarynoChat();\n', encoding='utf-8')
+        (js_dir / 'camera.js').write_text('class AbqarynoCamera {\n    constructor() {\n        this.stream = null;\n    }\n\n    async start(videoElement) {\n        if (!navigator.mediaDevices?.getUserMedia) {\n            throw new Error("الكاميرا غير مدعومة في هذا المتصفح");\n        }\n\n        this.stream = await navigator.mediaDevices.getUserMedia({\n            video: true,\n            audio: false\n        });\n\n        if (videoElement) {\n            videoElement.srcObject = this.stream;\n            videoElement.autoplay = true;\n            videoElement.playsInline = true;\n        }\n\n        return this.stream;\n    }\n\n    stop() {\n        if (!this.stream) {\n            return;\n        }\n\n        this.stream.getTracks().forEach(\n            track => track.stop()\n        );\n\n        this.stream = null;\n    }\n}\n\nwindow.AbqarynoCamera = AbqarynoCamera;\n', encoding='utf-8')
+        (js_dir / 'microphone.js').write_text('class AbqarynoMicrophone {\n    constructor() {\n        this.stream = null;\n        this.recorder = null;\n        this.chunks = [];\n    }\n\n    async start() {\n        if (!navigator.mediaDevices?.getUserMedia) {\n            throw new Error("المايك غير مدعوم في هذا المتصفح");\n        }\n\n        this.stream = await navigator.mediaDevices.getUserMedia({\n            audio: true\n        });\n\n        return this.stream;\n    }\n\n    record() {\n        if (!this.stream) {\n            throw new Error("شغّل المايك أولًا");\n        }\n\n        this.chunks = [];\n        this.recorder = new MediaRecorder(this.stream);\n\n        this.recorder.ondataavailable = event => {\n            if (event.data.size > 0) {\n                this.chunks.push(event.data);\n            }\n        };\n\n        this.recorder.start();\n    }\n\n    stopRecording() {\n        return new Promise(resolve => {\n            if (!this.recorder) {\n                resolve(null);\n                return;\n            }\n\n            this.recorder.onstop = () => {\n                const blob = new Blob(\n                    this.chunks,\n                    { type: "audio/webm" }\n                );\n\n                resolve(blob);\n            };\n\n            this.recorder.stop();\n        });\n    }\n\n    stop() {\n        if (this.stream) {\n            this.stream.getTracks().forEach(\n                track => track.stop()\n            );\n        }\n\n        this.stream = null;\n        this.recorder = null;\n    }\n}\n\nwindow.AbqarynoMicrophone = AbqarynoMicrophone;\n', encoding='utf-8')
+        (js_dir / 'attachments.js').write_text('class AbqarynoAttachments {\n    constructor() {\n        this.files = [];\n    }\n\n    add(fileList) {\n        const files = Array.from(fileList || []);\n\n        this.files.push(...files);\n\n        document.dispatchEvent(\n            new CustomEvent("abqaryno:attachments", {\n                detail: files\n            })\n        );\n\n        return files;\n    }\n\n    clear() {\n        this.files = [];\n    }\n\n    getFiles() {\n        return [...this.files];\n    }\n}\n\nwindow.AbqarynoAttachments = AbqarynoAttachments;\nwindow.abqarynoAttachments = new AbqarynoAttachments();\n', encoding='utf-8')
+        scripts = ['app.js']
+        feature_text = ' '.join((str(x) for x in requirements.get('features', [])))
+        screen_text = ' '.join((str(x) for x in approved_screens))
+        combined = f'{feature_text} {screen_text}'
+        if any((x in combined for x in ['الرسائل', 'شات', 'محادثة'])):
+            scripts.append('chat.js')
+        if any((x in combined for x in ['الكاميرا', 'فيديو'])):
+            scripts.append('camera.js')
+        if any((x in combined for x in ['المايك', 'الصوت', 'تسجيل'])):
+            scripts.append('microphone.js')
+        if any((x in combined for x in ['الملفات', 'مرفقات', 'إرفاق'])):
+            scripts.append('attachments.js')
+        script_tags = '\n'.join((f'<script src="/js/{name}"></script>' for name in scripts))
+        page = page.replace('</body>', f'{script_tags}\n</body>')
+        (public / 'index.html').write_text(page, encoding='utf-8')
+        option_ids = {str(option.get('option_id', '')).strip() for option in options if isinstance(option, dict)}
+        server_template = 'from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler\nfrom pathlib import Path\nfrom urllib.parse import urlparse, parse_qs\nfrom email.parser import BytesParser\nfrom email.policy import default\nfrom datetime import datetime, timezone\nimport json\nimport os\nimport sqlite3\nimport uuid\nimport sys\n\nROOT = Path(__file__).resolve().parents[1]\nPUBLIC = ROOT / "public"\nDATABASE_DIR = ROOT / "database"\nDATABASE = DATABASE_DIR / "app.db"\nUPLOADS = ROOT / "uploads"\n\nsys.path.insert(0, str(ROOT))\n\nDATABASE_DIR.mkdir(parents=True, exist_ok=True)\nUPLOADS.mkdir(parents=True, exist_ok=True)\n\ndef now():\n    return datetime.now(timezone.utc).isoformat()\n\ndef connection():\n    db = sqlite3.connect(DATABASE)\n    db.row_factory = sqlite3.Row\n    db.execute("PRAGMA foreign_keys = ON")\n    return db\n\ndef initialize_database():\n    schema = (DATABASE_DIR / "schema.sql").read_text(encoding="utf-8")\n    with connection() as db:\n        db.executescript(schema)\n        db.commit()\n\ndef row_dict(row):\n    return dict(row) if row is not None else None\n\nclass GeneratedHandler(SimpleHTTPRequestHandler):\n\n    def send_json(self, payload, status=200):\n        body = json.dumps(\n            payload,\n            ensure_ascii=False,\n            default=str\n        ).encode("utf-8")\n\n        self.send_response(status)\n        self.send_header(\n            "Content-Type",\n            "application/json; charset=utf-8"\n        )\n        self.send_header(\n            "Content-Length",\n            str(len(body))\n        )\n        self.end_headers()\n        self.wfile.write(body)\n\n    def read_json(self):\n        length = int(\n            self.headers.get("Content-Length", "0") or 0\n        )\n        raw = self.rfile.read(length) if length else b"{}"\n\n        try:\n            return json.loads(raw.decode("utf-8"))\n        except (json.JSONDecodeError, UnicodeDecodeError):\n            return {}\n\n    def do_GET(self):\n        parsed = urlparse(self.path)\n        path = parsed.path\n        query = parse_qs(parsed.query)\n\n        if path == "/api/health":\n            return self.send_json({\n                "ok": True,\n                "service": "abqaryno-generated-api"\n            })\n\n        if path == "/api/consultations":\n            user_id = query.get("user_id", [None])[0]\n\n            sql = """\n                SELECT id, user_id, consultant_id,\n                       type, status, subject, created_at\n                FROM consultations\n            """\n            params = []\n\n            if user_id:\n                sql += " WHERE user_id = ?"\n                params.append(int(user_id))\n\n            sql += " ORDER BY id DESC"\n\n            with connection() as db:\n                rows = db.execute(sql, params).fetchall()\n\n            return self.send_json({\n                "ok": True,\n                "consultations": [row_dict(r) for r in rows]\n            })\n\n        if path == "/api/conversations":\n            conversation_id = query.get("id", [None])[0]\n            consultation_id = query.get("consultation_id", [None])[0]\n\n            with connection() as db:\n                if consultation_id:\n                    rows = db.execute(\n                        """\n                        SELECT id, consultation_id, title, created_at\n                        FROM conversations\n                        WHERE consultation_id = ?\n                        ORDER BY id\n                        """,\n                        (int(consultation_id),)\n                    ).fetchall()\n                elif conversation_id:\n                    rows = db.execute(\n                        """\n                        SELECT id, consultation_id, title, created_at\n                        FROM conversations\n                        WHERE id = ?\n                        """,\n                        (int(conversation_id),)\n                    ).fetchall()\n                else:\n                    return self.send_json({\n                        "ok": False,\n                        "error": "consultation_id أو id مطلوب"\n                    }, 400)\n\n            return self.send_json({\n                "ok": True,\n                "conversations": [row_dict(r) for r in rows]\n            })\n\n        if path == "/api/messages":\n            conversation_id = query.get("conversation_id", [None])[0]\n\n            if not conversation_id:\n                return self.send_json({\n                    "ok": False,\n                    "error": "conversation_id مطلوب"\n                }, 400)\n\n            with connection() as db:\n                rows = db.execute(\n                    """\n                    SELECT\n                        m.id,\n                        m.conversation_id,\n                        m.sender_id,\n                        u.name AS sender_name,\n                        m.message,\n                        m.created_at\n                    FROM messages m\n                    LEFT JOIN users u ON u.id = m.sender_id\n                    WHERE m.conversation_id = ?\n                    ORDER BY m.id\n                    """,\n                    (int(conversation_id),)\n                ).fetchall()\n\n            return self.send_json({\n                "ok": True,\n                "messages": [row_dict(r) for r in rows]\n            })\n\n        if path == "/api/documents":\n            conversation_id = query.get("conversation_id", [None])[0]\n\n            if not conversation_id:\n                return self.send_json({\n                    "ok": False,\n                    "error": "conversation_id مطلوب"\n                }, 400)\n\n            with connection() as db:\n                rows = db.execute(\n                    """\n                    SELECT id, conversation_id, uploaded_by,\n                           name, file_path, mime_type, created_at\n                    FROM documents\n                    WHERE conversation_id = ?\n                    ORDER BY id\n                    """,\n                    (int(conversation_id),)\n                ).fetchall()\n\n            return self.send_json({\n                "ok": True,\n                "documents": [row_dict(r) for r in rows]\n            })\n\n        return super().do_GET()\n\n    def do_POST(self):\n        path = urlparse(self.path).path\n\n        if path == "/api/users":\n            data = self.read_json()\n            name = str(data.get("name", "")).strip()\n\n            if not name:\n                return self.send_json({\n                    "ok": False,\n                    "error": "name مطلوب"\n                }, 400)\n\n            with connection() as db:\n                cur = db.execute(\n                    """\n                    INSERT INTO users\n                    (name, email, phone, password_hash, created_at)\n                    VALUES (?, ?, ?, ?, ?)\n                    """,\n                    (\n                        name,\n                        data.get("email"),\n                        data.get("phone"),\n                        data.get("password_hash"),\n                        now()\n                    )\n                )\n                db.commit()\n\n            return self.send_json({\n                "ok": True,\n                "user": {\n                    "id": cur.lastrowid,\n                    "name": name\n                }\n            }, 201)\n\n        if path == "/api/consultations":\n            data = self.read_json()\n\n            user_id = data.get("user_id")\n            consultation_type = str(\n                data.get("type", "")\n            ).strip().lower()\n\n            if not user_id:\n                return self.send_json({\n                    "ok": False,\n                    "error": "user_id مطلوب"\n                }, 400)\n\n            if consultation_type not in {"free", "private"}:\n                return self.send_json({\n                    "ok": False,\n                    "error": "type يجب أن يكون free أو private"\n                }, 400)\n\n            with connection() as db:\n                cur = db.execute(\n                    """\n                    INSERT INTO consultations\n                    (user_id, consultant_id, type, status,\n                     subject, created_at)\n                    VALUES (?, ?, ?, ?, ?, ?)\n                    """,\n                    (\n                        int(user_id),\n                        data.get("consultant_id"),\n                        consultation_type,\n                        "open",\n                        data.get("subject"),\n                        now()\n                    )\n                )\n\n                consultation_id = cur.lastrowid\n\n                conv = db.execute(\n                    """\n                    INSERT INTO conversations\n                    (consultation_id, title, created_at)\n                    VALUES (?, ?, ?)\n                    """,\n                    (\n                        consultation_id,\n                        data.get("subject") or "محادثة الاستشارة",\n                        now()\n                    )\n                )\n\n                conversation_id = conv.lastrowid\n                db.commit()\n\n            return self.send_json({\n                "ok": True,\n                "consultation": {\n                    "id": consultation_id,\n                    "type": consultation_type,\n                    "status": "open"\n                },\n                "conversation": {\n                    "id": conversation_id\n                }\n            }, 201)\n\n        if path == "/api/messages":\n            data = self.read_json()\n\n            conversation_id = data.get("conversation_id")\n            sender_id = data.get("sender_id")\n            message = str(data.get("message", "")).strip()\n\n            if not conversation_id or not sender_id or not message:\n                return self.send_json({\n                    "ok": False,\n                    "error": "conversation_id و sender_id و message مطلوبة"\n                }, 400)\n\n            with connection() as db:\n                cur = db.execute(\n                    """\n                    INSERT INTO messages\n                    (conversation_id, sender_id, message, created_at)\n                    VALUES (?, ?, ?, ?)\n                    """,\n                    (\n                        int(conversation_id),\n                        int(sender_id),\n                        message,\n                        now()\n                    )\n                )\n                db.commit()\n\n                row = db.execute(\n                    """\n                    SELECT\n                        m.id,\n                        m.conversation_id,\n                        m.sender_id,\n                        u.name AS sender_name,\n                        m.message,\n                        m.created_at\n                    FROM messages m\n                    LEFT JOIN users u ON u.id = m.sender_id\n                    WHERE m.id = ?\n                    """,\n                    (cur.lastrowid,)\n                ).fetchone()\n\n            return self.send_json({\n                "ok": True,\n                "message": row_dict(row)\n            }, 201)\n\n        if path == "/api/documents":\n            content_type = self.headers.get("Content-Type", "")\n\n            if not content_type.startswith("multipart/form-data"):\n                return self.send_json({\n                    "ok": False,\n                    "error": "رفع الملفات يحتاج multipart/form-data"\n                }, 400)\n\n            length = int(\n                self.headers.get("Content-Length", "0") or 0\n            )\n            raw = self.rfile.read(length)\n\n            header = (\n                b"Content-Type: " +\n                content_type.encode("utf-8") +\n                b"\\r\\nMIME-Version: 1.0\\r\\n\\r\\n"\n            )\n\n            message = BytesParser(\n                policy=default\n            ).parsebytes(header + raw)\n\n            fields = {}\n            uploaded = None\n\n            for part in message.iter_parts():\n                name = part.get_param(\n                    "name",\n                    header="Content-Disposition"\n                )\n                filename = part.get_filename()\n                payload = part.get_payload(decode=True) or b""\n\n                if filename:\n                    uploaded = (\n                        filename,\n                        part.get_content_type(),\n                        payload\n                    )\n                elif name:\n                    fields[name] = payload.decode(\n                        "utf-8",\n                        errors="replace"\n                    )\n\n            if uploaded is None:\n                return self.send_json({\n                    "ok": False,\n                    "error": "لم يتم إرسال ملف"\n                }, 400)\n\n            conversation_id = fields.get("conversation_id")\n            uploaded_by = fields.get("uploaded_by")\n\n            if not conversation_id or not uploaded_by:\n                return self.send_json({\n                    "ok": False,\n                    "error": "conversation_id و uploaded_by مطلوبان"\n                }, 400)\n\n            original_name, mime_type, payload = uploaded\n\n            safe_name = (\n                uuid.uuid4().hex +\n                "_" +\n                Path(original_name).name\n            )\n\n            file_path = UPLOADS / safe_name\n            file_path.write_bytes(payload)\n\n            with connection() as db:\n                cur = db.execute(\n                    """\n                    INSERT INTO documents\n                    (conversation_id, uploaded_by, name,\n                     file_path, mime_type, created_at)\n                    VALUES (?, ?, ?, ?, ?, ?)\n                    """,\n                    (\n                        int(conversation_id),\n                        int(uploaded_by),\n                        original_name,\n                        str(file_path.relative_to(ROOT)),\n                        mime_type,\n                        now()\n                    )\n                )\n                db.commit()\n\n            return self.send_json({\n                "ok": True,\n                "document": {\n                    "id": cur.lastrowid,\n                    "name": original_name,\n                    "mime_type": mime_type,\n                    "file_path": str(file_path.relative_to(ROOT))\n                }\n            }, 201)\n\n        return self.send_json({\n            "ok": False,\n            "error": "API not found"\n        }, 404)\n\n\ninitialize_database()\n\nos.chdir(PUBLIC)\n\nserver = ThreadingHTTPServer(\n    ("127.0.0.1", 8080),\n    GeneratedHandler\n)\n\nprint("Generated project: http://127.0.0.1:8080")\nserver.serve_forever()\n'
+        (target / 'server' / 'server.py').write_text(server_template, encoding='utf-8')
+        (target / 'routes' / '__init__.py').write_text('', encoding='utf-8')
+        (target / 'services' / '__init__.py').write_text('', encoding='utf-8')
+        database_dir = target / 'database'
+        schema_sql = DatabaseEngine().schema(requirements)
+        (database_dir / 'schema.sql').write_text(schema_sql, encoding='utf-8')
         database_py = 'from pathlib import Path\nimport sqlite3\n\nDATABASE = Path(__file__).resolve().parent / "app.db"\nSCHEMA = Path(__file__).resolve().parent / "schema.sql"\n\n\ndef get_connection():\n    connection = sqlite3.connect(DATABASE)\n    connection.row_factory = sqlite3.Row\n    connection.execute("PRAGMA foreign_keys = ON")\n    return connection\n\n\ndef initialize():\n    schema = SCHEMA.read_text(encoding="utf-8")\n\n    with get_connection() as connection:\n        connection.executescript(schema)\n        connection.commit()\n\n    return DATABASE\n\n\nif __name__ == "__main__":\n    path = initialize()\n    print(f"Database initialized: {path}")\n'
-
-        (database_dir / "database.py").write_text(
-            database_py,
-            encoding="utf-8"
-        )
-
-        (database_dir / "README.md").write_text(
-            "# قاعدة بيانات المشروع\\n\\n"
-            "- app.db — قاعدة SQLite الفعلية\\n"
-            "- schema.sql — مخطط قاعدة البيانات\\n"
-            "- database.py — تهيئة والاتصال بقاعدة البيانات\\n",
-            encoding="utf-8"
-        )
-
+        (database_dir / 'database.py').write_text(database_py, encoding='utf-8')
+        (database_dir / 'README.md').write_text('# قاعدة بيانات المشروع\\n\\n- app.db — قاعدة SQLite الفعلية\\n- schema.sql — مخطط قاعدة البيانات\\n- database.py — تهيئة والاتصال بقاعدة البيانات\\n', encoding='utf-8')
         import sqlite3
+        database_file = database_dir / 'app.db'
 
-        database_file = database_dir / "app.db"
+        # كل توليد جديد يجب أن يبدأ بقاعدة بيانات مطابقة
+        # للمخطط الحالي، وليس بقاعدة قديمة من توليد سابق.
+        if database_file.exists():
+            database_file.unlink()
 
         with sqlite3.connect(database_file) as connection:
             connection.executescript(schema_sql)
             connection.commit()
-
-        (target / "uploads" / ".gitkeep").write_text(
-            "",
-            encoding="utf-8"
-        )
-
-        option_ids = {
-            str(option.get("option_id", "")).strip()
-            for option in options
-            if isinstance(option, dict)
-        }
-
-        if "ocr" in option_ids:
-            (target / "services" / "ocr.py").write_text(
-                'from pathlib import Path\nimport subprocess\n\n\nclass OCRService:\n    """خدمة OCR اختيارية للمشروع الناتج."""\n\n    def extract_text(self, image_path, language="eng"):\n        image_path = Path(image_path)\n\n        if not image_path.exists():\n            raise FileNotFoundError(f"ملف الصورة غير موجود: {image_path}")\n\n        try:\n            result = subprocess.run(\n                [\n                    "tesseract",\n                    str(image_path),\n                    "stdout",\n                    "-l",\n                    str(language or "eng"),\n                ],\n                capture_output=True,\n                text=True,\n                check=True,\n            )\n        except FileNotFoundError as exc:\n            raise RuntimeError("Tesseract OCR غير مثبت في بيئة التشغيل.") from exc\n        except subprocess.CalledProcessError as exc:\n            message = exc.stderr.strip() or "فشل استخراج النص من الصورة."\n            raise RuntimeError(message) from exc\n\n        return result.stdout.strip()\n\n\ndef extract_text(image_path, language="eng"):\n    return OCRService().extract_text(image_path, language)\n',
-                encoding="utf-8"
-            )
-
-            (target / "routes" / "ocr.py").write_text(
-                'from pathlib import Path\n\nfrom services.ocr import OCRService\n\n\ndef extract_uploaded_image(image_path, language="eng"):\n    return OCRService().extract_text(\n        Path(image_path),\n        language,\n    )\n',
-                encoding="utf-8"
-            )
-
-            (target / "OCR.md").write_text(
-                "# OCR\n\n"
-                "تمت إضافة خدمة OCR لأن خيار OCR تم اختياره أثناء إنشاء المشروع.\n\n"
-                "الخدمة موجودة في services/ocr.py.\n"
-                "المسار المساعد موجود في routes/ocr.py.\n"
-                "تحتاج بيئة التشغيل إلى Tesseract OCR.\n",
-                encoding="utf-8"
-            )
-
-        if "translation" in option_ids:
-            (target / "services" / "translation.py").write_text(
-                'from dataclasses import dataclass\n\n\n@dataclass\nclass TranslationResult:\n    source_text: str\n    source_language: str\n    target_language: str\n    translated_text: str\n\n\nclass TranslationService:\n    """خدمة ترجمة اختيارية للمشروع الناتج."""\n\n    def translate(\n        self,\n        source_text,\n        source_language="auto",\n        target_language="ar",\n    ):\n        source_text = str(source_text or "").strip()\n        source_language = str(source_language or "auto").strip()\n        target_language = str(target_language or "ar").strip()\n\n        if not source_text:\n            raise ValueError("النص المطلوب ترجمته فارغ.")\n\n        raise RuntimeError(\n            "محرك الترجمة غير موصل بعد. الخدمة جاهزة للربط بمحرك ترجمة."\n        )\n\n\ndef translate(\n    source_text,\n    source_language="auto",\n    target_language="ar",\n):\n    return TranslationService().translate(\n        source_text,\n        source_language,\n        target_language,\n    )\n',
-                encoding="utf-8"
-            )
-
-            (target / "routes" / "translation.py").write_text(
-                'from services.translation import TranslationService\n\n\ndef translate_text(\n    source_text,\n    source_language="auto",\n    target_language="ar",\n):\n    return TranslationService().translate(\n        source_text,\n        source_language,\n        target_language,\n    )\n',
-                encoding="utf-8"
-            )
-
-            (target / "TRANSLATION.md").write_text(
-                "# Translation\n\n"
-                "تمت إضافة خدمة الترجمة لأن خيار Translation تم اختياره أثناء إنشاء المشروع.\n\n"
-                "الخدمة موجودة في services/translation.py.\n"
-                "المسار المساعد موجود في routes/translation.py.\n"
-                "محرك الترجمة يحتاج إلى الربط بمزود ترجمة عند تشغيله.\n",
-                encoding="utf-8"
-            )
-
-        if "voice" in option_ids:
-            (target / "services" / "voice.py").write_text(
-                'from pathlib import Path\nimport subprocess\n\n\nclass VoiceService:\n    """خدمة الصوت الاختيارية للمشروع الناتج."""\n\n    def transcribe(self, audio_path, language="ar"):\n        audio_path = Path(audio_path)\n\n        if not audio_path.exists():\n            raise FileNotFoundError(\n                f"ملف الصوت غير موجود: {audio_path}"\n            )\n\n        raise RuntimeError(\n            "محرك تحويل الصوت إلى نص غير موصل بعد. "\n            "الخدمة جاهزة للربط بمحرك STT."\n        )\n\n    def synthesize(self, text, language="ar", output_path=None):\n        text = str(text or "").strip()\n\n        if not text:\n            raise ValueError("النص المطلوب تحويله إلى صوت فارغ.")\n\n        raise RuntimeError(\n            "محرك تحويل النص إلى صوت غير موصل بعد. "\n            "الخدمة جاهزة للربط بمحرك TTS."\n        )\n\n\ndef transcribe(audio_path, language="ar"):\n    return VoiceService().transcribe(audio_path, language)\n\n\ndef synthesize(text, language="ar", output_path=None):\n    return VoiceService().synthesize(\n        text,\n        language,\n        output_path,\n    )\n',
-                encoding="utf-8"
-            )
-
-            (target / "routes" / "voice.py").write_text(
-                'from services.voice import VoiceService\n\n\ndef transcribe_audio(audio_path, language="ar"):\n    return VoiceService().transcribe(\n        audio_path,\n        language,\n    )\n\n\ndef synthesize_text(\n    text,\n    language="ar",\n    output_path=None,\n):\n    return VoiceService().synthesize(\n        text,\n        language,\n        output_path,\n    )\n',
-                encoding="utf-8"
-            )
-
-            (target / "VOICE.md").write_text(
-                "# Voice\n\n"
-                "تمت إضافة خدمة الصوت لأن خيار Voice تم اختياره أثناء إنشاء المشروع.\n\n"
-                "الخدمة موجودة في services/voice.py.\n"
-                "المسار المساعد موجود في routes/voice.py.\n"
-                "الخدمة جاهزة للربط بمحركات STT وTTS.\n",
-                encoding="utf-8"
-            )
-
-        if "search" in option_ids:
-            (target / "services" / "search.py").write_text(
-                '''from dataclasses import dataclass
-
-
-@dataclass
-class SearchResult:
-    query: str
-    results: list
-
-
-class SearchService:
-    """خدمة البحث الاختيارية للمشروع الناتج."""
-
-    def search(self, query, items=None):
-        query = str(query or "").strip()
-
-        if not query:
-            raise ValueError("عبارة البحث مطلوبة.")
-
-        items = items or []
-        query_lower = query.casefold()
-
-        results = [
-            item
-            for item in items
-            if query_lower in str(item).casefold()
-        ]
-
-        return SearchResult(
-            query=query,
-            results=results,
-        )
-
-
-def search(query, items=None):
-    return SearchService().search(query, items)
-''',
-                encoding="utf-8"
-            )
-
-            (target / "routes" / "search.py").write_text(
-                '''from services.search import SearchService
-
-
-def search_items(query, items=None):
-    return SearchService().search(
-        query,
-        items,
-    )
-''',
-                encoding="utf-8"
-            )
-
-            (target / "SEARCH.md").write_text(
-                "# Search\\n\\n"
-                "تمت إضافة خدمة البحث لأن خيار البحث تم اختياره أثناء إنشاء المشروع.\\n\\n"
-                "الخدمة موجودة في services/search.py.\\n"
-                "المسار المساعد موجود في routes/search.py.\\n",
-                encoding="utf-8"
-            )
-
-        if "advanced_reports" in option_ids:
-            (target / "services" / "reports.py").write_text(
-                'from dataclasses import dataclass\nfrom datetime import datetime\n\n\n@dataclass\nclass ReportResult:\n    title: str\n    generated_at: str\n    data: dict\n\n\nclass ReportsService:\n    """خدمة التقارير المتقدمة الاختيارية للمشروع الناتج."""\n\n    def generate(self, title, data=None):\n        title = str(title or "").strip()\n\n        if not title:\n            raise ValueError("عنوان التقرير مطلوب.")\n\n        return ReportResult(\n            title=title,\n            generated_at=datetime.now().isoformat(),\n            data=data or {},\n        )\n\n\ndef generate_report(title, data=None):\n    return ReportsService().generate(title, data)\n',
-                encoding="utf-8"
-            )
-
-            (target / "routes" / "reports.py").write_text(
-                'from services.reports import ReportsService\n\n\ndef generate_report(title, data=None):\n    return ReportsService().generate(\n        title,\n        data,\n    )\n',
-                encoding="utf-8"
-            )
-
-            (target / "REPORTS.md").write_text(
-                "# Advanced Reports\n\n"
-                "تمت إضافة خدمة التقارير المتقدمة لأن الخيار تم اختياره أثناء إنشاء المشروع.\n\n"
-                "الخدمة موجودة في services/reports.py.\n"
-                "المسار المساعد موجود في routes/reports.py.\n",
-                encoding="utf-8"
-            )
-
-        (target / "README.md").write_text(
-            f"""# {idea}
-
-تم إنشاء هذا المشروع بواسطة عبقرينو Studio.
-
-## البنية
-
-- public — واجهة البرنامج
-- server — تشغيل المشروع
-- routes — مسارات التطبيق
-- services — الخدمات والمنطق
-- database — طبقة البيانات
-- uploads — الملفات المرفوعة
-- .abqaryno-requirements.json — المتطلبات والشاشات المعتمدة
-
-## التشغيل
-
-python server/server.py
-""",
-            encoding="utf-8"
-        )
-
-        # --------------------------------------------------------------
-        # ABQARYNO CREATION VERIFICATION GATE
-        # لا تعتبر عملية الإنشاء مكتملة قبل فحص المشروع الناتج فعليًا.
-        # --------------------------------------------------------------
+        (target / 'uploads' / '.gitkeep').write_text('', encoding='utf-8')
+        if 'ocr' in option_ids:
+            (target / 'services' / 'ocr.py').write_text('from pathlib import Path\nimport subprocess\n\n\nclass OCRService:\n    """خدمة OCR اختيارية للمشروع الناتج."""\n\n    def extract_text(self, image_path, language="eng"):\n        image_path = Path(image_path)\n\n        if not image_path.exists():\n            raise FileNotFoundError(f"ملف الصورة غير موجود: {image_path}")\n\n        try:\n            result = subprocess.run(\n                [\n                    "tesseract",\n                    str(image_path),\n                    "stdout",\n                    "-l",\n                    str(language or "eng"),\n                ],\n                capture_output=True,\n                text=True,\n                check=True,\n            )\n        except FileNotFoundError as exc:\n            raise RuntimeError("Tesseract OCR غير مثبت في بيئة التشغيل.") from exc\n        except subprocess.CalledProcessError as exc:\n            message = exc.stderr.strip() or "فشل استخراج النص من الصورة."\n            raise RuntimeError(message) from exc\n\n        return result.stdout.strip()\n\n\ndef extract_text(image_path, language="eng"):\n    return OCRService().extract_text(image_path, language)\n', encoding='utf-8')
+            (target / 'routes' / 'ocr.py').write_text('from pathlib import Path\n\nfrom services.ocr import OCRService\n\n\ndef extract_uploaded_image(image_path, language="eng"):\n    return OCRService().extract_text(\n        Path(image_path),\n        language,\n    )\n', encoding='utf-8')
+            (target / 'OCR.md').write_text('# OCR\n\nتمت إضافة خدمة OCR لأن خيار OCR تم اختياره أثناء إنشاء المشروع.\n\nالخدمة موجودة في services/ocr.py.\nالمسار المساعد موجود في routes/ocr.py.\nتحتاج بيئة التشغيل إلى Tesseract OCR.\n', encoding='utf-8')
+        if 'translation' in option_ids:
+            (target / 'services' / 'translation.py').write_text('from dataclasses import dataclass\n\n\n@dataclass\nclass TranslationResult:\n    source_text: str\n    source_language: str\n    target_language: str\n    translated_text: str\n\n\nclass TranslationService:\n    """خدمة ترجمة اختيارية للمشروع الناتج."""\n\n    def translate(\n        self,\n        source_text,\n        source_language="auto",\n        target_language="ar",\n    ):\n        source_text = str(source_text or "").strip()\n        source_language = str(source_language or "auto").strip()\n        target_language = str(target_language or "ar").strip()\n\n        if not source_text:\n            raise ValueError("النص المطلوب ترجمته فارغ.")\n\n        raise RuntimeError(\n            "محرك الترجمة غير موصل بعد. الخدمة جاهزة للربط بمحرك ترجمة."\n        )\n\n\ndef translate(\n    source_text,\n    source_language="auto",\n    target_language="ar",\n):\n    return TranslationService().translate(\n        source_text,\n        source_language,\n        target_language,\n    )\n', encoding='utf-8')
+            (target / 'routes' / 'translation.py').write_text('from services.translation import TranslationService\n\n\ndef translate_text(\n    source_text,\n    source_language="auto",\n    target_language="ar",\n):\n    return TranslationService().translate(\n        source_text,\n        source_language,\n        target_language,\n    )\n', encoding='utf-8')
+            (target / 'TRANSLATION.md').write_text('# Translation\n\nتمت إضافة خدمة الترجمة لأن خيار Translation تم اختياره أثناء إنشاء المشروع.\n\nالخدمة موجودة في services/translation.py.\nالمسار المساعد موجود في routes/translation.py.\nمحرك الترجمة يحتاج إلى الربط بمزود ترجمة عند تشغيله.\n', encoding='utf-8')
+        if 'voice' in option_ids:
+            (target / 'services' / 'voice.py').write_text('from pathlib import Path\nimport subprocess\n\n\nclass VoiceService:\n    """خدمة الصوت الاختيارية للمشروع الناتج."""\n\n    def transcribe(self, audio_path, language="ar"):\n        audio_path = Path(audio_path)\n\n        if not audio_path.exists():\n            raise FileNotFoundError(\n                f"ملف الصوت غير موجود: {audio_path}"\n            )\n\n        raise RuntimeError(\n            "محرك تحويل الصوت إلى نص غير موصل بعد. "\n            "الخدمة جاهزة للربط بمحرك STT."\n        )\n\n    def synthesize(self, text, language="ar", output_path=None):\n        text = str(text or "").strip()\n\n        if not text:\n            raise ValueError("النص المطلوب تحويله إلى صوت فارغ.")\n\n        raise RuntimeError(\n            "محرك تحويل النص إلى صوت غير موصل بعد. "\n            "الخدمة جاهزة للربط بمحرك TTS."\n        )\n\n\ndef transcribe(audio_path, language="ar"):\n    return VoiceService().transcribe(audio_path, language)\n\n\ndef synthesize(text, language="ar", output_path=None):\n    return VoiceService().synthesize(\n        text,\n        language,\n        output_path,\n    )\n', encoding='utf-8')
+            (target / 'routes' / 'voice.py').write_text('from services.voice import VoiceService\n\n\ndef transcribe_audio(audio_path, language="ar"):\n    return VoiceService().transcribe(\n        audio_path,\n        language,\n    )\n\n\ndef synthesize_text(\n    text,\n    language="ar",\n    output_path=None,\n):\n    return VoiceService().synthesize(\n        text,\n        language,\n        output_path,\n    )\n', encoding='utf-8')
+            (target / 'VOICE.md').write_text('# Voice\n\nتمت إضافة خدمة الصوت لأن خيار Voice تم اختياره أثناء إنشاء المشروع.\n\nالخدمة موجودة في services/voice.py.\nالمسار المساعد موجود في routes/voice.py.\nالخدمة جاهزة للربط بمحركات STT وTTS.\n', encoding='utf-8')
+        if 'search' in option_ids:
+            (target / 'services' / 'search.py').write_text('from dataclasses import dataclass\n\n\n@dataclass\nclass SearchResult:\n    query: str\n    results: list\n\n\nclass SearchService:\n    """خدمة البحث الاختيارية للمشروع الناتج."""\n\n    def search(self, query, items=None):\n        query = str(query or "").strip()\n\n        if not query:\n            raise ValueError("عبارة البحث مطلوبة.")\n\n        items = items or []\n        query_lower = query.casefold()\n\n        results = [\n            item\n            for item in items\n            if query_lower in str(item).casefold()\n        ]\n\n        return SearchResult(\n            query=query,\n            results=results,\n        )\n\n\ndef search(query, items=None):\n    return SearchService().search(query, items)\n', encoding='utf-8')
+            (target / 'routes' / 'search.py').write_text('from services.search import SearchService\n\n\ndef search_items(query, items=None):\n    return SearchService().search(\n        query,\n        items,\n    )\n', encoding='utf-8')
+            (target / 'SEARCH.md').write_text('# Search\\n\\nتمت إضافة خدمة البحث لأن خيار البحث تم اختياره أثناء إنشاء المشروع.\\n\\nالخدمة موجودة في services/search.py.\\nالمسار المساعد موجود في routes/search.py.\\n', encoding='utf-8')
+        if 'advanced_reports' in option_ids:
+            (target / 'services' / 'reports.py').write_text('from dataclasses import dataclass\nfrom datetime import datetime\n\n\n@dataclass\nclass ReportResult:\n    title: str\n    generated_at: str\n    data: dict\n\n\nclass ReportsService:\n    """خدمة التقارير المتقدمة الاختيارية للمشروع الناتج."""\n\n    def generate(self, title, data=None):\n        title = str(title or "").strip()\n\n        if not title:\n            raise ValueError("عنوان التقرير مطلوب.")\n\n        return ReportResult(\n            title=title,\n            generated_at=datetime.now().isoformat(),\n            data=data or {},\n        )\n\n\ndef generate_report(title, data=None):\n    return ReportsService().generate(title, data)\n', encoding='utf-8')
+            (target / 'routes' / 'reports.py').write_text('from services.reports import ReportsService\n\n\ndef generate_report(title, data=None):\n    return ReportsService().generate(\n        title,\n        data,\n    )\n', encoding='utf-8')
+            (target / 'REPORTS.md').write_text('# Advanced Reports\n\nتمت إضافة خدمة التقارير المتقدمة لأن الخيار تم اختياره أثناء إنشاء المشروع.\n\nالخدمة موجودة في services/reports.py.\nالمسار المساعد موجود في routes/reports.py.\n', encoding='utf-8')
+        (target / 'README.md').write_text(f'# {idea}\n\nتم إنشاء هذا المشروع بواسطة عبقرينو Studio.\n\n## البنية\n\n- public — واجهة البرنامج\n- server — تشغيل المشروع\n- routes — مسارات التطبيق\n- services — الخدمات والمنطق\n- database — طبقة البيانات\n- uploads — الملفات المرفوعة\n- .abqaryno-requirements.json — المتطلبات والشاشات المعتمدة\n\n## التشغيل\n\npython server/server.py\n', encoding='utf-8')
         verification = CreationVerificationEngine().verify(target)
-
-        manifest["verification"] = verification
-
-        if verification["status"] != "PASSED":
-            manifest["creation_status"] = "VERIFICATION_FAILED"
+        manifest['verification'] = verification
+        if verification['status'] != 'PASSED':
+            manifest['creation_status'] = 'VERIFICATION_FAILED'
         else:
-            manifest["creation_status"] = "VERIFIED"
-
-        (target / ".abqaryno-requirements.json").write_text(
-            json.dumps(manifest, ensure_ascii=False, indent=2),
-            encoding="utf-8",
-        )
-
-        return target, manifest
-
+            manifest['creation_status'] = 'VERIFIED'
+        (target / '.abqaryno-requirements.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding='utf-8')
+        return (target, manifest)
 
 class CreationVerificationEngine:
     """بوابة تحقق فعلية للمشاريع التي ينشئها عبقرينو."""
-
-    NODE_REQUIRED_FILES = (
-        "package.json",
-        "server.js",
-        "database/schema.sql",
-        "public/index.html",
-    )
-
-    PYTHON_REQUIRED_FILES = (
-        "README.md",
-        "public/index.html",
-        "public/css/style.css",
-        "public/js/app.js",
-        "server/server.py",
-        "database/schema.sql",
-        "database/database.py",
-        "database/app.db",
-        ".abqaryno-requirements.json",
-    )
+    NODE_REQUIRED_FILES = ('package.json', 'server.js', 'database/schema.sql', 'public/index.html')
+    PYTHON_REQUIRED_FILES = ('README.md', 'public/index.html', 'public/css/style.css', 'public/js/app.js', 'server/server.py', 'database/schema.sql', 'database/database.py', 'database/app.db', '.abqaryno-requirements.json')
 
     @staticmethod
     def _run_http_check(url):
         import urllib.request
-
-        request = urllib.request.Request(
-            url,
-            method="GET",
-            headers={"User-Agent": "Abqaryno-Verification/1.0"},
-        )
-
-        with urllib.request.urlopen(
-            request,
-            timeout=5,
-        ) as response:
-            body = response.read(4096).decode(
-                "utf-8",
-                errors="replace",
-            )
-
-            return {
-                "status_code": response.status,
-                "body_bytes_checked": len(body),
-            }
+        request = urllib.request.Request(url, method='GET', headers={'User-Agent': 'Abqaryno-Verification/1.0'})
+        with urllib.request.urlopen(request, timeout=5) as response:
+            body = response.read(4096).decode('utf-8', errors='replace')
+            return {'status_code': response.status, 'body_bytes_checked': len(body)}
 
     @staticmethod
     def _detect_port(target):
         import json
         import re
-
-        package_path = target / "package.json"
-        server_path = target / "server.js"
-
+        package_path = target / 'package.json'
+        server_path = target / 'server.js'
         port = 3000
-
         if package_path.exists():
             try:
-                package = json.loads(
-                    package_path.read_text(
-                        encoding="utf-8"
-                    )
-                )
-
-                config_port = (
-                    package.get("abqaryno", {})
-                    .get("port")
-                )
-
+                package = json.loads(package_path.read_text(encoding='utf-8'))
+                config_port = package.get('abqaryno', {}).get('port')
                 if isinstance(config_port, int):
                     port = config_port
             except Exception:
                 pass
-
         if server_path.exists():
             try:
-                server_text = server_path.read_text(
-                    encoding="utf-8"
-                )
-
-                matches = re.findall(
-                    r"listen\s*\(\s*(?:process\.env\.\w+\s*\|\|\s*)?(\d+)",
-                    server_text,
-                )
-
+                server_text = server_path.read_text(encoding='utf-8')
+                matches = re.findall('listen\\s*\\(\\s*(?:process\\.env\\.\\w+\\s*\\|\\|\\s*)?(\\d+)', server_text)
                 if matches:
                     port = int(matches[-1])
             except Exception:
                 pass
-
         return port
 
     def _verify_node_project(self, target, checks):
@@ -3597,182 +1437,54 @@ class CreationVerificationEngine:
         import shutil
         import subprocess
         import time
-
-        missing = [
-            item for item in self.NODE_REQUIRED_FILES
-            if not (target / item).exists()
-        ]
-
-        checks.append({
-            "name": "required_files",
-            "status": "PASSED" if not missing else "FAILED",
-            "missing": missing,
-        })
-
+        missing = [item for item in self.NODE_REQUIRED_FILES if not (target / item).exists()]
+        checks.append({'name': 'required_files', 'status': 'PASSED' if not missing else 'FAILED', 'missing': missing})
         if missing:
             return
-
-        node = shutil.which("node")
-
+        node = shutil.which('node')
         if not node:
-            checks.append({
-                "name": "node_available",
-                "status": "FAILED",
-                "error": "node executable not found",
-            })
+            checks.append({'name': 'node_available', 'status': 'FAILED', 'error': 'node executable not found'})
             return
-
-        syntax = subprocess.run(
-            [node, "--check", "server.js"],
-            cwd=target,
-            text=True,
-            capture_output=True,
-            timeout=15,
-        )
-
-        checks.append({
-            "name": "node_syntax",
-            "status": (
-                "PASSED"
-                if syntax.returncode == 0
-                else "FAILED"
-            ),
-            "exit_code": syntax.returncode,
-            "stdout": syntax.stdout[-2000:],
-            "stderr": syntax.stderr[-2000:],
-        })
-
+        syntax = subprocess.run([node, '--check', 'server.js'], cwd=target, text=True, capture_output=True, timeout=15)
+        checks.append({'name': 'node_syntax', 'status': 'PASSED' if syntax.returncode == 0 else 'FAILED', 'exit_code': syntax.returncode, 'stdout': syntax.stdout[-2000:], 'stderr': syntax.stderr[-2000:]})
         if syntax.returncode != 0:
             return
-
-        package_path = target / "package.json"
-        package = json.loads(
-            package_path.read_text(
-                encoding="utf-8"
-            )
-        )
-
-        dependencies = package.get(
-            "dependencies",
-            {}
-        )
-
-        if dependencies and not (
-            target / "node_modules"
-        ).exists():
-            npm = shutil.which("npm")
-
+        package_path = target / 'package.json'
+        package = json.loads(package_path.read_text(encoding='utf-8'))
+        dependencies = package.get('dependencies', {})
+        if dependencies and (not (target / 'node_modules').exists()):
+            npm = shutil.which('npm')
             if not npm:
-                checks.append({
-                    "name": "npm_dependencies",
-                    "status": "FAILED",
-                    "error": "npm executable not found",
-                })
+                checks.append({'name': 'npm_dependencies', 'status': 'FAILED', 'error': 'npm executable not found'})
                 return
-
-            install = subprocess.run(
-                [
-                    npm,
-                    "install",
-                    "--no-audit",
-                    "--no-fund",
-                ],
-                cwd=target,
-                text=True,
-                capture_output=True,
-                timeout=180,
-            )
-
-            checks.append({
-                "name": "npm_dependencies",
-                "status": (
-                    "PASSED"
-                    if install.returncode == 0
-                    else "FAILED"
-                ),
-                "exit_code": install.returncode,
-                "stdout": install.stdout[-3000:],
-                "stderr": install.stderr[-3000:],
-            })
-
+            install = subprocess.run([npm, 'install', '--no-audit', '--no-fund'], cwd=target, text=True, capture_output=True, timeout=180)
+            checks.append({'name': 'npm_dependencies', 'status': 'PASSED' if install.returncode == 0 else 'FAILED', 'exit_code': install.returncode, 'stdout': install.stdout[-3000:], 'stderr': install.stderr[-3000:]})
             if install.returncode != 0:
                 return
-
         port = self._detect_port(target)
-
         process = None
-
         try:
-            process = subprocess.Popen(
-                [node, "server.js"],
-                cwd=target,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-            )
-
+            process = subprocess.Popen([node, 'server.js'], cwd=target, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             last_error = None
             http_result = None
-
             for _ in range(20):
                 time.sleep(0.25)
-
                 if process.poll() is not None:
-                    stdout, stderr = process.communicate(
-                        timeout=2
-                    )
-
-                    checks.append({
-                        "name": "runtime_process",
-                        "status": "FAILED",
-                        "exit_code": process.returncode,
-                        "stdout": stdout[-3000:],
-                        "stderr": stderr[-3000:],
-                    })
-
+                    stdout, stderr = process.communicate(timeout=2)
+                    checks.append({'name': 'runtime_process', 'status': 'FAILED', 'exit_code': process.returncode, 'stdout': stdout[-3000:], 'stderr': stderr[-3000:]})
                     return
-
                 try:
-                    http_result = self._run_http_check(
-                        f"http://127.0.0.1:{port}/"
-                    )
+                    http_result = self._run_http_check(f'http://127.0.0.1:{port}/')
                     break
                 except Exception as exc:
                     last_error = str(exc)
-
             if http_result is None:
-                checks.append({
-                    "name": "http_runtime",
-                    "status": "FAILED",
-                    "port": port,
-                    "error": last_error,
-                })
+                checks.append({'name': 'http_runtime', 'status': 'FAILED', 'port': port, 'error': last_error})
                 return
-
-            checks.append({
-                "name": "runtime_process",
-                "status": "PASSED",
-                "port": port,
-            })
-
-            checks.append({
-                "name": "http_runtime",
-                "status": (
-                    "PASSED"
-                    if 200 <= http_result["status_code"] < 500
-                    else "FAILED"
-                ),
-                "port": port,
-                **http_result,
-            })
-
+            checks.append({'name': 'runtime_process', 'status': 'PASSED', 'port': port})
+            checks.append({'name': 'http_runtime', 'status': 'PASSED' if 200 <= http_result['status_code'] < 500 else 'FAILED', 'port': port, **http_result})
         except Exception as exc:
-            checks.append({
-                "name": "http_runtime",
-                "status": "FAILED",
-                "error": str(exc),
-            })
-
+            checks.append({'name': 'http_runtime', 'status': 'FAILED', 'error': str(exc)})
         finally:
             if process is not None:
                 try:
@@ -3785,171 +1497,122 @@ class CreationVerificationEngine:
                         pass
 
     def _verify_python_project(self, target, checks):
-        missing = [
-            item for item in self.PYTHON_REQUIRED_FILES
-            if not (target / item).exists()
-        ]
-
-        checks.append({
-            "name": "required_files",
-            "status": "PASSED" if not missing else "FAILED",
-            "missing": missing,
-        })
-
-        python_files = sorted(
-            target.rglob("*.py")
-        )
-
+        import shutil
+        import subprocess
+        import time
+        missing = [item for item in self.PYTHON_REQUIRED_FILES if not (target / item).exists()]
+        checks.append({'name': 'required_files', 'status': 'PASSED' if not missing else 'FAILED', 'missing': missing})
+        if missing:
+            return
+        python_executable = shutil.which('python3') or shutil.which('python')
+        if not python_executable:
+            checks.append({'name': 'python_available', 'status': 'FAILED', 'error': 'python/python3 executable not found'})
+            return
+        python_files = sorted(target.rglob('*.py'))
         python_errors = []
-
         for py_file in python_files:
             try:
-                compile(
-                    py_file.read_text(
-                        encoding="utf-8"
-                    ),
-                    str(py_file),
-                    "exec",
-                )
+                compile(py_file.read_text(encoding='utf-8'), str(py_file), 'exec')
             except Exception as exc:
-                python_errors.append({
-                    "file": str(
-                        py_file.relative_to(target)
-                    ),
-                    "error": str(exc),
-                })
-
-        checks.append({
-            "name": "python_syntax",
-            "status": (
-                "PASSED"
-                if not python_errors
-                else "FAILED"
-            ),
-            "files_checked": len(python_files),
-            "errors": python_errors,
-        })
-
-        database_status = "PASSED"
+                python_errors.append({'file': str(py_file.relative_to(target)), 'error': str(exc)})
+        checks.append({'name': 'python_syntax', 'status': 'PASSED' if not python_errors else 'FAILED', 'files_checked': len(python_files), 'errors': python_errors})
+        if python_errors:
+            return
+        database_status = 'PASSED'
         database_error = None
-
         try:
             import sqlite3
-
-            database_file = (
-                target / "database" / "app.db"
-            )
-
-            with sqlite3.connect(
-                database_file
-            ) as connection:
-                result = connection.execute(
-                    "PRAGMA integrity_check"
-                ).fetchone()
-
-            if not result or result[0] != "ok":
-                database_status = "FAILED"
-                database_error = str(result)
-
+            database_file = target / 'database' / 'app.db'
+            with sqlite3.connect(database_file) as connection:
+                result = connection.execute('PRAGMA integrity_check').fetchone()
+                if not result or result[0] != 'ok':
+                    database_status = 'FAILED'
+                    database_error = str(result)
         except Exception as exc:
-            database_status = "FAILED"
+            database_status = 'FAILED'
             database_error = str(exc)
-
-        checks.append({
-            "name": "sqlite_integrity",
-            "status": database_status,
-            "error": database_error,
-        })
+        checks.append({'name': 'sqlite_integrity', 'status': database_status, 'error': database_error})
+        if database_status != 'PASSED':
+            return
+        server_path = target / 'server' / 'server.py'
+        if not server_path.exists():
+            checks.append({'name': 'runtime_process', 'status': 'FAILED', 'error': 'Generated Python server not found'})
+            return
+        process = None
+        port = 8080
+        try:
+            process = subprocess.Popen([python_executable, str(server_path)], cwd=target, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            last_error = None
+            http_result = None
+            for _ in range(20):
+                time.sleep(0.25)
+                if process.poll() is not None:
+                    stdout, stderr = process.communicate(timeout=2)
+                    checks.append({'name': 'runtime_process', 'status': 'FAILED', 'exit_code': process.returncode, 'stdout': stdout[-3000:], 'stderr': stderr[-3000:]})
+                    return
+                try:
+                    http_result = self._run_http_check(f'http://127.0.0.1:{port}/')
+                    break
+                except Exception as exc:
+                    last_error = str(exc)
+            if http_result is None:
+                checks.append({'name': 'http_runtime', 'status': 'FAILED', 'port': port, 'error': last_error})
+                return
+            checks.append({'name': 'runtime_process', 'status': 'PASSED', 'port': port})
+            checks.append({'name': 'http_runtime', 'status': 'PASSED' if 200 <= http_result['status_code'] < 500 else 'FAILED', 'port': port, **http_result})
+        except Exception as exc:
+            checks.append({'name': 'http_runtime', 'status': 'FAILED', 'port': port, 'error': str(exc)})
+        finally:
+            if process is not None:
+                try:
+                    process.terminate()
+                    process.wait(timeout=5)
+                except Exception:
+                    try:
+                        process.kill()
+                    except Exception:
+                        pass
 
     def verify(self, target):
         target = Path(target)
         checks = []
-
-        if (target / "server.js").exists():
-            project_type = "node"
-            self._verify_node_project(
-                target,
-                checks,
-            )
-        elif (target / "server/server.py").exists():
-            project_type = "python"
-            self._verify_python_project(
-                target,
-                checks,
-            )
+        if (target / 'server.js').exists():
+            project_type = 'node'
+            self._verify_node_project(target, checks)
+        elif (target / 'server/server.py').exists():
+            project_type = 'python'
+            self._verify_python_project(target, checks)
         else:
-            project_type = "unknown"
-            checks.append({
-                "name": "project_type",
-                "status": "FAILED",
-                "error": "No supported server entry point found",
-            })
-
-        failed = [
-            check["name"]
-            for check in checks
-            if check["status"] != "PASSED"
-        ]
-
-        return {
-            "version": 2,
-            "project_type": project_type,
-            "status": (
-                "FAILED"
-                if failed
-                else "PASSED"
-            ),
-            "checks": checks,
-            "failed_checks": failed,
-        }
-
+            project_type = 'unknown'
+            checks.append({'name': 'project_type', 'status': 'FAILED', 'error': 'No supported server entry point found'})
+        failed = [check['name'] for check in checks if check['status'] != 'PASSED']
+        return {'version': 2, 'project_type': project_type, 'status': 'FAILED' if failed else 'PASSED', 'checks': checks, 'failed_checks': failed}
 
 class FinalReport:
 
-    def write(
-        self,
-        root,
-        target,
-        manifest
-    ):
-
-        reports = Path(root) / "reports"
-
-        reports.mkdir(
-            parents=True,
-            exist_ok=True
-        )
-
-        report = {
-
-            "status": "COMPLETED",
-
-            "time": now(),
-
-            "target": str(target),
-
-            "idea": manifest["idea"],
-
-            "approved_screen_count":
-                len(manifest["approved_screens"]),
-
-            "approved_screens":
-                manifest["approved_screens"]
-
-        }
-
-        path = (
-            reports /
-            "creation-final-report.json"
-        )
-
-        path.write_text(
-            json.dumps(
-                report,
-                ensure_ascii=False,
-                indent=2
-            ),
-            encoding="utf-8"
-        )
-
+    def write(self, root, target, manifest):
+        reports = Path(root) / 'reports'
+        reports.mkdir(parents=True, exist_ok=True)
+        report = {'status': 'COMPLETED', 'time': now(), 'target': str(target), 'idea': manifest['idea'], 'approved_screen_count': len(manifest['approved_screens']), 'approved_screens': manifest['approved_screens']}
+        path = reports / 'creation-final-report.json'
+        path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
         return path
+
+def abqaryno_factory_build(project_generator, project_spec, output_dir, verifier=None):
+    """
+    Real creation pipeline:
+    specification -> ProjectGenerator.generate -> generated project
+    -> CreationVerificationEngine.verify
+    """
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    generated = project_generator.generate(project_spec, output_dir)
+    if not output_dir.exists():
+        raise RuntimeError('Generated project directory was not created')
+    files = [p for p in output_dir.rglob('*') if p.is_file()]
+    if not files:
+        raise RuntimeError('Factory reported generation but produced no files')
+    verification = None
+    if verifier is not None:
+        verification = verifier.verify(output_dir)
+    return {'status': 'PASS', 'output_dir': str(output_dir), 'files_created': len(files), 'verification': verification}

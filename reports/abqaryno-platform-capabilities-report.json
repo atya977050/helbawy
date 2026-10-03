@@ -1,8 +1,8 @@
 {
   "report": "ABQARYNO_PLATFORM_CAPABILITY_REPORT",
   "version": "1.0",
-  "timestamp": "2026-09-29T04:06:04.181231+00:00",
-  "status": "READY",
+  "timestamp": "2026-09-30T02:28:10.191772+00:00",
+  "status": "VERIFICATION_PENDING",
   "total_capabilities": 16,
   "required_capabilities": 11,
   "optional_capabilities": 5,

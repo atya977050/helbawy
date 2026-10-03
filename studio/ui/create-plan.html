@@ -191,5 +191,126 @@ document.getElementById("next").onclick=()=>{
   location.href="/create/build";
 };
 </script>
+
+<section id="abqaryno-screen-approval-v2"
+style="
+margin:24px 0;
+padding:22px;
+border-radius:18px;
+background:rgba(20,20,20,.94);
+border:1px solid rgba(212,175,55,.45);
+color:#fff;
+">
+<h2>اعتماد تصميم الشاشات</h2>
+
+<p id="abqaryno-screen-status-v2">
+حالة التصميم: في انتظار الاختيار
+</p>
+
+<div id="abqaryno-screen-variants-v2"
+style="display:grid;gap:12px;margin:16px 0">
+</div>
+
+<p id="abqaryno-screen-next-v2">
+يجب اختيار تصميم واعتماده قبل الانتقال إلى مرحلة إنشاء المشروع.
+</p>
+</section>
+
+<script>
+(function () {
+  "use strict";
+
+  const storageKey = "abqaryno_screen_variant_v2";
+
+  const variants = [
+    {
+      id: "VARIANT_1",
+      title: "التصميم الأول",
+      description: "واجهة احترافية منظمة مع تنقل واضح بين أقسام البرنامج."
+    },
+    {
+      id: "VARIANT_2",
+      title: "التصميم الثاني",
+      description: "واجهة حديثة تعتمد على بطاقات وأقسام تفاعلية."
+    },
+    {
+      id: "VARIANT_3",
+      title: "التصميم الثالث",
+      description: "واجهة ملكية احترافية مع تركيز على لوحة التحكم."
+    }
+  ];
+
+  function render() {
+    const box =
+      document.getElementById("abqaryno-screen-variants-v2");
+
+    const status =
+      document.getElementById("abqaryno-screen-status-v2");
+
+    if (!box || !status) return;
+
+    const selected = localStorage.getItem(storageKey);
+
+    box.innerHTML = variants.map(function (item) {
+      const active = selected === item.id;
+
+      return `
+        <button
+          type="button"
+          data-screen-variant="${item.id}"
+          style="
+            text-align:right;
+            padding:18px;
+            border-radius:14px;
+            border:1px solid ${active
+              ? "rgba(212,175,55,.9)"
+              : "rgba(255,255,255,.15)"};
+            background:${active
+              ? "rgba(212,175,55,.15)"
+              : "rgba(255,255,255,.04)"};
+            color:#fff;
+          "
+        >
+          <strong>${active ? "✓ " : ""}${item.title}</strong>
+          <br>
+          <small>${item.description}</small>
+        </button>
+      `;
+    }).join("");
+
+    if (selected) {
+      status.textContent =
+        "حالة التصميم: ✓ تم اختيار واعتماد " + selected;
+    } else {
+      status.textContent =
+        "حالة التصميم: ⏳ في انتظار الاختيار";
+    }
+
+    box.querySelectorAll("[data-screen-variant]")
+      .forEach(function (button) {
+        button.addEventListener("click", function () {
+          const id = button.dataset.screenVariant;
+
+          localStorage.setItem(storageKey, id);
+
+          window.dispatchEvent(new CustomEvent(
+            "abqaryno:screen-approval",
+            {
+              detail: {
+                approved: true,
+                selectedVariant: id
+              }
+            }
+          ));
+
+          render();
+        });
+      });
+  }
+
+  render();
+})();
+</script>
+
 </body>
 </html>
