@@ -294,196 +294,11 @@ async function runApprovedBuild(){
   }
 }
 
-window.addEventListener("abqaryno:build-approval", function(event){
-  if(event.detail && event.detail.approved === true){
-    runApprovedBuild();
-  }
-});
+
 </script>
 <div id="abqaryno-build-gate-v2"></div>
 <script id="abqaryno-build-controller-v2"></script>
-<script>
-(function () {
-  "use strict";
 
-  const requirementsKey =
-    "abqaryno_requirements_approval_v2";
-
-  const screensKey =
-    "abqaryno_screen_variant_v2";
-
-  const buildKey =
-    "abqaryno_build_approval_v2";
-
-  const state = {
-    requirements: "PENDING",
-    screens: "PENDING",
-    build: "PENDING",
-    generation: "LOCKED",
-    execution: "NOT_RUN"
-  };
-
-  function syncState() {
-    state.requirements =
-      localStorage.getItem(requirementsKey) === "approved"
-        ? "APPROVED"
-        : "PENDING";
-
-    state.screens =
-      !!localStorage.getItem(screensKey)
-        ? "APPROVED"
-        : "PENDING";
-
-    state.build =
-      localStorage.getItem(buildKey) === "approved"
-        ? "APPROVED"
-        : "PENDING";
-
-    state.generation =
-      state.requirements === "APPROVED" &&
-      state.screens === "APPROVED" &&
-      state.build === "APPROVED"
-        ? "READY"
-        : "LOCKED";
-  }
-
-  function statusText(value) {
-    if (value === "APPROVED") return "✓ تمت الموافقة";
-    if (value === "REJECTED") return "✕ مرفوض";
-    if (value === "READY") return "✓ جاهز";
-    if (value === "LOCKED") return "🔒 مقفول";
-    return "⏳ في انتظار الموافقة";
-  }
-
-  function render() {
-    syncState();
-
-    const root =
-      document.getElementById("abqaryno-build-gate-v2");
-
-    if (!root) return;
-
-    const ready =
-      state.requirements === "APPROVED" &&
-      state.screens === "APPROVED" &&
-      state.build === "APPROVED";
-
-    root.innerHTML = `
-      <section style="
-        margin:20px 0;
-        padding:22px;
-        border-radius:18px;
-        background:rgba(20,20,20,.92);
-        border:1px solid rgba(212,175,55,.45);
-        color:#fff;
-      ">
-        <h2 style="margin-top:0">بوابة اعتماد إنشاء المشروع</h2>
-
-        <div style="display:grid;gap:10px">
-          <div>المتطلبات:
-            <strong>${statusText(state.requirements)}</strong>
-          </div>
-
-          <div>تصميم الشاشات:
-            <strong>${statusText(state.screens)}</strong>
-          </div>
-
-          <div>موافقة الإنشاء:
-            <strong>${statusText(state.build)}</strong>
-          </div>
-
-          <div>التوليد:
-            <strong>${ready ? "✓ مسموح" : "🔒 مقفول"}</strong>
-          </div>
-
-          <div>التنفيذ:
-            <strong>${state.execution === "NOT_RUN"
-              ? "لم يتم التنفيذ"
-              : state.execution}</strong>
-          </div>
-        </div>
-
-        <div style="
-          margin-top:18px;
-          padding:14px;
-          border-radius:12px;
-          background:${ready
-            ? "rgba(0,120,60,.25)"
-            : "rgba(120,80,0,.25)"};
-        ">
-          ${ready
-            ? "تم استيفاء بوابة الموافقات. التوليد أصبح مسموحًا."
-            : "لا يمكن إنشاء ملفات المشروع قبل اكتمال جميع الموافقات."}
-        </div>
-
-        <button
-          id="abqaryno-build-confirm-v2"
-          type="button"
-          style="margin-top:18px"
-          ${ready ? "" : "disabled"}
-        >
-          ${ready
-            ? "بدء إنشاء المشروع"
-            : "الإنشاء مقفول حاليًا"}
-        </button>
-      </section>
-    `;
-
-    const button =
-      document.getElementById("abqaryno-build-confirm-v2");
-
-    if (button && ready) {
-      button.addEventListener("click", function () {
-        window.dispatchEvent(
-          new CustomEvent("abqaryno:build-approved")
-        );
-      });
-    }
-  }
-
-  window.addEventListener(
-  "abqaryno:build-approval",
-  function () {
-    if (
-      window.AbqarynoBuildGateV2 &&
-      typeof window.AbqarynoBuildGateV2.render === "function"
-    ) {
-      window.AbqarynoBuildGateV2.render();
-    }
-  }
-);
-
-window.AbqarynoBuildGateV2 = {
-    render: render,
-
-    getState: function () {
-      syncState();
-      return Object.assign({}, state);
-    },
-
-    setApproval: function (name, value) {
-      if (!(name in state)) return false;
-
-      state[name] =
-        value ? "APPROVED" : "REJECTED";
-
-      render();
-      return true;
-    },
-
-    reset: function () {
-      state.requirements = "PENDING";
-      state.screens = "PENDING";
-      state.build = "PENDING";
-      state.generation = "LOCKED";
-      state.execution = "NOT_RUN";
-      render();
-    }
-  };
-
-  render();
-})();
-</script>
 
 <section id="abqaryno-final-build-approval-v2"
 style="
@@ -627,18 +442,8 @@ type="button"
         "approved"
       );
 
-      window.dispatchEvent(
-        new CustomEvent(
-          "abqaryno:build-approval",
-          {
-            detail: {
-              approved: true
-            }
-          }
-        )
-      );
-
       render();
+      runApprovedBuild();
     });
 
   document
@@ -648,17 +453,6 @@ type="button"
       localStorage.setItem(
         buildKey,
         "rejected"
-      );
-
-      window.dispatchEvent(
-        new CustomEvent(
-          "abqaryno:build-approval",
-          {
-            detail: {
-              approved: false
-            }
-          }
-        )
       );
 
       render();
