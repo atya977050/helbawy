@@ -95,6 +95,54 @@ def _abqaryno_validate_requirements(data):
             errors.append(f'invalid_approval:{rid}')
     return (not errors, errors)
 
+class ScreenPlanningEngine:
+    """
+    محرك تخطيط واختيار الشاشات.
+
+    المعرفة بالشاشات والقواعد تبقى في النظام،
+    وهذا المحرك مسؤول عن اختيار ما يناسب المشروع الحالي.
+    """
+
+    def plan(self, domain, domain_screen_rules, capabilities, roles, text):
+        selected_ids = set()
+
+        for sid, title, purpose in domain_screen_rules.get(domain, []):
+            selected_ids.add(sid)
+
+        if 'scheduling' in capabilities:
+            selected_ids.add('sessions')
+
+        if 'reports' in capabilities and (
+            'dashboard' in capabilities or 'admin' in roles
+        ):
+            selected_ids.add('reports')
+
+        if 'users' in capabilities and any(
+            role in roles for role in ('admin', 'owner', 'staff', 'employee')
+        ):
+            selected_ids.add('users')
+
+        if 'chat' in capabilities and domain not in {'legal', 'support'}:
+            if 'support' in roles:
+                selected_ids.add('support')
+
+        if 'dashboard' in capabilities:
+            selected_ids.add('dashboard')
+
+        explicit_screen_rules = [
+            ('service_selection', ['شاشة اختيار الخدمة', 'اختيار الخدمة']),
+            ('client_dashboard', ['لوحة العميل']),
+            ('management_dashboard',
+             ['لوحة المحامي والإدارة', 'لوحة المحامي', 'لوحة الإدارة']),
+        ]
+
+        for screen_id, phrases in explicit_screen_rules:
+            if any(phrase.lower() in text for phrase in phrases):
+                selected_ids.add(screen_id)
+
+        return selected_ids
+
+
 class RequirementsEngine:
 
     def analyze(self, idea):
@@ -114,22 +162,23 @@ class RequirementsEngine:
         domains = set(capability_data.get('app_types', []))
         roles = capability_data.get('roles', ['user'])
 
-        screens = [{
-            'id': 'home',
-            'title': 'الشاشة الرئيسية',
-            'purpose': 'البوابة الرئيسية للبرنامج والتنقل بين الوظائف الأساسية',
-            'selection_required': True,
-            'source': 'analysis',
-            'features': ['عرض الوظائف الأساسية والتنقل بينها']
-        }]
-
-        # اقتراح الشاشات يُستنتج من المجال والقدرات والأدوار،
-        # وليس من أسماء شاشات محفوظة لفكرة برنامج بعينها.
-        selected_ids = set()
-
-        domain = next(iter(capability_data.get('app_types', [])), 'general')
-
         domain_screen_rules = {
+            'software_engineering': [
+                ('brain', 'العقل المركزي',
+                 'فهم المشروع وتحليل المتطلبات واتخاذ القرارات وتنسيق دورة العمل'),
+                ('creation', 'إنشاء البرامج',
+                 'إنشاء المشاريع والانتقال من الفكرة إلى التخطيط والبناء والتحقق'),
+                ('maintenance', 'صيانة البرامج',
+                 'فحص المشاريع القائمة واكتشاف العيوب وإصلاحها واختبارها'),
+                ('projects', 'المشاريع',
+                 'إدارة المشاريع ومساحات العمل وحالة كل مشروع ودورة حياته'),
+                ('research', 'البحث والمعرفة',
+                 'البحث التقني وتجميع المعرفة والأدلة وربطها بالمشروع'),
+                ('execution', 'التنفيذ والاختبارات',
+                 'تنفيذ الخطط وتشغيل الأدوات والاختبارات والتحقق من النتائج'),
+                ('memory', 'الذاكرة والمعرفة الخاصة بالمشروع',
+                 'حفظ قرارات المشروع وسياقه ونتائج العمليات والمعرفة المتراكمة'),
+            ],
             'legal': [
                 ('service_selection', 'الخدمات والاستشارات',
                  'اختيار نوع الخدمة وبدء التجربة المناسبة'),
@@ -182,43 +231,26 @@ class RequirementsEngine:
             ],
         }
 
-        for sid, title, purpose in domain_screen_rules.get(domain, []):
-            selected_ids.add(sid)
 
-        # القدرات تُستخدم لإضافة تجربة شاشة مستقلة فقط عندما تكون
-        # التجربة نفسها واضحة، وليس لمجرد وجود وظيفة داخل شاشة أخرى.
-        if 'scheduling' in capabilities:
-            selected_ids.add('sessions')
+        screens = [{
+            'id': 'home',
+            'title': 'الشاشة الرئيسية',
+            'purpose': 'البوابة الرئيسية للبرنامج والتنقل بين الوظائف الأساسية',
+            'selection_required': True,
+            'source': 'analysis',
+            'features': ['عرض الوظائف الأساسية والتنقل بينها']
+        }]
 
-        if 'reports' in capabilities and (
-            'dashboard' in capabilities or 'admin' in roles
-        ):
-            selected_ids.add('reports')
+        # تخطيط واختيار الشاشات مسؤولية مستقلة.
+        domain = next(iter(capability_data.get('app_types', [])), 'general')
 
-        if 'users' in capabilities and any(
-            role in roles for role in ('admin', 'owner', 'staff', 'employee')
-        ):
-            selected_ids.add('users')
-
-        # المحادثة والصوت والفيديو والملفات تبقى وظائف داخل التجارب
-        # المناسبة، ولا تتحول تلقائيًا إلى شاشات مستقلة.
-        if 'chat' in capabilities and domain not in {'legal', 'support'}:
-            if 'support' in roles:
-                selected_ids.add('support')
-
-        if 'dashboard' in capabilities:
-            selected_ids.add('dashboard')
-
-        # قواعد صريحة من المستخدم تظل لها الأولوية عندما يطلب شاشة بعينها.
-        explicit_screen_rules = [
-            ('service_selection', ['شاشة اختيار الخدمة', 'اختيار الخدمة']),
-            ('client_dashboard', ['لوحة العميل']),
-            ('management_dashboard', ['لوحة المحامي والإدارة', 'لوحة المحامي', 'لوحة الإدارة']),
-        ]
-
-        for screen_id, phrases in explicit_screen_rules:
-            if any(phrase.lower() in text for phrase in phrases):
-                selected_ids.add(screen_id)
+        selected_ids = ScreenPlanningEngine().plan(
+            domain=domain,
+            domain_screen_rules=domain_screen_rules,
+            capabilities=capabilities,
+            roles=roles,
+            text=text,
+        )
 
         # شاشة رئيسية واحدة فقط كبوابة عامة.
         screens = [{
@@ -231,6 +263,34 @@ class RequirementsEngine:
         }]
 
         generated_specs = {
+            'brain': (
+                'العقل المركزي',
+                'فهم المشروع وتحليل المتطلبات واتخاذ القرارات وتنسيق دورة العمل',
+            ),
+            'creation': (
+                'إنشاء البرامج',
+                'إنشاء المشاريع والانتقال من الفكرة إلى التخطيط والبناء والتحقق',
+            ),
+            'maintenance': (
+                'صيانة البرامج',
+                'فحص المشاريع القائمة واكتشاف العيوب وإصلاحها واختبارها',
+            ),
+            'projects': (
+                'المشاريع',
+                'إدارة المشاريع ومساحات العمل وحالة كل مشروع ودورة حياته',
+            ),
+            'research': (
+                'البحث والمعرفة',
+                'البحث التقني وتجميع المعرفة والأدلة وربطها بالمشروع',
+            ),
+            'execution': (
+                'التنفيذ والاختبارات',
+                'تنفيذ الخطط وتشغيل الأدوات والاختبارات والتحقق من النتائج',
+            ),
+            'memory': (
+                'الذاكرة والمعرفة الخاصة بالمشروع',
+                'حفظ قرارات المشروع وسياقه ونتائج العمليات والمعرفة المتراكمة',
+            ),
             'service_selection': (
                 'اختيار الخدمة',
                 'اختيار الخدمة أو العملية التي يريد المستخدم تنفيذها',
@@ -487,9 +547,482 @@ class RequirementsEngine:
                 seen_api.add(key)
                 unique_api.append(contract)
 
+        # نموذج المشروع مستقل عن الشاشات.
+        # الشاشات نتيجة من نتائج التخطيط وليست تعريفاً للمشروع.
+        project_type = (
+            capability_data['app_types'][0]
+            if capability_data.get('app_types')
+            else 'general'
+        )
+
+        # تحويل نتائج التحليل إلى نموذج هندسي منظم.
+        # لا نحذف المعرفة العامة؛ نحدد فقط ما ينطبق على المشروع الحالي.
+        structured_requirements = [
+            {
+                'id': f'req_{i + 1}',
+                'type': 'capability',
+                'capability': feature,
+                'description': feature_labels.get(feature, feature),
+                'source': 'analysis',
+            }
+            for i, feature in enumerate(capability_data.get('capabilities', []))
+        ]
+
+        # المتطلبات الهندسية لا تُستنتج من الشاشات.
+        # عند اكتشاف مشروع هندسة برمجيات، يحدد العقل المركزي
+        # المتطلبات الأساسية لدورة حياة البرنامج نفسها.
+        engineering_requirement_catalog = [
+            (
+                'understanding',
+                'الفهم والتحليل',
+                'فهم فكرة المشروع وسياقه وحدوده وأهدافه قبل اتخاذ قرارات التنفيذ.',
+            ),
+            (
+                'research',
+                'البحث والأدلة',
+                'إجراء البحث التقني عند الحاجة وتسجيل المصادر والأدلة المستخدمة في القرارات.',
+            ),
+            (
+                'requirements',
+                'هندسة المتطلبات',
+                'تحويل الفكرة إلى متطلبات واضحة قابلة للتتبع والاختبار والمراجعة.',
+            ),
+            (
+                'blueprint',
+                'المخطط الهندسي',
+                'إنشاء Blueprint يربط المتطلبات بالمكونات والوحدات والتدفقات والاعتماديات.',
+            ),
+            (
+                'architecture',
+                'الهندسة المعمارية',
+                'تحديد المعمارية والتقنيات والحدود بين الطبقات والخدمات قبل البناء.',
+            ),
+            (
+                'database',
+                'هندسة البيانات',
+                'تحديد الكيانات والمخططات والعلاقات والعقود الخاصة بالبيانات.',
+            ),
+            (
+                'backend',
+                'الخلفية البرمجية',
+                'تحديد الخدمات وواجهات API والمنطق التشغيلي والتحقق من المدخلات.',
+            ),
+            (
+                'frontend',
+                'الواجهة والتجربة',
+                'تحديد الواجهات والتدفقات والمكونات وربطها بالوظائف الفعلية.',
+            ),
+            (
+                'security',
+                'الأمن',
+                'تحديد المصادقة والتفويض وحماية البيانات والتحقق من العمليات الحساسة.',
+            ),
+            (
+                'integration',
+                'التكامل',
+                'ربط المكونات والخدمات والواجهات وقاعدة البيانات دون عقود متعارضة.',
+            ),
+            (
+                'build',
+                'البناء',
+                'إنشاء ملفات المشروع الفعلية وتجميع المكونات وفق الخطة المعتمدة.',
+            ),
+            (
+                'runtime',
+                'التشغيل',
+                'تشغيل المشروع فعليًا والتحقق من أن المكونات الأساسية تعمل في بيئتها المستهدفة.',
+            ),
+            (
+                'testing',
+                'الاختبارات',
+                'تنفيذ اختبارات syntax وunit وintegration وAPI وruntime وregression حسب الحاجة.',
+            ),
+            (
+                'verification',
+                'التحقق بالأدلة',
+                'عدم اعتبار التنفيذ ناجحًا إلا بوجود أدلة تشغيل واختبار ونتائج قابلة للتتبع.',
+            ),
+            (
+                'repair',
+                'الإصلاح',
+                'عند وجود عيب، تحديد السبب والأثر ثم تنفيذ إصلاح محدود وقابل للرجوع واختباره.',
+            ),
+            (
+                'regression',
+                'اختبار الانحدار',
+                'إعادة اختبار الوظائف المتأثرة بعد التغيير أو الإصلاح.',
+            ),
+            (
+                'versioning',
+                'الإصدارات والرجوع',
+                'حفظ حالة التغيير وسببه ونتائجه وإتاحة الرجوع عند فشل التغيير.',
+            ),
+            (
+                'deployment',
+                'النشر',
+                'إدارة البناء والنشر وفحص الصحة والتحقق من النسخة المنشورة.',
+            ),
+            (
+                'continuous_development',
+                'التطوير المستمر',
+                'استقبال التغييرات اللاحقة مع تحليل الأثر وإعادة التخطيط والاختبار.',
+            ),
+            (
+                'memory',
+                'ذاكرة المشروع',
+                'حفظ سياق المشروع والقرارات ونتائج التنفيذ والمعرفة الخاصة بالمشروع.',
+            ),
+            (
+                'observability',
+                'التتبع والمراقبة',
+                'تتبع التنفيذ باستخدام Execution ID وCorrelation ID وProject ID وIntent ID وEngine ID وBatch ID.',
+            ),
+            (
+                'human_approval',
+                'الموافقة البشرية',
+                'طلب موافقة المستخدم قبل العمليات الحساسة أو غير القابلة للعكس.',
+            ),
+            (
+                'ai_provider',
+                'طبقة مزودي الذكاء الاصطناعي',
+                'استخدام طبقة موحدة لمزودي الذكاء الاصطناعي مع فصل المزود عن منطق النظام.',
+            ),
+        ]
+
+        if project_type == 'software_engineering':
+            existing_ids = {
+                item.get('id')
+                for item in structured_requirements
+                if isinstance(item, dict)
+            }
+
+            next_requirement_number = len(structured_requirements) + 1
+
+            for requirement_id, title, description in engineering_requirement_catalog:
+                if requirement_id in existing_ids:
+                    continue
+
+                structured_requirements.append({
+                    'id': f'req_{next_requirement_number}',
+                    'type': 'engineering',
+                    'engineering_area': requirement_id,
+                    'title': title,
+                    'description': description,
+                    'priority': 'HIGH',
+                    'source': 'software_engineering_analysis',
+                    'acceptance_criteria': [
+                        f'يجب أن تكون مرحلة {title} محددة وقابلة للتنفيذ والتحقق.',
+                        'يجب أن تكون نتائج المرحلة قابلة للتتبع داخل نموذج المشروع.',
+                    ],
+                })
+
+                next_requirement_number += 1
+
+        module_catalog = {
+            'auth': 'المصادقة والحسابات',
+            'users': 'إدارة المستخدمين',
+            'roles': 'الأدوار والصلاحيات',
+            'database': 'إدارة البيانات وقاعدة البيانات',
+            'crud': 'عمليات البيانات الأساسية',
+            'search': 'البحث والتصفية',
+            'dashboard': 'لوحات المعلومات',
+            'chat': 'المحادثات والرسائل',
+            'files': 'الملفات والمرفقات',
+            'camera': 'الكاميرا والفيديو',
+            'microphone': 'الصوت والميكروفون',
+            'webrtc': 'الاتصال المباشر',
+            'notifications': 'الإشعارات',
+            'reports': 'التقارير',
+            'export': 'التصدير',
+            'print': 'الطباعة',
+            'scheduling': 'المواعيد والحجوزات',
+            'payments': 'المدفوعات والفواتير',
+            'location': 'الموقع والخرائط',
+            'audit': 'سجل العمليات',
+            'translation': 'الترجمة',
+            'document_processing': 'معالجة المستندات',
+            'ocr': 'التعرف الضوئي على النصوص',
+            'speech_to_text': 'تحويل الصوت إلى نص',
+            'text_to_speech': 'تحويل النص إلى صوت',
+        }
+
+        if project_type == 'software_engineering':
+            engineering_requirements = [
+                item for item in structured_requirements
+                if item.get('type') == 'engineering'
+            ]
+
+            modules = [
+                {
+                    'id': item['engineering_area'],
+                    'name': item['title'],
+                    'description': item['description'],
+                    'requirements': [item['id']],
+                    'capabilities': [],
+                    'source': 'engineering_requirement',
+                }
+                for item in engineering_requirements
+            ]
+
+            workflow_steps = [
+                requirement_id
+                for requirement_id, _title, _description
+                in engineering_requirement_catalog
+            ]
+
+            workflows = [{
+                'id': 'software_engineering_lifecycle',
+                'name': 'دورة حياة هندسة البرمجيات',
+                'steps': workflow_steps,
+                'source': 'engineering_requirement_catalog',
+            }]
+
+            dependencies = []
+
+            for index in range(len(workflow_steps) - 1):
+                source = workflow_steps[index]
+                target = workflow_steps[index + 1]
+
+                dependencies.append({
+                    'from': source,
+                    'to': target,
+                    'reason': 'المرحلة التالية تعتمد على مخرجات المرحلة السابقة',
+                    'source': 'engineering_lifecycle_rule',
+                })
+
+            engineering_dependency_rules = [
+                (
+                    'research',
+                    'requirements',
+                    'المتطلبات تعتمد على البحث والأدلة عند الحاجة'
+                ),
+                (
+                    'requirements',
+                    'blueprint',
+                    'المخطط الهندسي يعتمد على المتطلبات'
+                ),
+                (
+                    'blueprint',
+                    'architecture',
+                    'الهندسة المعمارية تعتمد على المخطط الهندسي'
+                ),
+                (
+                    'architecture',
+                    'database',
+                    'هندسة البيانات تعتمد على قرارات المعمارية'
+                ),
+                (
+                    'architecture',
+                    'backend',
+                    'الخلفية البرمجية تعتمد على المعمارية'
+                ),
+                (
+                    'architecture',
+                    'frontend',
+                    'الواجهة تعتمد على المعمارية'
+                ),
+                (
+                    'security',
+                    'integration',
+                    'التكامل يجب أن يلتزم بمتطلبات الأمن'
+                ),
+                (
+                    'build',
+                    'runtime',
+                    'التشغيل يعتمد على مخرجات البناء'
+                ),
+                (
+                    'testing',
+                    'verification',
+                    'التحقق يعتمد على نتائج الاختبارات'
+                ),
+                (
+                    'repair',
+                    'regression',
+                    'الإصلاح يتطلب اختبار الانحدار'
+                ),
+                (
+                    'versioning',
+                    'deployment',
+                    'النشر يرتبط بنسخة قابلة للتتبع'
+                ),
+                (
+                    'memory',
+                    'observability',
+                    'المراقبة تغذي ذاكرة التنفيذ بالأدلة'
+                ),
+                (
+                    'human_approval',
+                    'deployment',
+                    'العمليات الحساسة قد تتطلب موافقة بشرية'
+                ),
+                (
+                    'ai_provider',
+                    'research',
+                    'مزود الذكاء الاصطناعي يستخدم ضمن البحث عند الحاجة'
+                ),
+            ]
+
+            known_engineering = set(workflow_steps)
+
+            for source, target, reason in engineering_dependency_rules:
+                if source not in known_engineering:
+                    continue
+                if target not in known_engineering:
+                    continue
+
+                if any(
+                    item['from'] == source and item['to'] == target
+                    for item in dependencies
+                ):
+                    continue
+
+                dependencies.append({
+                    'from': source,
+                    'to': target,
+                    'reason': reason,
+                    'source': 'engineering_dependency_rule',
+                })
+
+        else:
+            modules = [
+                {
+                    'id': capability,
+                    'name': module_catalog.get(capability, capability),
+                    'capabilities': [capability],
+                    'source': 'capability_analysis',
+                }
+                for capability in capability_data.get('capabilities', [])
+                if capability in module_catalog
+            ]
+
+            workflow_steps = [
+                'understanding',
+                'requirements',
+                'research',
+                'analysis',
+                'planning',
+                'execution',
+                'testing',
+                'verification',
+            ]
+
+            workflows = [{
+                'id': 'primary_lifecycle',
+                'name': 'دورة حياة المشروع',
+                'steps': workflow_steps,
+                'source': 'project_type',
+            }]
+
+            dependencies = []
+
+            dependency_rules = [
+                ('roles', 'auth', 'الصلاحيات تعتمد على المصادقة'),
+                ('users', 'roles', 'إدارة المستخدمين تحتاج نظام الأدوار'),
+                ('crud', 'database', 'عمليات CRUD تعتمد على قاعدة البيانات'),
+                ('search', 'database', 'البحث يعتمد على البيانات'),
+                ('reports', 'database', 'التقارير تعتمد على البيانات'),
+                ('export', 'reports', 'التصدير يعتمد على بيانات التقارير'),
+                ('audit', 'auth', 'سجل العمليات يحتاج هوية المستخدم'),
+                ('chat', 'users', 'المحادثات تحتاج هوية المستخدمين'),
+                ('files', 'users', 'الملفات تحتاج ربطاً بالمستخدمين'),
+                ('webrtc', 'auth', 'الاتصال المباشر يحتاج هوية وصلاحيات'),
+                ('camera', 'webrtc', 'الفيديو يعتمد على الاتصال المباشر'),
+                ('microphone', 'webrtc', 'الصوت يعتمد على الاتصال المباشر'),
+                ('scheduling', 'users', 'المواعيد تحتاج مستخدمين'),
+                ('payments', 'users', 'المدفوعات تحتاج هوية المستخدم'),
+            ]
+
+            active_capabilities = set(
+                capability_data.get('capabilities', [])
+            )
+
+            for source, target, reason in dependency_rules:
+                if source in active_capabilities and target in active_capabilities:
+                    dependencies.append({
+                        'from': source,
+                        'to': target,
+                        'reason': reason,
+                        'source': 'dependency_rule',
+                    })
+
+        project_model = {
+            'project_type': project_type,
+            'project_types': list(capability_data.get('app_types', [])),
+            'capabilities': list(capability_data.get('capabilities', [])),
+            'roles': list(capability_data.get('roles', [])),
+            'requirements': structured_requirements,
+            'modules': modules,
+            'workflows': workflows,
+            'dependencies': dependencies,
+            'engines': [],
+            'security': {
+                'authentication': 'auth' in capabilities,
+                'authorization': 'roles' in capabilities,
+                'audit': 'audit' in capabilities,
+            },
+            'testing': {
+                'required': True,
+                'levels': [
+                    'syntax',
+                    'unit',
+                    'integration',
+                    'regression',
+                ],
+            },
+            'verification': {
+                'required': True,
+                'evidence_based': True,
+            },
+            'memory': {
+                'project': True,
+                'decision': True,
+                'execution': True,
+            },
+            'research': {
+                'required': True,
+                'evidence_based': True,
+            },
+            'deployment': {
+                'required': True,
+            },
+            'observability': {
+                'execution_id': True,
+                'correlation_id': True,
+                'project_id': True,
+                'intent_id': True,
+                'engine_id': True,
+                'batch_id': True,
+            },
+        }
+
+        # هندسة البرمجيات تحتاج دورة محركات كاملة،
+        # بينما اختيار الشاشات يظل من اختصاص ScreenPlanningEngine.
+        if project_type == 'software_engineering':
+            project_model['engines'] = [
+                'blueprint',
+                'requirements',
+                'research',
+                'architecture',
+                'database',
+                'backend',
+                'frontend',
+                'authentication',
+                'authorization',
+                'application_assembly',
+                'runtime',
+                'testing',
+                'repair',
+                'versioning',
+                'deployment',
+                'documentation',
+                'integration',
+            ]
+
         return {
             'idea': idea,
             'created_at': now(),
+            'project_model': project_model,
             'screens': screens,
             'features': features,
             'screen_selection': screen_selection,
@@ -536,6 +1069,25 @@ class CapabilityEngine:
         # اكتشاف مجال البرنامج يجب أن يعتمد على هوية الفكرة،
         # وليس على كلمة عابرة داخل قائمة متطلبات طويلة.
         domain_priority = [
+            ('software_engineering', [
+                'العقل المركزي',
+                'إنشاء وصيانة البرامج',
+                'إنشاء البرامج',
+                'صيانة البرامج',
+                'هندسة البرمجيات',
+                'منصة هندسة البرمجيات',
+                'منصة هندسة برمجيات',
+                'هندسة برمجيات',
+                'هندسة البرامج',
+                'تطوير البرامج',
+                'تطوير البرمجيات',
+                'software engineering',
+                'software development',
+                'developer platform',
+                'program creation',
+                'code repair',
+                'code generation',
+            ]),
             ('legal', ['محام', 'قانون', 'قضية', 'محكمة', 'مكتب محاماة', 'استشارة قانونية', 'استشارات قانونية']),
             ('commerce', ['متجر إلكتروني', 'متجر', 'بيع المنتجات', 'إدارة المنتجات']),
             ('education', [

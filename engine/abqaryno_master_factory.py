@@ -2311,8 +2311,24 @@ app.delete("/api/TABLE_NAME/:id", (req, res) => {
             "COMPLETED_CLEAN",
             "COMPLETED_WITH_REPAIRS",
         }:
+            failed_checks = [
+                item
+                for item in recovery_report.get("checks", [])
+                if not item.get("ok")
+            ]
+
             raise RuntimeError(
-                "ABQARYNO_EXECUTION_RECOVERY_BLOCKED"
+                "ABQARYNO_EXECUTION_RECOVERY_BLOCKED | "
+                + __import__("json").dumps(
+                    {
+                        "status": recovery_report.get("status"),
+                        "blocked_reason": recovery_report.get(
+                            "blocked_reason"
+                        ),
+                        "failed_checks": failed_checks,
+                    },
+                    ensure_ascii=False,
+                )
             )
 
         print(

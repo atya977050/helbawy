@@ -29,6 +29,7 @@ from engine.ai_core import (
 from engine.options import OptionsEngine
 from engine.abqaryno_master_factory import MasterAbqarynoFactory
 
+from engine.master_orchestrator_v2 import MasterOrchestratorV2
 from studio.repair_api import (
     scan as repair_scan,
     root_cause as repair_root_cause,
@@ -199,6 +200,23 @@ class Handler(BaseHTTPRequestHandler):
 
             return
 
+
+        if self.path == "/abqaryno":
+            raw = (
+                STUDIO / "ui" / "portal.html"
+            ).read_bytes()
+            self.send_response(200)
+            self.send_header(
+                "Content-Type",
+                "text/html; charset=utf-8"
+            )
+            self.send_header(
+                "Content-Length",
+                str(len(raw))
+            )
+            self.end_headers()
+            self.wfile.write(raw)
+            return
 
         if self.path == "/":
 
@@ -825,14 +843,14 @@ class Handler(BaseHTTPRequestHandler):
                 )
 
 
-                factory = MasterAbqarynoFactory(
+                orchestrator = MasterOrchestratorV2()
+
+                orchestration = orchestrator.build(
                     project_name,
-                    specification,
-                    root_dir=ROOT,
+                    specification=specification,
                 )
 
-                factory.build()
-
+                factory = orchestration["_execution_factory"]
                 target = factory.target_dir
                 evidence_path = (
                     target / ".abqaryno-evidence.json"

@@ -109,6 +109,27 @@ class MasterOrchestratorV2:
         "FINAL_VERIFICATION",
     ]
 
+    def load_engines(self):
+        """
+        تحميل محركات العقل المركزي من سجل ENGINES.
+        لا يتم تنفيذ المحركات هنا؛ التحميل منفصل عن التنفيذ.
+        """
+        import importlib
+
+        loaded = {}
+
+        for engine in self.ENGINES:
+            engine_id = engine["id"]
+            module_name = engine["module"]
+            class_name = engine["class"]
+
+            module = importlib.import_module(module_name)
+            engine_class = getattr(module, class_name)
+
+            loaded[engine_id] = engine_class
+
+        return loaded
+
     def pipeline_definition(self):
         return [
             {
@@ -888,7 +909,44 @@ class MasterOrchestratorV2:
             "integrity_status": "READY_FOR_EXECUTION_PHASE",
         }
 
-    def build(self, project_name: str):
+    def final_verification_contract(self):
+        """
+        عقد التحقق النهائي قبل اعتبار دورة المشروع مكتملة.
+        هذا العقد يصف بوابة التحقق ولا ينفذ عملية التحقق بنفسه.
+        """
+        return {
+            "contract": "FINAL_VERIFICATION_CONTRACT_V2",
+            "version": "2.0",
+            "required": [
+                "generation",
+                "syntax",
+                "dependencies",
+                "runtime_process",
+                "http_runtime",
+                "evidence",
+            ],
+            "status": "REQUIRED",
+            "deployment_allowed": False,
+            "release_allowed": False,
+            "safe_stop": True,
+        }
+
+    def release_gates(self):
+        """
+        بوابات الإصدار والنشر.
+        لا تفتح التنفيذ أو النشر تلقائيًا.
+        """
+        return {
+            "version": "2.0",
+            "deployment_gate": "LINKED",
+            "release_gate": "LINKED",
+            "deployment_allowed": False,
+            "release_allowed": False,
+            "safe_stop": True,
+            "execution_mode": "EXPLICIT_USER_COMMAND",
+        }
+
+    def build(self, project_name: str, specification=None):
         loaded_engines = self.load_engines()
 
         data = {
@@ -979,6 +1037,25 @@ class MasterOrchestratorV2:
             ),
             encoding="utf-8",
         )
+
+        if specification is None:
+            return data
+
+        from engine.abqaryno_master_factory import MasterAbqarynoFactory
+
+        factory = MasterAbqarynoFactory(
+            project_name,
+            specification,
+            root_dir=ROOT,
+        )
+
+        factory.build()
+
+        data["mode"] = "ORCHESTRATION_AND_REAL_EXECUTION"
+        data["project_execution"] = "VERIFIED"
+        data["final_status"] = "VERIFIED"
+        data["execution_target"] = str(factory.target_dir)
+        data["_execution_factory"] = factory
 
         return data
 
