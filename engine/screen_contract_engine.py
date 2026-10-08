@@ -414,7 +414,6 @@ class ScreenContractEngine:
     def _actions(self, screen):
         actions = (
             screen.get("actions")
-            or self._screen_profile(screen).get("actions")
             or []
         )
 

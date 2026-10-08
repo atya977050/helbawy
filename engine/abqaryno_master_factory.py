@@ -584,6 +584,107 @@ class MasterAbqarynoFactory:
             ensure_ascii=False
         )
 
+        consultation_runtime = r"""function renderChoice(){
+    const contracts = getConsultationContracts();
+    const app = document.getElementById("app");
+
+    app.innerHTML = `
+        <section class="screen">
+            <button class="secondary back"
+                    onclick="renderWelcome()">
+                ← رجوع
+            </button>
+
+            <h2>اختيار نوع الاستشارة</h2>
+
+            <p class="notice">
+                اختر نوع الاستشارة التي تريد الدخول إليها.
+            </p>
+
+            <div class="choice-grid">
+                ${contracts.map(contract => `
+                    <div class="choice">
+                        <h3>
+                            ${escapeHtml(contract.title)}
+                        </h3>
+
+                        <p class="screen-purpose">
+                            ${escapeHtml(contract.purpose)}
+                        </p>
+
+                        <button class="primary"
+                                onclick="openConsultation(
+                                    '${escapeHtml(contract.id || contract.key)}'
+                                )">
+                            دخول
+                        </button>
+                    </div>
+                `).join("")}
+            </div>
+        </section>
+    `;
+
+    state.current = "choice";
+}
+
+async function openConsultation(screenId){
+    const contract = getContract(screenId);
+
+    if(!contract){
+        showStatus("تعذر تحديد شاشة الاستشارة.");
+        return;
+    }
+
+    try{
+        const user = await ensureUser();
+
+        const type =
+            screenId === "private_consultation"
+                ? "private"
+                : "free";
+
+        let result = state.consultations[type];
+
+        if(!result){
+            result = await request("/api/consultations",{
+                method:"POST",
+                body:JSON.stringify({
+                    user_id:user.id,
+                    type,
+                    status:"open",
+                    subject:
+                        type === "private"
+                            ? "استشارة خاصة"
+                            : "استشارة مجانية"
+                })
+            });
+
+            state.consultations[type] = result;
+        }
+
+        state.conversationId =
+            result.conversation?.id ||
+            result.conversation_id ||
+            null;
+
+        renderConsultation(contract,type);
+
+        await loadMessages();
+
+        showStatus(
+            "تم فتح الاستشارة وقاعدة البيانات متصلة.",
+            true
+        );
+
+    }catch(error){
+        showStatus(
+            error.message || "تعذر فتح الاستشارة."
+        );
+    }
+}
+
+"""
+
         html_content = r"""<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -796,7 +897,7 @@ textarea{
 
 <header>
     <h1>__PROJECT_NAME__</h1>
-    <p>منصة الاستشارات القانونية أون لاين</p>
+    <p>__PROJECT_DESCRIPTION__</p>
 </header>
 
 <main>
@@ -810,6 +911,7 @@ textarea{
 </main>
 
 <script>
+${CONSULTATION_RUNTIME}
 const ABQARYNO_CONTRACTS = __CONTRACTS__;
 const ABQARYNO_API = __API__;
 
@@ -888,137 +990,6 @@ function showStatus(message, ok=false){
     const status = document.getElementById("status");
     status.textContent = message;
     status.classList.toggle("ok",ok);
-}
-
-function renderWelcome(){
-    const contract =
-        getContract("home") ||
-        ABQARYNO_CONTRACTS[0];
-
-    const app = document.getElementById("app");
-
-    app.innerHTML = `
-        <section class="screen">
-            <h2>${escapeHtml(
-                contract?.title || "مرحبًا بك"
-            )}</h2>
-
-            <p class="screen-purpose">
-                ${escapeHtml(
-                    contract?.purpose ||
-                    "بوابة الاستشارات القانونية أون لاين"
-                )}
-            </p>
-
-            <div class="actions">
-                <button class="primary"
-                        onclick="renderChoice()">
-                    متابعة
-                </button>
-            </div>
-        </section>
-    `;
-
-    state.current = "home";
-}
-
-function renderChoice(){
-    const contracts = getConsultationContracts();
-    const app = document.getElementById("app");
-
-    app.innerHTML = `
-        <section class="screen">
-            <button class="secondary back"
-                    onclick="renderWelcome()">
-                ← رجوع
-            </button>
-
-            <h2>اختيار نوع الاستشارة</h2>
-
-            <p class="notice">
-                اختر نوع الاستشارة التي تريد الدخول إليها.
-            </p>
-
-            <div class="choice-grid">
-                ${contracts.map(contract => `
-                    <div class="choice">
-                        <h3>
-                            ${escapeHtml(contract.title)}
-                        </h3>
-
-                        <p class="screen-purpose">
-                            ${escapeHtml(contract.purpose)}
-                        </p>
-
-                        <button class="primary"
-                                onclick="openConsultation(
-                                    '${escapeHtml(contract.id || contract.key)}'
-                                )">
-                            دخول
-                        </button>
-                    </div>
-                `).join("")}
-            </div>
-        </section>
-    `;
-
-    state.current = "choice";
-}
-
-async function openConsultation(screenId){
-    const contract = getContract(screenId);
-
-    if(!contract){
-        showStatus("تعذر تحديد شاشة الاستشارة.");
-        return;
-    }
-
-    try{
-        const user = await ensureUser();
-
-        const type =
-            screenId === "private_consultation"
-                ? "private"
-                : "free";
-
-        let result = state.consultations[type];
-
-        if(!result){
-            result = await request("/api/consultations",{
-                method:"POST",
-                body:JSON.stringify({
-                    user_id:user.id,
-                    type,
-                    status:"open",
-                    subject:
-                        type === "private"
-                            ? "استشارة خاصة"
-                            : "استشارة مجانية"
-                })
-            });
-
-            state.consultations[type] = result;
-        }
-
-        state.conversationId =
-            result.conversation?.id ||
-            result.conversation_id ||
-            null;
-
-        renderConsultation(contract,type);
-
-        await loadMessages();
-
-        showStatus(
-            "تم فتح الاستشارة وقاعدة البيانات متصلة.",
-            true
-        );
-
-    }catch(error){
-        showStatus(
-            error.message || "تعذر فتح الاستشارة."
-        );
-    }
 }
 
 function renderConsultation(contract,type){
@@ -1372,9 +1343,44 @@ checkHealth();
 </html>
 """
 
+        approved_screen_ids = {
+            str(screen.get("id", "")).strip().lower()
+            for screen in blueprint.get("screens", [])
+            if isinstance(screen, dict)
+        }
+
+        has_consultation_flow = bool(
+            {
+                "consultation_choice",
+                "private_consultation",
+                "free_consultation",
+            }
+            & approved_screen_ids
+        )
+
+        consultation_runtime_value = (
+            consultation_runtime
+            if has_consultation_flow
+            else ""
+        )
+
+        html_content = html_content.replace(
+            "${CONSULTATION_RUNTIME}",
+            consultation_runtime_value
+        )
+
         html_content = html_content.replace(
             "__PROJECT_NAME__",
             str(self.project_name)
+        )
+
+        project_description = (
+            "البرنامج يعمل وفق المتطلبات المعتمدة"
+        )
+
+        html_content = html_content.replace(
+            "__PROJECT_DESCRIPTION__",
+            project_description
         )
 
         html_content = html_content.replace(
@@ -2519,6 +2525,36 @@ app.delete("/api/TABLE_NAME/:id", (req, res) => {
         self.run_backend_agent()
         self.run_real_execution_agent()
         self.run_test_and_evidence_agent()
+
+        from engine.post_build_finalizer import PostBuildFinalizer
+
+        post_build = PostBuildFinalizer(
+            self.target_dir,
+            self.project_name,
+            self.specification,
+        ).run()
+
+        self.brain["post_build_finalizer"] = post_build
+
+        if post_build.get("status") != "PASSED":
+            evidence = self.brain.get("evidence", {})
+            evidence["post_build_finalizer"] = post_build
+            evidence["creation_status"] = "POST_BUILD_BLOCKED"
+
+            (
+                self.target_dir / ".abqaryno-evidence.json"
+            ).write_text(
+                __import__("json").dumps(
+                    evidence,
+                    ensure_ascii=False,
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
+
+            raise RuntimeError(
+                "ABQARYNO_POST_BUILD_FINALIZER_BLOCKED"
+            )
 
         evidence = self.brain.get("evidence", {})
         verification = evidence.get(
