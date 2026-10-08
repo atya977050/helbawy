@@ -174,8 +174,9 @@ async function createProject(){
   return result;
 }
 
-createProject()
-.then(result=>{
+async function runApprovedBuild(){
+  try {
+    const result=await createProject();
   title.textContent="🎉 تم إنشاء البرنامج بنجاح";
   message.textContent="عبقرينو أنهى إنشاء المشروع وفق الخطة التي اعتمدتها.";
 
@@ -279,8 +280,7 @@ createProject()
       alert(error.message);
     }
   };
-})
-.catch(error=>{
+  } catch(error){
   title.textContent="تعذر إنشاء البرنامج";
   message.textContent="حدثت مشكلة أثناء تنفيذ المولّد.";
 
@@ -291,6 +291,13 @@ createProject()
   `;
 
   actions.style.display="flex";
+  }
+}
+
+window.addEventListener("abqaryno:build-approval", function(event){
+  if(event.detail && event.detail.approved === true){
+    runApprovedBuild();
+  }
 });
 </script>
 <div id="abqaryno-build-gate-v2"></div>
