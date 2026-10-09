@@ -2013,10 +2013,25 @@ class CreationVerificationEngine:
             checks.append({'name': 'npm_dependencies', 'status': 'PASSED' if install.returncode == 0 else 'FAILED', 'exit_code': install.returncode, 'stdout': install.stdout[-3000:], 'stderr': install.stderr[-3000:]})
             if install.returncode != 0:
                 return
-        port = self._detect_port(target)
+        import os
+        import socket
+
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.bind(("127.0.0.1", 0))
+            port = sock.getsockname()[1]
+
         process = None
         try:
-            process = subprocess.Popen([node, 'server.js'], cwd=target, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            env = os.environ.copy()
+            env["PORT"] = str(port)
+            process = subprocess.Popen(
+                [node, 'server.js'],
+                cwd=target,
+                env=env,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
             last_error = None
             http_result = None
             for _ in range(20):
