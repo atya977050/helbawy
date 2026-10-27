@@ -1,0 +1,945 @@
+const DB_KEY='halabawy_office_db_v2';
+
+const DEFAULT_DB={
+clients:[],cases:[],lawyers:[],sessions:[],procedures:[],
+expenses:[],incomes:[],tasks:[],documents:[]
+};
+
+let db=JSON.parse(localStorage.getItem(DB_KEY)||'null')||DEFAULT_DB;
+
+function saveDB(){
+localStorage.setItem(DB_KEY,JSON.stringify(db));
+}
+
+function id(){
+return Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+}
+
+function add(collection,data){
+if(!db[collection]) db[collection]=[];
+const record={id:id(),createdAt:new Date().toISOString(),...data};
+db[collection].push(record);
+saveDB();
+return record;
+}
+
+function update(collection,recordId,data){
+const i=(db[collection]||[]).findIndex(x=>x.id===recordId);
+if(i<0)return null;
+db[collection][i]={...db[collection][i],...data,updatedAt:new Date().toISOString()};
+saveDB();
+return db[collection][i];
+}
+
+function remove(collection,recordId){
+db[collection]=(db[collection]||[]).filter(x=>x.id!==recordId);
+saveDB();
+}
+
+function all(collection){
+return db[collection]||[];
+}
+
+function find(collection,recordId){
+return all(collection).find(x=>x.id===recordId)||null;
+}
+
+function money(value){
+return Number(value||0);
+}
+
+function total(collection, filterOrKey){
+  const rows = Array.isArray(db[collection]) ? db[collection] : [];
+
+  if(typeof filterOrKey === "function"){
+    return rows.reduce((sum,row)=>{
+      return sum + (filterOrKey(row) ? Number(row.amount || 0) : 0);
+    },0);
+  }
+
+  if(typeof filterOrKey === "string"){
+    return rows.reduce((sum,row)=>{
+      return sum + Number(row[filterOrKey] || 0);
+    },0);
+  }
+
+  return rows.reduce((sum,row)=>sum + Number(row.amount || 0),0);
+}
+
+/* الموكلون */
+
+function addClient(data){
+return add('clients',{
+name:data.name||'',
+phone:data.phone||'',
+nationalId:data.nationalId||'',
+address:data.address||'',
+notes:data.notes||''
+});
+}
+
+/* المحامون */
+
+function addLawyer(data){
+return add('lawyers',{
+name:data.name||'',
+phone:data.phone||'',
+specialization:data.specialization||'',
+notes:data.notes||''
+});
+}
+
+/* القضايا */
+
+function addCase(data){
+return add('cases',{
+caseNumber:data.caseNumber||'',
+year:data.year||new Date().getFullYear(),
+clientId:data.clientId||'',
+lawyerId:data.lawyerId||'',
+court:data.court||'',
+caseType:data.caseType||'',
+status:data.status||'قيد المتابعة',
+filingDate:data.filingDate||'',
+description:data.description||'',
+notes:data.notes||''
+});
+}
+
+/* الجلسات */
+
+function addSession(data){
+return add('sessions',{
+caseId:data.caseId||'',
+date:data.date||'',
+time:data.time||'',
+court:data.court||'',
+result:data.result||'',
+nextDate:data.nextDate||'',
+notes:data.notes||''
+});
+}
+
+/* الإجراءات */
+
+function addProcedure(data){
+return add('procedures',{
+caseId:data.caseId||'',
+lawyerId:data.lawyerId||'',
+date:data.date||'',
+type:data.type||'',
+description:data.description||'',
+notes:data.notes||''
+});
+}
+
+/* المصروفات */
+
+function addExpense(data){
+return add('expenses',{
+caseId:data.caseId||'',
+lawyerId:data.lawyerId||'',
+date:data.date||new Date().toISOString().slice(0,10),
+category:data.category||'عام',
+description:data.description||'',
+amount:money(data.amount),
+paidBy:data.paidBy||'المكتب',
+notes:data.notes||''
+});
+}
+
+/* الإيرادات */
+
+function addIncome(data){
+return add('incomes',{
+caseId:data.caseId||'',
+clientId:data.clientId||'',
+date:data.date||new Date().toISOString().slice(0,10),
+category:data.category||'أتعاب',
+description:data.description||'',
+amount:money(data.amount),
+receivedBy:data.receivedBy||'المكتب',
+notes:data.notes||''
+});
+}
+
+/* المهام */
+
+function addTask(data){
+return add('tasks',{
+caseId:data.caseId||'',
+lawyerId:data.lawyerId||'',
+title:data.title||'',
+dueDate:data.dueDate||'',
+priority:data.priority||'عادية',
+status:data.status||'مفتوحة',
+notes:data.notes||''
+});
+}
+
+/* المستندات */
+
+function addDocument(data){
+return add('documents',{
+caseId:data.caseId||'',
+name:data.name||'',
+type:data.type||'',
+path:data.path||'',
+notes:data.notes||''
+});
+}
+
+/* بيانات القضية كاملة */
+
+function caseDetails(caseId){
+const c=find('cases',caseId);
+if(!c)return null;
+
+return{
+case:c,
+client:find('clients',c.clientId),
+lawyer:find('lawyers',c.lawyerId),
+sessions:all('sessions').filter(x=>x.caseId===caseId),
+procedures:all('procedures').filter(x=>x.caseId===caseId),
+expenses:all('expenses').filter(x=>x.caseId===caseId),
+incomes:all('incomes').filter(x=>x.caseId===caseId),
+tasks:all('tasks').filter(x=>x.caseId===caseId),
+documents:all('documents').filter(x=>x.caseId===caseId),
+totalExpenses:total('expenses',x=>x.caseId===caseId),
+totalIncome:total('incomes',x=>x.caseId===caseId)
+};
+}
+
+/* تقارير المحامي */
+
+function getLawyerReportData(lawyerId,from,to){
+const procedures=all('procedures').filter(x=>{
+if(x.lawyerId!==lawyerId)return false;
+if(from&&x.date<from)return false;
+if(to&&x.date>to)return false;
+return true;
+});
+
+const sessions=all('sessions').filter(x=>{
+const c=find('cases',x.caseId);
+return c&&c.lawyerId===lawyerId&&(!from||x.date>=from)&&(!to||x.date<=to);
+});
+
+const expenses=all('expenses').filter(x=>{
+if(x.lawyerId!==lawyerId)return false;
+if(from&&x.date<from)return false;
+if(to&&x.date>to)return false;
+return true;
+});
+
+return{
+lawyer:find('lawyers',lawyerId),
+procedures,
+sessions,
+expenses,
+expenseTotal:expenses.reduce((s,x)=>s+money(x.amount),0)
+};
+}
+
+/* تقرير القضية */
+
+function caseExpenseReport(caseId){
+const list=all('expenses').filter(x=>x.caseId===caseId);
+return{
+case:find('cases',caseId),
+items:list,
+total:list.reduce((s,x)=>s+money(x.amount),0)
+};
+}
+
+/* تقرير المكتب */
+
+function officeReport(from,to){
+const expenses=all('expenses').filter(x=>
+(!from||x.date>=from)&&(!to||x.date<=to)
+);
+
+const incomes=all('incomes').filter(x=>
+(!from||x.date>=from)&&(!to||x.date<=to)
+);
+
+const expenseTotal=expenses.reduce((s,x)=>s+money(x.amount),0);
+const incomeTotal=incomes.reduce((s,x)=>s+money(x.amount),0);
+
+return{
+from,to,
+expenses,
+incomes,
+expenseTotal,
+incomeTotal,
+net:incomeTotal-expenseTotal
+};
+}
+
+/* تقرير السنة */
+
+function yearlyReport(year){
+return officeReport(year+'-01-01',year+'-12-31');
+}
+
+/* حالة القضية */
+
+function caseStatus(caseId){
+const d=caseDetails(caseId);
+if(!d)return null;
+
+return{
+case:d.case,
+client:d.client,
+lawyer:d.lawyer,
+lastSession:d.sessions.sort((a,b)=>(b.date||'').localeCompare(a.date||''))[0]||null,
+nextSession:d.sessions
+.filter(x=>x.date&&x.date>=new Date().toISOString().slice(0,10))
+.sort((a,b)=>a.date.localeCompare(b.date))[0]||null,
+proceduresCount:d.procedures.length,
+sessionsCount:d.sessions.length,
+expenses:d.totalExpenses,
+income:d.totalIncome,
+balance:d.totalIncome-d.totalExpenses
+};
+}
+
+/* لوحة التحكم */
+
+function dashboard(){
+const today=new Date().toISOString().slice(0,10);
+const month=today.slice(0,7);
+
+return{
+clients:all('clients').length,
+cases:all('cases').length,
+activeCases:all('cases').filter(x=>x.status!=='منتهية').length,
+lawyers:all('lawyers').length,
+sessionsToday:all('sessions').filter(x=>x.date===today).length,
+openTasks:all('tasks').filter(x=>x.status!=='مكتملة').length,
+monthExpenses:total('expenses',x=>(x.date||'').startsWith(month)),
+monthIncome:total('incomes',x=>(x.date||'').startsWith(month)),
+allExpenses:total('expenses'),
+allIncome:total('incomes')
+};
+}
+
+/* بحث شامل */
+
+function search(text){
+text=String(text||'').trim().toLowerCase();
+if(!text)return{clients:[],cases:[],lawyers:[]};
+
+return{
+clients:all('clients').filter(x=>
+JSON.stringify(x).toLowerCase().includes(text)),
+cases:all('cases').filter(x=>
+JSON.stringify(x).toLowerCase().includes(text)),
+lawyers:all('lawyers').filter(x=>
+JSON.stringify(x).toLowerCase().includes(text))
+};
+}
+
+/* تصدير واستيراد قاعدة البيانات */
+
+function exportDB(){
+return JSON.stringify(db,null,2);
+}
+
+function importDB(json){
+const imported=typeof json==='string'?JSON.parse(json):json;
+db={
+...DEFAULT_DB,
+...imported
+};
+saveDB();
+return db;
+}
+
+/* واجهة عامة */
+
+window.Halabawy={
+db,
+saveDB,
+add,
+update,
+remove,
+all,
+find,
+addClient,
+addLawyer,
+addCase,
+addSession,
+addProcedure,
+addExpense,
+addIncome,
+addTask,
+addDocument,
+caseDetails,
+caseExpenseReport,
+caseStatus,
+lawyerReport,
+officeReport,
+yearlyReport,
+dashboard,
+search,
+exportDB,
+importDB
+};
+
+console.log('الهلباوي — نظام إدارة مكتب المحاماة جاهز');
+
+/* =========================
+   واجهات إدارة مكتب المحاماة
+   ========================= */
+
+function esc(v){
+  return String(v??'').replace(/[&<>"']/g,m=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+  }[m]));
+}
+
+function renderCollection(collection,title,fields){
+  const rows=db[collection]||[];
+  const page=document.getElementById('page');
+  page.innerHTML=`
+  <div class="panel">
+    <h3>${title}</h3>
+    <div style="display:flex;gap:8px;margin-bottom:15px;flex-wrap:wrap">
+      <button class="btn primary" onclick="quickAdd('${collection}')">＋ إضافة</button>
+      <input id="listSearch" placeholder="🔎 بحث..." style="flex:1;min-width:180px;padding:11px;border:1px solid #ddd;border-radius:9px">
+    </div>
+    <div style="overflow:auto">
+    <table>
+      <thead><tr>${fields.map(f=>`<th>${esc(f.label)}</th>`).join('')}<th>إجراء</th></tr></thead>
+      <tbody id="collectionRows">
+      ${rows.length?rows.map(r=>`
+        <tr>
+          ${fields.map(f=>`<td>${esc(r[f.key])}</td>`).join('')}
+          <td><button class="btn secondary" onclick="removeRecord('${collection}','${r.id}')">حذف</button></td>
+        </tr>`).join(''):
+        `<tr><td colspan="${fields.length+1}" style="text-align:center;padding:30px">لا توجد بيانات مسجلة</td></tr>`}
+      </tbody>
+    </table>
+    </div>
+  </div>`;
+  const input=document.getElementById('listSearch');
+  if(input) input.oninput=()=>filterCollection(collection,fields);
+}
+
+function filterCollection(collection,fields){
+  const q=(document.getElementById('listSearch')?.value||'').toLowerCase();
+  const rows=(db[collection]||[]).filter(r=>
+    fields.some(f=>String(r[f.key]??'').toLowerCase().includes(q))
+  );
+  const body=document.getElementById('collectionRows');
+  if(body) body.innerHTML=rows.map(r=>`
+    <tr>
+      ${fields.map(f=>`<td>${esc(r[f.key])}</td>`).join('')}
+      <td><button class="btn secondary" onclick="removeRecord('${collection}','${r.id}')">حذف</button></td>
+    </tr>`).join('')||`<tr><td colspan="${fields.length+1}" style="text-align:center;padding:30px">لا توجد نتائج</td></tr>`;
+}
+
+function quickAdd(collection){
+  const names={
+    clients:'الموكل',
+    lawyers:'المحامي',
+    cases:'القضية',
+    sessions:'الجلسة',
+    expenses:'المصروف',
+    incomes:'الإيراد',
+    tasks:'المهمة',
+    documents:'المستند'
+  };
+  const label=names[collection]||collection;
+  const name=prompt('اسم/بيان '+label+':');
+  if(!name)return;
+
+  if(collection==='clients') addClient({name,phone:prompt('رقم الهاتف:')||''});
+  else if(collection==='lawyers') addLawyer({name,phone:prompt('رقم الهاتف:')||''});
+  else if(collection==='cases') addCase({caseNumber:name,clientId:'',lawyerId:'',court:'',status:'نشطة'});
+  else if(collection==='sessions') addSession({caseId:'',date:name,notes:''});
+  else if(collection==='expenses') addExpense({caseId:'',lawyerId:'',amount:Number(prompt('القيمة:')||0),description:name,date:new Date().toISOString().slice(0,10)});
+  else if(collection==='incomes') addIncome({caseId:'',amount:Number(prompt('القيمة:')||0),description:name,date:new Date().toISOString().slice(0,10)});
+  else if(collection==='tasks') addTask({title:name,status:'مفتوحة',dueDate:''});
+  else if(collection==='documents') addDocument({name,path:name});
+  showManagedPage(collection);
+}
+
+function removeRecord(collection,recordId){
+  if(!confirm('هل تريد حذف هذا السجل؟'))return;
+  db[collection]=(db[collection]||[]).filter(x=>x.id!==recordId);
+  saveDB();
+  showManagedPage(collection);
+}
+
+function showManagedPage(name){
+  const fields={
+    clients:[
+      {key:'name',label:'اسم الموكل'},
+      {key:'phone',label:'الهاتف'}
+    ],
+    lawyers:[
+      {key:'name',label:'اسم المحامي'},
+      {key:'phone',label:'الهاتف'}
+    ],
+    cases:[
+      {key:'caseNumber',label:'رقم القضية'},
+      {key:'court',label:'المحكمة'},
+      {key:'status',label:'الحالة'}
+    ],
+    sessions:[
+      {key:'date',label:'التاريخ'},
+      {key:'caseId',label:'القضية'},
+      {key:'notes',label:'البيان'}
+    ],
+    expenses:[
+      {key:'date',label:'التاريخ'},
+      {key:'description',label:'البيان'},
+      {key:'amount',label:'القيمة'}
+    ],
+    incomes:[
+      {key:'date',label:'التاريخ'},
+      {key:'description',label:'البيان'},
+      {key:'amount',label:'القيمة'}
+    ],
+    tasks:[
+      {key:'title',label:'المهمة'},
+      {key:'status',label:'الحالة'},
+      {key:'dueDate',label:'الاستحقاق'}
+    ],
+    documents:[
+      {key:'name',label:'المستند'},
+      {key:'path',label:'المسار'}
+    ]
+  };
+  renderCollection(name,titles[name]||name,fields[name]||[]);
+}
+
+window.showManagedPage=showManagedPage;
+window.quickAdd=quickAdd;
+window.removeRecord=removeRecord;
+
+console.log('الهلباوي: واجهات الإدارة جاهزة');
+
+/* =========================
+   التقارير والحسابات والبحث
+   ========================= */
+
+function renderReport(title,html){
+  const page=document.getElementById('page');
+  page.innerHTML=`
+  <div class="panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+      <h3>${title}</h3>
+      <button class="btn primary" onclick="window.print()">🖨️ طباعة التقرير</button>
+    </div>
+    ${html}
+  </div>`;
+}
+
+
+function showReports(){
+  const income=total('incomes','amount');
+  const expense=total('expenses','amount');
+  const balance=income-expense;
+
+  renderReport('التقارير',`
+    <div class="cards" style="margin-top:15px">
+      <div class="card"><div class="label">إجمالي الإيرادات</div><div class="value">${income} ج.م</div></div>
+      <div class="card"><div class="label">إجمالي المصروفات</div><div class="value">${expense} ج.م</div></div>
+      <div class="card"><div class="label">صافي الحساب</div><div class="value">${balance} ج.م</div></div>
+      <div class="card"><div class="label">عدد القضايا</div><div class="value">${db.cases.length}</div></div>
+    </div>
+
+    <div class="quick" style="margin-top:20px">
+      <button onclick="caseReport()"><strong>📁 تقرير حالة قضية</strong><span>بيانات القضية والجلسات والإجراءات</span></button>
+      <button onclick="lawyerReport()"><strong>👨‍⚖️ تقرير أعمال محامي</strong><span>القضايا والجلسات والمصروفات</span></button>
+      <button onclick="monthlyReport()"><strong>📅 تقرير شهري</strong><span>الإيرادات والمصروفات خلال شهر</span></button>
+      <button onclick="annualReport()"><strong>📊 التقرير السنوي</strong><span>ملخص السنة والميزانية</span></button>
+    </div>
+  `);
+}
+
+function caseReport(){
+  const n=prompt('أدخل رقم القضية:');
+  if(!n)return;
+  const c=db.cases.find(x=>String(x.caseNumber)===String(n));
+  if(!c){alert('القضية غير موجودة');return;}
+
+  const sessions=db.sessions.filter(x=>x.caseId===c.id);
+  const procedures=db.procedures.filter(x=>x.caseId===c.id);
+  const expenses=db.expenses.filter(x=>x.caseId===c.id);
+
+  renderReport('تقرير القضية رقم '+esc(n),`
+    <div class="notice">المحكمة: ${esc(c.court)} — الحالة: ${esc(c.status)}</div>
+    <h4>الجلسات</h4>
+    <p>عدد الجلسات: ${sessions.length}</p>
+    <h4>الإجراءات</h4>
+    <p>عدد الإجراءات: ${procedures.length}</p>
+    <h4>المصروفات</h4>
+    <p>إجمالي مصروفات القضية: ${expenses.reduce((s,x)=>s+Number(x.amount||0),0)} ج.م</p>
+  `);
+}
+
+function lawyerReport(){
+  const n=prompt('اسم المحامي:');
+  if(!n)return;
+  const lawyer=db.lawyers.find(x=>String(x.name).includes(n));
+  if(!lawyer){alert('المحامي غير موجود');return;}
+
+  const cases=db.cases.filter(x=>x.lawyerId===lawyer.id);
+  const expenses=db.expenses.filter(x=>x.lawyerId===lawyer.id);
+
+  renderReport('تقرير أعمال المحامي',`
+    <div class="notice">المحامي: ${esc(lawyer.name)}</div>
+    <p>عدد القضايا: <strong>${cases.length}</strong></p>
+    <p>إجمالي المصروفات المسجلة: <strong>${total('expenses','amount')} ج.م</strong></p>
+  `);
+}
+
+function monthlyReport(){
+  const month=prompt('أدخل الشهر بصيغة YYYY-MM:',new Date().toISOString().slice(0,7));
+  if(!month)return;
+
+  const inc=db.incomes.filter(x=>String(x.date||'').startsWith(month));
+  const exp=db.expenses.filter(x=>String(x.date||'').startsWith(month));
+  const income=inc.reduce((s,x)=>s+Number(x.amount||0),0);
+  const expense=exp.reduce((s,x)=>s+Number(x.amount||0),0);
+
+  renderReport('التقرير الشهري — '+esc(month),`
+    <div class="notice">الإيرادات: <strong>${income} ج.م</strong></div>
+    <div class="notice">المصروفات: <strong>${expense} ج.م</strong></div>
+    <div class="notice">الصافي: <strong>${income-expense} ج.م</strong></div>
+  `);
+}
+
+function annualReport(){
+  const year=prompt('أدخل السنة:',new Date().getFullYear());
+  if(!year)return;
+
+  const inc=db.incomes.filter(x=>String(x.date||'').startsWith(String(year)));
+  const exp=db.expenses.filter(x=>String(x.date||'').startsWith(String(year)));
+  const income=inc.reduce((s,x)=>s+Number(x.amount||0),0);
+  const expense=exp.reduce((s,x)=>s+Number(x.amount||0),0);
+
+  renderReport('التقرير السنوي — '+esc(year),`
+    <div class="notice">إجمالي الإيرادات: <strong>${income} ج.م</strong></div>
+    <div class="notice">إجمالي المصروفات: <strong>${expense} ج.م</strong></div>
+    <div class="notice">صافي السنة: <strong>${income-expense} ج.م</strong></div>
+    <div class="notice">عدد القضايا المسجلة: <strong>${db.cases.length}</strong></div>
+  `);
+}
+
+function showSearch(){
+  const q=prompt('اكتب رقم القضية أو اسم الموكل أو المحامي:');
+  if(!q)return;
+  const result=[
+    ...db.clients.filter(x=>JSON.stringify(x).includes(q)).map(x=>`موكل: ${x.name}`),
+    ...db.cases.filter(x=>JSON.stringify(x).includes(q)).map(x=>`قضية: ${x.caseNumber}`),
+    ...db.lawyers.filter(x=>JSON.stringify(x).includes(q)).map(x=>`محامي: ${x.name}`)
+  ];
+
+  renderReport('نتائج البحث',result.length?
+    result.map(x=>`<div class="notice">🔎 ${esc(x)}</div>`).join(''):
+    '<div class="notice">لا توجد نتائج.</div>');
+}
+
+function showAccounts(){
+  const income=total('incomes','amount');
+  const expense=total('expenses','amount');
+
+  renderReport('الحسابات',`
+    <div class="notice">إجمالي الإيرادات والمدفوعات: <strong>${income} ج.م</strong></div>
+    <div class="notice">إجمالي المصروفات: <strong>${expense} ج.م</strong></div>
+    <div class="notice">الرصيد الحالي: <strong>${income-expense} ج.م</strong></div>
+  `);
+}
+
+function showBudget(){
+  const income=total('incomes','amount');
+  const expense=total('expenses','amount');
+
+  renderReport('ميزانية المكتب',`
+    <div class="notice">الإيرادات: ${income} ج.م</div>
+    <div class="notice">المصروفات: ${expense} ج.م</div>
+    <div class="notice">الفائض / العجز: ${income-expense} ج.م</div>
+  `);
+}
+
+/* ربط القوائم */
+const originalShowPage=window.showPage;
+
+window.showPage=function(name,button){
+  if(name==='reports'){
+    document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'));
+    if(button)button.classList.add('active');
+    document.getElementById('dashboard').style.display='none';
+    document.getElementById('page').style.display='block';
+    document.getElementById('pageTitle').textContent='التقارير';
+    showReports();
+    return;
+  }
+
+  if(name==='accounts'){
+    document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'));
+    if(button)button.classList.add('active');
+    document.getElementById('dashboard').style.display='none';
+    document.getElementById('page').style.display='block';
+    document.getElementById('pageTitle').textContent='الحسابات';
+    showAccounts();
+    return;
+  }
+
+  if(name==='budget'){
+    document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'));
+    if(button)button.classList.add('active');
+    document.getElementById('dashboard').style.display='none';
+    document.getElementById('page').style.display='block';
+    document.getElementById('pageTitle').textContent='الميزانية';
+    showBudget();
+    return;
+  }
+
+  if(name==='clients'||name==='cases'||name==='lawyers'||name==='sessions'||
+     name==='expenses'||name==='income'||name==='tasks'||name==='archive'){
+    document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'));
+    if(button)button.classList.add('active');
+    document.getElementById('dashboard').style.display='none';
+    document.getElementById('page').style.display='block';
+    document.getElementById('pageTitle').textContent=titles[name]||name;
+
+    const map={archive:'documents',income:'incomes'};
+    showManagedPage(map[name]||name);
+    return;
+  }
+
+  if(name==='settings'){
+    document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'));
+    if(button)button.classList.add('active');
+    document.getElementById('dashboard').style.display='none';
+    document.getElementById('page').style.display='block';
+    document.getElementById('pageTitle').textContent='الإعدادات';
+    renderReport('الإعدادات',`
+      <div class="notice">البيانات محفوظة محليًا على الجهاز.</div>
+      <button class="btn secondary" onclick="if(confirm('حذف جميع بيانات المكتب؟')){localStorage.removeItem(DB_KEY);location.reload()}">⚠️ مسح بيانات البرنامج</button>
+    `);
+    return;
+  }
+
+  originalShowPage(name,button);
+};
+
+window.showReports=showReports;
+window.showSearch=showSearch;
+window.showAccounts=showAccounts;
+window.showBudget=showBudget;
+window.caseReport=caseReport;
+window.lawyerReport=lawyerReport;
+window.monthlyReport=monthlyReport;
+window.annualReport=annualReport;
+
+console.log('الهلباوي: التقارير والحسابات والبحث جاهزة');
+
+/* ============================================================
+   الهلباوي — طبقة الإصلاح النهائي للوظائف الحرجة
+   ============================================================ */
+
+/* إصلاح total ومنع تعارض تعريفاته */
+
+/* المؤشرات المالية */
+function monthlyExpenses(month){
+  month = month || new Date().toISOString().slice(0,7);
+  return total('expenses',x=>String(x.date||'').startsWith(month));
+}
+
+function monthlyIncome(month){
+  month = month || new Date().toISOString().slice(0,7);
+  return total('incomes',x=>String(x.date||'').startsWith(month));
+}
+
+/* إحصائيات لوحة التحكم */
+function dashboardStats(){
+  const today = new Date().toISOString().slice(0,10);
+  const month = today.slice(0,7);
+
+  return {
+    clients: all('clients').length,
+    cases: all('cases').length,
+    activeCases: all('cases').filter(x=>x.status!=='منتهية').length,
+    lawyers: all('lawyers').length,
+    sessionsToday: all('sessions').filter(x=>x.date===today).length,
+    openTasks: all('tasks').filter(x=>x.status!=='مكتملة').length,
+    monthExpenses: monthlyExpenses(month),
+    monthIncome: monthlyIncome(month),
+    allExpenses: total('expenses'),
+    allIncome: total('incomes'),
+    balance: monthlyIncome(month)-monthlyExpenses(month)
+  };
+}
+
+/* تقرير مالي شهري */
+function financialMonthlyReport(month){
+  month = month || new Date().toISOString().slice(0,7);
+
+  const income = monthlyIncome(month);
+  const expenses = monthlyExpenses(month);
+
+  return {
+    month,
+    income,
+    expenses,
+    balance: income-expenses,
+    incomes: all('incomes').filter(x=>String(x.date||'').startsWith(month)),
+    expensesList: all('expenses').filter(x=>String(x.date||'').startsWith(month))
+  };
+}
+
+/* تقرير القضية */
+function getCaseReport(caseId){
+  const c = find('cases',caseId);
+  if(!c) return null;
+
+  const data = caseDetails(caseId);
+
+  return {
+    case:c,
+    client:data.client,
+    lawyer:data.lawyer,
+    sessions:data.sessions,
+    procedures:data.procedures,
+    expenses:data.expenses,
+    incomes:data.incomes,
+    tasks:data.tasks,
+    documents:data.documents,
+    totalExpenses:data.totalExpenses,
+    totalIncome:data.totalIncome,
+    balance:data.totalIncome-data.totalExpenses
+  };
+}
+
+/* بحث شامل حقيقي */
+function globalSearch(text){
+  text = String(text||'').trim().toLowerCase();
+  if(!text){
+    return {
+      clients:[],
+      cases:[],
+      lawyers:[],
+      sessions:[],
+      procedures:[],
+      expenses:[],
+      incomes:[],
+      tasks:[],
+      documents:[]
+    };
+  }
+
+  const match = x => JSON.stringify(x).toLowerCase().includes(text);
+
+  return {
+    clients:all('clients').filter(match),
+    cases:all('cases').filter(match),
+    lawyers:all('lawyers').filter(match),
+    sessions:all('sessions').filter(match),
+    procedures:all('procedures').filter(match),
+    expenses:all('expenses').filter(match),
+    incomes:all('incomes').filter(match),
+    tasks:all('tasks').filter(match),
+    documents:all('documents').filter(match)
+  };
+}
+
+/* فحص سلامة قاعدة البيانات */
+function databaseIntegrity(){
+  const collections=[
+    'clients','cases','lawyers','sessions',
+    'procedures','expenses','incomes','tasks','documents'
+  ];
+
+  const result={
+    ok:true,
+    collections:{},
+    brokenReferences:[]
+  };
+
+  collections.forEach(name=>{
+    result.collections[name]=Array.isArray(db[name]);
+    if(!result.collections[name]) result.ok=false;
+  });
+
+  const ids = {};
+  ['clients','cases','lawyers'].forEach(name=>{
+    ids[name]=new Set(all(name).map(x=>String(x.id)));
+  });
+
+  all('cases').forEach(x=>{
+    if(x.clientId && !ids.clients.has(String(x.clientId)))
+      result.brokenReferences.push(`case:${x.id}->client:${x.clientId}`);
+
+    if(x.lawyerId && !ids.lawyers.has(String(x.lawyerId)))
+      result.brokenReferences.push(`case:${x.id}->lawyer:${x.lawyerId}`);
+  });
+
+  all('sessions').forEach(x=>{
+    if(x.caseId && !all('cases').some(c=>String(c.id)===String(x.caseId)))
+      result.brokenReferences.push(`session:${x.id}->case:${x.caseId}`);
+  });
+
+  all('procedures').forEach(x=>{
+    if(x.caseId && !all('cases').some(c=>String(c.id)===String(x.caseId)))
+      result.brokenReferences.push(`procedure:${x.id}->case:${x.caseId}`);
+  });
+
+  result.ok = result.ok && result.brokenReferences.length===0;
+  return result;
+}
+
+/* تصدير/استيراد آمن */
+function safeExport(){
+  return JSON.stringify({
+    version:'halabawy_office_db_v2',
+    exportedAt:new Date().toISOString(),
+    data:db
+  });
+}
+
+function safeImport(json){
+  try{
+    const parsed=typeof json==='string'?JSON.parse(json):json;
+    const incoming=parsed.data||parsed;
+
+    const collections=[
+      'clients','cases','lawyers','sessions',
+      'procedures','expenses','incomes','tasks','documents'
+    ];
+
+    for(const name of collections){
+      if(!Array.isArray(incoming[name]))
+        throw new Error('المجموعة غير صالحة: '+name);
+    }
+
+    db=JSON.parse(JSON.stringify(incoming));
+    saveDB();
+
+    return {
+      ok:true,
+      integrity:databaseIntegrity()
+    };
+  }catch(e){
+    return {ok:false,error:e.message};
+  }
+}
+
+/* نشر الوظائف الحرجة */
+window.dashboardStats=dashboardStats;
+window.monthlyExpenses=monthlyExpenses;
+window.monthlyIncome=monthlyIncome;
+window.financialMonthlyReport=financialMonthlyReport;
+window.getCaseReport=getCaseReport;
+window.globalSearch=globalSearch;
+window.databaseIntegrity=databaseIntegrity;
+window.safeExport=safeExport;
+window.safeImport=safeImport;
+
+console.log('الهلباوي: طبقة الإصلاح النهائي محملة');

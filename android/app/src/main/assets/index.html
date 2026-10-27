@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>الهلباوي — مدير مكتب المحاماة</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Tahoma,sans-serif;background:#f4f6f8;color:#20252b}
+.app{display:flex;min-height:100vh}
+.sidebar{width:270px;background:#17202a;color:#fff;padding:22px 16px;position:fixed;right:0;top:0;bottom:0;overflow:auto}
+.brand{text-align:center;padding:10px 5px 25px;border-bottom:1px solid #34404c;margin-bottom:18px}
+.brand-icon{font-size:38px}
+.brand h1{font-size:25px;margin:8px 0 4px}
+.brand p{margin:0;color:#aeb8c2;font-size:13px}
+.menu-title{font-size:12px;color:#87939e;margin:18px 8px 8px}
+.menu button{width:100%;border:0;background:transparent;color:#dce2e7;text-align:right;padding:13px 14px;border-radius:9px;margin:2px 0;font-size:15px}
+.menu button:hover,.menu button.active{background:#293847;color:#fff}
+.main{margin-right:270px;width:calc(100% - 270px);padding:25px}
+.topbar{background:#fff;border-radius:14px;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 10px #0000000b;margin-bottom:22px}
+.topbar h2{margin:0;font-size:22px}
+.date{color:#68737d;font-size:13px}
+.actions{display:flex;gap:8px}
+.btn{border:0;border-radius:9px;padding:11px 16px;cursor:pointer;font-size:14px}
+.primary{background:#1f6feb;color:#fff}
+.secondary{background:#eef2f5;color:#26313b}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:22px}
+.card{background:#fff;border-radius:14px;padding:20px;box-shadow:0 2px 10px #0000000b}
+.card .label{color:#727d86;font-size:13px}
+.card .value{font-size:28px;font-weight:bold;margin-top:9px}
+.card .hint{font-size:12px;color:#84909a;margin-top:7px}
+.content{display:grid;grid-template-columns:1.5fr 1fr;gap:18px}
+.panel{background:#fff;border-radius:14px;padding:20px;box-shadow:0 2px 10px #0000000b}
+.panel h3{margin:0 0 17px;font-size:18px}
+table{width:100%;border-collapse:collapse}
+th,td{padding:12px 8px;border-bottom:1px solid #edf0f2;text-align:right;font-size:13px}
+th{color:#6d7780;font-weight:normal;background:#fafbfc}
+.badge{padding:5px 9px;border-radius:20px;font-size:11px;background:#eaf5ee;color:#24733f}
+.quick{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.quick button{border:1px solid #e5e9ed;background:#fafbfc;border-radius:10px;padding:15px;text-align:right;cursor:pointer}
+.quick strong{display:block;margin-bottom:5px}
+.quick span{font-size:12px;color:#7a858e}
+.notice{padding:13px;border-radius:10px;background:#f5f8fc;margin-bottom:10px;font-size:13px}
+@media(max-width:900px){
+.sidebar{width:220px}.main{margin-right:220px;width:calc(100% - 220px)}
+.cards{grid-template-columns:repeat(2,1fr)}.content{grid-template-columns:1fr}
+}
+@media(max-width:650px){
+.sidebar{position:relative;width:100%;height:auto}
+.app{display:block}
+.main{margin:0;width:100%;padding:12px}
+.cards{grid-template-columns:1fr 1fr}
+.topbar{display:block}
+.actions{margin-top:12px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<aside class="sidebar">
+<div class="brand">
+<div class="brand-icon">⚖️</div>
+<h1>الهلباوي</h1>
+<p>مدير مكتب المحاماة</p>
+</div>
+
+<div class="menu-title">الرئيسية</div>
+<div class="menu">
+<button class="active" onclick="showPage('dashboard',this)">🏠 لوحة التحكم</button>
+<button onclick="showPage('clients',this)">👤 الموكلون</button>
+<button onclick="showPage('cases',this)">📁 القضايا</button>
+<button onclick="showPage('sessions',this)">⚖️ الجلسات والإجراءات</button>
+<button onclick="showPage('lawyers',this)">👨‍⚖️ المحامون</button>
+</div>
+
+<div class="menu-title">الإدارة المالية</div>
+<div class="menu">
+<button onclick="showPage('expenses',this)">💸 المصروفات</button>
+<button onclick="showPage('income',this)">💰 الإيرادات والمدفوعات</button>
+<button onclick="showPage('accounts',this)">🧾 الحسابات</button>
+<button onclick="showPage('budget',this)">📊 الميزانية</button>
+</div>
+
+<div class="menu-title">التقارير والإدارة</div>
+<div class="menu">
+<button onclick="showPage('reports',this)">📋 التقارير</button>
+<button onclick="showPage('tasks',this)">✅ المهام والمتابعات</button>
+<button onclick="showPage('archive',this)">🗄️ الأرشيف</button>
+<button onclick="showPage('settings',this)">⚙️ الإعدادات</button>
+</div>
+</aside>
+
+<main class="main">
+<div class="topbar">
+<div>
+<h2 id="pageTitle">لوحة تحكم المكتب</h2>
+<div class="date" id="today"></div>
+</div>
+<div class="actions">
+<button class="btn secondary" onclick="showSearch()">🔎 بحث شامل</button>
+<button class="btn primary" onclick="addCase()">＋ قضية جديدة</button>
+</div>
+</div>
+
+<section id="dashboard">
+<div class="cards">
+<div class="card"><div class="label">إجمالي القضايا</div><div class="value">0</div><div class="hint">جميع ملفات المكتب</div></div>
+<div class="card"><div class="label">القضايا النشطة</div><div class="value">0</div><div class="hint">قضايا قيد المتابعة</div></div>
+<div class="card"><div class="label">جلسات اليوم</div><div class="value">0</div><div class="hint">تحتاج إلى متابعة</div></div>
+<div class="card"><div class="label">مصروفات الشهر</div><div class="value">0 ج.م</div><div class="hint">حتى الآن</div></div>
+</div>
+
+<div class="content">
+<div class="panel">
+<h3>آخر القضايا</h3>
+<table>
+<thead>
+<tr><th>رقم القضية</th><th>الموكل</th><th>المحكمة</th><th>الحالة</th></tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="4" style="text-align:center;color:#89939b;padding:35px">
+لا توجد قضايا مسجلة حتى الآن
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<div class="panel">
+<h3>الوصول السريع</h3>
+<div class="quick">
+<button onclick="addClient()"><strong>👤 إضافة موكل</strong><span>تسجيل بيانات موكل جديد</span></button>
+<button onclick="addCase()"><strong>📁 إضافة قضية</strong><span>فتح ملف قضية جديد</span></button>
+<button onclick="addSession()"><strong>⚖️ تسجيل جلسة</strong><span>إضافة جلسة أو إجراء</span></button>
+<button onclick="addExpense()"><strong>💸 تسجيل مصروف</strong><span>مصروف مكتب أو قضية</span></button>
+</div>
+</div>
+</div>
+
+<div class="panel" style="margin-top:18px">
+<h3>تنبيهات ومتابعات</h3>
+<div class="notice">📌 لا توجد جلسات أو مهام مستحقة حاليًا.</div>
+<div class="notice">📌 ستظهر هنا التنبيهات المهمة الخاصة بالقضايا والمواعيد والمستحقات.</div>
+</div>
+</section>
+
+<section id="page" style="display:none"></section>
+</main>
+</div>
+
+<script>
+const titles={
+clients:'إدارة الموكلين',
+cases:'إدارة القضايا',
+sessions:'الجلسات والإجراءات',
+lawyers:'إدارة المحامين',
+expenses:'مصروفات المكتب والقضايا',
+income:'الإيرادات والمدفوعات',
+accounts:'الحسابات',
+budget:'الميزانية',
+reports:'التقارير',
+tasks:'المهام والمتابعات',
+archive:'الأرشيف',
+settings:'الإعدادات'
+};
+
+function showPage(name,button){
+document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'));
+button.classList.add('active');
+document.getElementById('dashboard').style.display='none';
+const page=document.getElementById('page');
+page.style.display='block';
+document.getElementById('pageTitle').textContent=titles[name]||'الهلباوي';
+page.innerHTML='<div class="panel"><h3>'+titles[name]+'</h3><div class="notice">هذه الشاشة جاهزة للربط بقاعدة البيانات في المرحلة التالية.</div></div>';
+}
+
+
+document.getElementById('today').textContent=
+new Intl.DateTimeFormat('ar-EG',{dateStyle:'full'}).format(new Date());
+</script>
+<script src="app.js"></script>
+</body>
+</html>
